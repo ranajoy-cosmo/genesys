@@ -5,7 +5,7 @@ This module contains a number of tools for the estimation and manupulation of po
 
 import numpy as np
 import healpy as hp
-import genesys.numericals.filters as fl
+import genesys.numerical.filters as fl
 import genesys.maps.map_utils as mu
 from genesys.global_config import global_paths
 import os
