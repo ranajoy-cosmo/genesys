@@ -26,7 +26,6 @@ def mask_map(sky_map, binary_mask):
     """
     # Checking that the sky map and mask have the same resolution
     assert hp.get_nside(sky_map) == hp.get_nside(binary_mask), "nside of sky map and mask does not match.\nnside of sky map : {}\nnside of mask : {}".format(hp.get_nside(sky_map), hp.get_nside(binary_mask))
-        return 0
 
     sky_map_masked = hp.ma(sky_map) 
     sky_map_masked.mask = np.logical_not(binary_mask)
@@ -102,7 +101,8 @@ def deconvolve_map(map_in, fwhm_in=0.0, fwhm_out=0.0, lmax=None, binary_mask=Non
 
 def fill_empty_pixels(sky_map, max_iter, fail_fill_value=0, pol=True, verbose=False):
     if np.sum(np.isnan(sky_map)) == 0:
-        prompt("There are no empty pixels") if verbose
+        if verbose:
+            prompt("There are no empty pixels")
         return
 
     nside = hp.get_nside(sky_map)
