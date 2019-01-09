@@ -12,7 +12,8 @@ spectra_files/
 *.slurm
 __pycache__
 noise/noise_rms_with_lmax.py
-spectra/params_planck_high_ell_tau_r.ini
+spectra/camb_params
 spectra/run_camb.sh
+spectra/camb_output
 *custom*
 instrument/*

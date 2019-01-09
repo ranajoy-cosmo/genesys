@@ -8,6 +8,7 @@ def make_links():
     os.symlink(global_paths.output_dir, os.path.join(global_paths.base_dir, "output"))
     os.symlink(global_paths.maps_dir, os.path.join(global_paths.base_dir, "maps", "map_files"))
     os.symlink(global_paths.spectra_dir, os.path.join(global_paths.base_dir, "spectra", "spectra_files"))
+    os.symlink(global_paths.spectra_dir, os.path.join(global_paths.base_dir, "spectra", "camb_output"))
 
 def remove_links():
     os.unlink(os.path.join(global_paths.base_dir, "output"))

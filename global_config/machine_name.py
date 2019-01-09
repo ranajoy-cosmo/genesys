@@ -57,3 +57,9 @@ global_paths.base_dir = os.path.join(global_paths.home_dir, 'genesys')
 global_paths.output_dir = os.path.join(global_paths.data_dir, 'genesys_output')
 global_paths.maps_dir = os.path.join(global_paths.data_dir, 'genesys_maps')
 global_paths.spectra_dir = os.path.join(global_paths.data_dir, 'genesys_spectra')
+
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# External Libraries 
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# CAMB
+global_paths.camb_dir = 
