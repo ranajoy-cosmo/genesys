@@ -23,6 +23,11 @@ def mask_map(sky_map, binary_mask):
     At least with healpy version >= 1.11.0, the number of sky maps does not matter.
     For example, passing a single binary mask for a set of I,Q,U sky maps, will apply the same mask for all the three.
     Passing a set of masks in the form of an array will assign the masks to the corresponding sky maps.
+    In general, the masks are assigned in a cyclic manner. For example if sky_map has 4 maps and binary_mask has 2 masks, then:
+    binary_mask[0] -> sky_map[0]
+    binary_mask[1] -> sky_map[1]
+    binary_mask[0] -> sky_map[2]
+    binary_mask[1] -> sky_map[3]
     """
     # Checking that the sky map and mask have the same resolution
     assert hp.get_nside(sky_map) == hp.get_nside(binary_mask), "nside of sky map and mask does not match.\nnside of sky map : {}\nnside of mask : {}".format(hp.get_nside(sky_map), hp.get_nside(binary_mask))
@@ -39,6 +44,12 @@ def get_mask_from_nan(sky_map):
     """
     mask = np.logical_not(sky_map == np.nan)
     return mask
+
+def get_mask_from_cutoff(sky_map, maximum, minimum):
+    binary_mask = np.ones(sky_mask.shape)
+    binary_mask[sky_mask > maximum] = 0
+    binary_mask[sky_mask < minimum] = 0
+    return binary_mask
 
 def get_sky_fraction(binary_mask):
     """
