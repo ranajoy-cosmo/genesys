@@ -1,12 +1,13 @@
+"""
+A set of FFT utilities for convenient application
+"""
+
 import numpy as np
 import scipy as sp
 import scipy.signal
 import matplotlib.pyplot as plt
 import math
 import copy
-
-###########################################################################################
-# the core functions for psd, smoothing, etc.
 
 
 def clean(data, cutoff=4, verbose=1):
@@ -53,6 +54,7 @@ def fft_coefficients(timestream, samplerate):
     Input timestream is a numpy array.
         data[0] = frequency
         data[1] = amplitude coefficients
+    """
     N = len(timestream)
     FFT = np.abs(np.fft.fft(timestream)[:N/2]) / N
     FFT[1:-1] *= 2

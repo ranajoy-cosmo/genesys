@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-class imshow_show_z:
 
+class imshow_show_z:
     def __init__(self, ax, z, x, y):
         self.ax = ax
         self.x  = x

@@ -4,7 +4,7 @@ import healpy as hp
 import matplotlib.pyplot as plt
 import os
 import sys
-from simulation.lib.plotting.colourmaps_cmb import cmap_planck_cmb
+from genesys.plotting.colourmaps import cmap_planck_cmb
 
 def save_map(sky_map, output_dir, output_file_name, range_min=None, range_max=None, unit="$\mu$K", cmap=cmap_planck_cmb, pol=True, sky_mask=None):
 

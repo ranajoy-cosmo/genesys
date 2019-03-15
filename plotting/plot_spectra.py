@@ -9,7 +9,7 @@ from genesys.global_config import global_paths
 
 pi = np.pi
 
-def plot_fiducial(lmax, plot_list=["TT", "EE", "BB", "TE"], lensed=True, fid_spectra_dir="planck_r_variation_formatted", annotate_size=12, figsize=(20,10), axis_size=12, plot_x_log=True, plot_y_log=True, **kwargs):
+def plot_fiducial(lmax, plot_list=["TT", "EE", "BB", "TE"], lensed=True, fid_spectra_dir="pico_spectra", annotate_size=12, figsize=(20,10), axis_size=12, plot_x_log=True, plot_y_log=True, **kwargs):
 
     full_spectra_dir = os.path.join(global_paths.spectra_dir, fid_spectra_dir)
 
@@ -32,9 +32,9 @@ def plot_fiducial(lmax, plot_list=["TT", "EE", "BB", "TE"], lensed=True, fid_spe
     #Plotting the TT and EE spectra
 
     if lensed:
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "lensedtotCls.npy"))[...,2:lmax+1]
+        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "lensedtot_Cls.npy"))[...,2:lmax+1]
     else:
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "totCls.npy"))[...,2:lmax+1]
+        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "tot_Cls.npy"))[...,2:lmax+1]
 
     if lmax > spectra.shape[1] + 1:
         print("Requested lmax of {} greater than lmax of provided spectra. Changing lmax to {}.".format(lmax, spectra.shape[1] - 1))
@@ -57,19 +57,19 @@ def plot_fiducial(lmax, plot_list=["TT", "EE", "BB", "TE"], lensed=True, fid_spe
     #Plotting the BB fiducial spectra
 
     if "BB" in plot_list:
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "lensedtotCls.npy"))[..., 2:lmax+1]
+        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "lensedtot_Cls.npy"))[..., 2:lmax+1]
         plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
 
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.001", "totCls.npy"))[..., 2:lmax+1]
+        spectra = np.load(os.path.join(full_spectra_dir, "r0.001", "tot_Cls.npy"))[..., 2:lmax+1]
         plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k--', **kwargs)
 
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.001", "lensedtotCls.npy"))[..., 2:lmax+1]
+        spectra = np.load(os.path.join(full_spectra_dir, "r0.001", "lensedtot_Cls.npy"))[..., 2:lmax+1]
         plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
 
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.01", "totCls.npy"))[..., 2:lmax+1]
+        spectra = np.load(os.path.join(full_spectra_dir, "r0.01", "tot_Cls.npy"))[..., 2:lmax+1]
         plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k--', **kwargs)
 
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.01", "lensedtotCls.npy"))[..., 2:lmax+1]
+        spectra = np.load(os.path.join(full_spectra_dir, "r0.01", "lensedtot_Cls.npy"))[..., 2:lmax+1]
         plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
 #
         #  spectra = np.load(os.path.join(full_spectra_dir, "r0.1", "totCls.npy"))[..., 2:lmax+1]

@@ -16,15 +16,20 @@ All convrsion routines work with scalars as well as with numpy arrays. The retur
 
 import numpy as np
 
-unit_type_list = ['angle', 'solid_angle', 'length', 'time']
+pi = np.pi
+
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# The unit types, and the units are defined individually in this section
+unit_type_list = ['angle', 'solid_angle', 'length', 'frequency', 'time']
 
 all_unit_dicts = dict.fromkeys(unit_type_list)
 
-all_unit_dicts['angle'] = {'radian' : 1.0, 'degree' : np.pi/180.0, 'arcmin' : np.pi/180.0/60.0, 'arcsec' : np.pi/180.0/60.0/60.0}
-all_unit_dicts['solid_angle'] = {'full_sky' : 4*np.pi, 'steradian' : 1.0, 'degree_square' : (np.pi/180.0)**2, 'arcmin_square' : (np.pi/180.0/60.0)**2, 'arcsec_square' : (np.pi/180.0/60.0/60.0)**2}
-all_unit_dicts['length'] = {'Km': 1000.0, 'm': 1.0, 'cm' : 1e-2, 'mm' : 1e-3, 'mu_m' : 1e-6, 'nm' : 1e-9, 'angstrom' : 1e-10}
-all_unit_dicts['time'] = {'year' : 365.25*24*60*60.0, 'day' : 24*60*60.0, 'hour' : 60*60.0, 'minute' : 60.0, 'second' : 1.0}
-all_unit_dicts['frequency'] = {'mHz': 1.0e-3, 'Hz': 1.0, 'MHz': 1.0e6, 'GHz': 1.0e9, 'THz': 1.0e12}
+all_unit_dicts['angle'] = {'radian' : 1.0, 'degree' : pi/180.0, 'arcmin' : pi/180.0/60.0, 'arcsec' : pi/180.0/60.0/60.0}
+all_unit_dicts['solid_angle'] = {'full_sky' : 4*pi, 'steradian' : 1.0, 'degree_square' : (pi/180.0)**2, 'arcmin_square' : (pi/180.0/60.0)**2, 'arcsec_square' : (pi/180.0/60.0/60.0)**2}
+all_unit_dicts['length'] = {'parsec' : 30856775814913700, 'light year' : 9460730472580800, 'km': 1000.0, 'm': 1.0, 'cm' : 1e-2, 'mm' : 1e-3, 'mu_m' : 1e-6, 'nm' : 1e-9, 'angstrom' : 1e-10}
+all_unit_dicts['time'] = {'siderial year' : 365.25*24*60*60.0, 'day' : 24*60*60.0, 'hour' : 60*60.0, 'minute' : 60.0, 'second' : 1.0}
+all_unit_dicts['frequency'] = {'mHz': 1.0e-3, 'Hz': 1.0, 'kHz' : 1.0e3, 'MHz': 1.0e6, 'GHz': 1.0e9, 'THz': 1.0e12}
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # The general unit conversion routine
