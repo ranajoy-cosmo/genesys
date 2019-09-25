@@ -33,16 +33,9 @@ def save_map(sky_map, output_dir, output_file_name, range_min=None, range_max=No
 
 if __name__=="__main__":
     sky_map_name = sys.argv[1]
-    mask_name = sys.argv[2]
+    plot_index = int(sys.argv[2]) # 0,1,2
+    
+    sky_map = hp.read_map(sky_map_name, field=(plot_index), verbose=False)
 
-    try:
-        sky_map = hp.read_map(sky_map_name, field=(0,1,2), verbose=False)
-    except IndexError:
-        sky_map = hp.read_map(sky_map_name, verbose=False)
-
-    try:
-        mask = hp.read_map(mask_name, field=(0,1,2), verbose=False)
-    except IndexError:
-        mask = hp.read_map(mask_name, verbose=False)
-
-    plot_map(sky_map, sky_mask=sky_mask, range_min=None, range_max=None, pol=False)
+    hp.mollview(sky_map)
+    plt.show()

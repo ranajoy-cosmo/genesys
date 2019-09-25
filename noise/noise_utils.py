@@ -14,7 +14,7 @@ Features include :
 import numpy as np
 import healpy as hp
 import os
-import genesys.numerical.unit_conversion as uc
+import genesys.utilities.unit_conversion as uc
 from genesys.global_config import global_paths
 
 OMEGA_SKY = uc.convert_unit('solid_angle', 1.0, unit_in="full_sky", unit_out="steradian")

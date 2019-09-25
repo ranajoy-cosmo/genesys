@@ -1,4 +1,5 @@
 import numpy as np
+import healpy as hp
 import quaternion as qt
 import genesys.numerical.quaternion as my_qt
 import time
@@ -32,7 +33,7 @@ def quaternion_coordinate_transformation(old_coord, new_coord, active=True):
     Return the quaternion to rotate a vector in the old_coord frame to the new_coord frame
     """
     if active:
-        transformation_euler = hp.rotator.get_coordconv_matrix([old_coord,new_coord])
+        transformation_euler = hp.rotator.get_coordconv_matrix([old_coord,new_coord])[0]
     else:
-        transformation_euler = hp.rotator.get_coordconv_matrix([new_coord,old_coord])
+        transformation_euler = hp.rotator.get_coordconv_matrix([new_coord,old_coord])[0]
     return qt.from_rotation_matrix(transformation_euler)

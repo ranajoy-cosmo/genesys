@@ -45,8 +45,12 @@ def get_mask_from_nan(sky_map):
     mask = np.logical_not(sky_map == np.nan)
     return mask
 
-def get_mask_from_cutoff(sky_map, maximum, minimum):
-    binary_mask = np.ones(sky_mask.shape)
+def get_mask_from_cutoff(sky_map, maximum=None, minimum=None):
+    if maximum == None:
+        maximum = sky_mask.max()
+    if minimum == None:
+        minimum = sky_mask.min()
+    binary_mask = np.ones(sky_mask.shape, dtype=np.int)
     binary_mask[sky_mask > maximum] = 0
     binary_mask[sky_mask < minimum] = 0
     return binary_mask
@@ -58,8 +62,8 @@ def get_sky_fraction(binary_mask):
     It returns a scalar for a single mask. It returns an array of the same number of masks otherwise.
     """
     dim_mask = hp.maptype(binary_mask)
-    n_pix = 12*hp.get_nside(binary_mask)**2
-    if dim_mask==0:
+    n_pix = 12 * hp.get_nside(binary_mask)**2
+    if dim_mask == 0:
         sky_fraction = np.sum(binary_mask.astype(np.float)) / n_pix
     else:
         sky_fraction = np.sum(binary_mask.astype(np.float), axis=1) / n_pix
@@ -67,50 +71,43 @@ def get_sky_fraction(binary_mask):
     return sky_fraction
 
 def ud_grade_mask(mask, nside_out):
+    """
+    ud_grades the nside of the binary mask.
+    Due to degrading, if a pixel has a value < 1, that is set to 0.
+    """
     nside_in = hp.get_nside(mask)
     mask_new = hp.ud_grade(mask, nside_out=nside_out)
     if nside_out < nside_in:
         mask_new[mask_new < 1] = 0.0
+    mask_new.dtype = np.int
 
     return mask_new
 
-def get_equatorial_mask(width, nside, deg=True, pol=True):
-    pix = np.arange(12*nside**2)
-    theta, phi = hp.pix2ang(nside=nside, ipix=pix)
+def apodise_mask_gaussian(mask, fwhm, deg=True):
+    # FWHM in degrees if deg==True, in arcmins otherwise 
     if deg:
-        width = np.radians(width)
-
-    if pol:
-        mask = np.ones((3,12*nside**2))
-        mask[...,np.logical_and(theta>np.pi/2-width/2, theta<np.pi/2+width/2)] = 0
+        mask_apodised = hp.smoothing(mask, fwhm=np.radians(fwhm))
     else:
-        mask = np.ones(12*nside**2)
-        mask[np.logical_and(theta>np.pi/2-width/2, theta<np.pi/2+width/2)] = 0
+        mask_apodised = hp.smoothing(mask, fwhm=np.radians(fwhm/60.0))
+    return mask_apodised
 
-    return mask
+def display_mask_statistics(mask):
+    mask_dtype = mask.dtype
+    mask_dim = hp.maptype(mask)
+    nside = hp.get_nside(mask)
+    sky_frac = get_sky_fraction(mask)
+
+    print("#*#*#*")
+    print("d-type\tdim\tnside\tsky-fraction")
+    print("{}\t{}\t{}\t{}".format(mask_dtype, mask_dim, nside, sky_frac))
+    print("#*#*#*\n")
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-def deconvolve_map(map_in, fwhm_in=0.0, fwhm_out=0.0, lmax=None, binary_mask=None, pol=False, wiener=True, sky_prior=None):
-    
-    if fwhm_in == fwhm_out:
-        return map_in
-
-    if lmax is None:
-        lmax = 3*hp.get_nside(map_in) - 1
-
-    if binary_mask is None:
-        binary_mask = get_mask_from_map(map_in)
-
-    f_sky = get_sky_fraction(binary_mask, pol)
-
-    alm_in = su.estimate_alm(map_in, lmax, binary_mask, pol)
-    alm_dec = su.deconvolve_alm(alm_in, fwhm_in=fwhm_in, fwhm_out=fwhm_out, f_sky=f_sky, pol=pol, wiener=True, sky_prior=sky_prior)
-    map_dec = hp.alm2map(alm_dec, nside=hp.get_nside(map_in), pol=pol)
-    
-    return map_dec
-
 def fill_empty_pixels(sky_map, max_iter, fail_fill_value=0, pol=True, verbose=False):
+    """
+    Fill pixels with NAN with a fail_fill_value.
+    """
     if np.sum(np.isnan(sky_map)) == 0:
         if verbose:
             prompt("There are no empty pixels")
@@ -143,3 +140,22 @@ def fill_empty_pixels(sky_map, max_iter, fail_fill_value=0, pol=True, verbose=Fa
     if num_empty_pix:
         prompt("{} empty pixels remaining after {} iterations. Filling empty pixels with {}\n".format(num_empty_pix, max_iter, fail_fill_value))
         sky_map[np.isnan(sky_map)] = fail_fill_value
+
+def deconvolve_map(map_in, fwhm_in=0.0, fwhm_out=0.0, lmax=None, binary_mask=None, pol=False, wiener=True, sky_prior=None):
+    
+    if fwhm_in == fwhm_out:
+        return map_in
+
+    if lmax is None:
+        lmax = 3*hp.get_nside(map_in) - 1
+
+    if binary_mask is None:
+        binary_mask = get_mask_from_map(map_in)
+
+    f_sky = get_sky_fraction(binary_mask, pol)
+
+    alm_in = su.estimate_alm(map_in, lmax, binary_mask, pol)
+    alm_dec = su.deconvolve_alm(alm_in, fwhm_in=fwhm_in, fwhm_out=fwhm_out, f_sky=f_sky, pol=pol, wiener=True, sky_prior=sky_prior)
+    map_dec = hp.alm2map(alm_dec, nside=hp.get_nside(map_in), pol=pol)
+    
+    return map_dec

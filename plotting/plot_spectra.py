@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 import matplotlib
 import os
 import sys
@@ -9,82 +10,128 @@ from genesys.global_config import global_paths
 
 pi = np.pi
 
-def plot_fiducial(lmax, plot_list=["TT", "EE", "BB", "TE"], lensed=True, fid_spectra_dir="pico_spectra", annotate_size=12, figsize=(20,10), axis_size=12, plot_x_log=True, plot_y_log=True, **kwargs):
+class Spectra_Frame:
+    """
+    A wrapper class for matplotlib.pyplot for plotting power spectra
+    """
+    def __init__(self, **kwargs):
+        """
+        Default constructor that creates the figure and subplot axes objects.
+        The user may pass standars matplotlib keyworded arguments such as
+        Keyworded arguments passed to pyplot.figure():
+            num, figsize, dpi, facecolor, edgecolor,frameon,...
+        nrows, ncol, figsize.....
+        """
+        self.fig, self.axes = plt.subplots(**kwargs, squeeze=False)
 
-    full_spectra_dir = os.path.join(global_paths.spectra_dir, fid_spectra_dir)
+    def add_title_to_plot(self, title, fontsize=12):
+        """
+        Add a title to the main figure
+        """
+        self.fig.suptitle(title, fontsize=fontsize)
 
-    if plot_x_log==True and plot_y_log==True:
-        plotter = plt.loglog
-    elif plot_x_log==True:
-        plotter = plt.semilogx
-    elif plot_y_log==True:
-        plotter = plt.semilogy
-    else:
-        plotter = plt.plot
+    def add_title_to_subplot(self, subplot_number, title, fontsize):
+        """
+        Add a title to the main figure
+        """
+        self.axes[subplot_number].set_title(title, fontsize=fontsize)
 
-    matplotlib.rc('xtick', labelsize=axis_size)
-    matplotlib.rc('ytick', labelsize=axis_size)
+    def plot_spectrum(self, spectra_obj, columns, ells, lmax, subplot_num, label, annotate_label, **kwargs):
 
-    fig = plt.figure(figsize=figsize)
 
-    ax = fig.add_subplot(111)
-    
-    #Plotting the TT and EE spectra
+    def plot_r_variation_fid_spectra(self, subplot_number=(0,0), fid_spectra_dir=None, default_file_name=None, plot_list=None, r_list=None, lensed=True, annotate_size=12, figsize=(20,10), axis_size=12, plot_x_log=True, plot_y_log=True, **kwargs):
+        """
+        Plot the fiducial spectra with different r_values
+        The fiducial spectra are in fid_spectra_dir and in default named:
+            unlensed
+        Default parameter values if passed as None
+            fid_spectra_dir: 
+            default_file_name:
+            plot_list: ['EE','BB']
+            r_list: [0.0, 0.001, 0.01]
+        """
+        if fid_spectra_dir == None:
+            fid_spectra_dir = some_dir
+        if default_file_name == None:
+            default_file_name = first_rvalue_last
+        if plot_list == None:
+            plot_list = ['EE','BB']
+        if r_list == None:
+            r_list = [0.0, 0.001, 0.01]
 
-    if lensed:
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "lensedtot_Cls.npy"))[...,2:lmax+1]
-    else:
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "tot_Cls.npy"))[...,2:lmax+1]
+        full_spectra_dir = os.path.join(global_paths.spectra_dir, fid_spectra_dir)
+        r_spectra_dirs_dict = {'0.0': os.path.join(full_spectra_dir, 'r0.0', '0.001': os.path.join(full_spectra_dir, 'r0.001', '0.01': os.path.join(full_spectra_dir, 'r0.01'} 
 
-    if lmax > spectra.shape[1] + 1:
-        print("Requested lmax of {} greater than lmax of provided spectra. Changing lmax to {}.".format(lmax, spectra.shape[1] - 1))
-        lmax = spectra.shape[1] + 1
+        lensed_total_name = "lensedtot_Cls.npy"
+        total_name = "tot_Cls.npy"
 
-    ell = np.arange(2,lmax+1)
+        if plot_x_log==True and plot_y_log==True:
+            plotter = plt.loglog
+        elif plot_x_log==True:
+            plotter = plt.semilogx
+        elif plot_y_log==True:
+            plotter = plt.semilogy
+        else:
+            plotter = plt.plot
 
-    if "TT" in plot_list:
-        plotter(ell, ell*(ell+1)*spectra[0]/2/pi, 'k', **kwargs)
-        plt.annotate("TT", xy=(1.25, 960), size=annotate_size)
+        matplotlib.rc('xtick', labelsize=axis_size)
+        matplotlib.rc('ytick', labelsize=axis_size)
 
-    if "EE" in plot_list:
-        plotter(ell, ell*(ell+1)*spectra[1]/2/pi, 'k', **kwargs)
-        plt.annotate("EE", xy=(1.25, 0.04), size=annotate_size)
+        fig = plt.figure(figsize=figsize)
 
-    if "TE" in plot_list:
-        plotter(ell, ell*(ell+1)*spectra[3]/2/pi, 'k', **kwargs)
-        plt.annotate("EE", xy=(1.25, 0.04), size=annotate_size)
+        ax = fig.add_subplot(111)
+        
+        #Plotting the TT and EE spectra
 
-    #Plotting the BB fiducial spectra
+        if lensed:
+            spectra = np.load(os.path.join(r0_0_spectra_dir, lensed_total_name))[...,2:lmax+1]
+        else:
+            spectra = np.load(os.path.join(r0_0_spectra_dir, total_name))[...,2:lmax+1]
 
-    if "BB" in plot_list:
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.0", "lensedtot_Cls.npy"))[..., 2:lmax+1]
-        plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
+        if lmax > spectra.shape[1] + 1:
+            print("Requested lmax of {} greater than lmax of provided spectra. Changing lmax to {}.".format(lmax, spectra.shape[1] - 1))
+            lmax = spectra.shape[1] + 1
 
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.001", "tot_Cls.npy"))[..., 2:lmax+1]
-        plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k--', **kwargs)
+        ell = np.arange(2,lmax+1)
 
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.001", "lensedtot_Cls.npy"))[..., 2:lmax+1]
-        plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
+        if "TT" in plot_list:
+            plotter(ell, ell*(ell+1)*spectra[0]/2/pi, 'k', **kwargs)
+            plt.annotate("TT", xy=(1.25, 960), size=annotate_size)
 
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.01", "tot_Cls.npy"))[..., 2:lmax+1]
-        plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k--', **kwargs)
+        if "EE" in plot_list:
+            plotter(ell, ell*(ell+1)*spectra[1]/2/pi, 'k', **kwargs)
+            plt.annotate("EE", xy=(1.25, 0.04), size=annotate_size)
 
-        spectra = np.load(os.path.join(full_spectra_dir, "r0.01", "lensedtot_Cls.npy"))[..., 2:lmax+1]
-        plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
-#
-        #  spectra = np.load(os.path.join(full_spectra_dir, "r0.1", "totCls.npy"))[..., 2:lmax+1]
-        #  plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k--', **kwargs)
-#
-        #  spectra = np.load(os.path.join(full_spectra_dir, "r0.1", "lensedtotCls.npy"))[..., 2:lmax+1]
-        #  plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
+        if "TE" in plot_list:
+            plotter(ell, ell*(ell+1)*spectra[3]/2/pi, 'k', **kwargs)
+            plt.annotate("EE", xy=(1.25, 0.04), size=annotate_size)
 
-        plt.annotate("BB", xy=(1.25, 0.00000166), size=annotate_size)
+        #Plotting the BB fiducial spectra
 
-        #  plt.annotate("r = 0.1", xy=(1.25, 0.00166), size=annotate_size-2)
+        if "BB" in plot_list:
+            spectra = np.load(os.path.join(r0_0_spectra_dir, lensed_total_name))[..., 2:lmax+1]
+            plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
 
-        plt.annotate("r = 0.01", xy=(1.25, 0.000166), size=annotate_size-2)
+            spectra = np.load(os.path.join(r0_0_spectra_dir, total_name))[..., 2:lmax+1]
+            plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k--', **kwargs)
 
-        plt.annotate("r = 0.001", xy=(1.25, 0.0000166), size=annotate_size-2)
+            spectra = np.load(os.path.join(r0_01_spectra_dir, lensed_total_name))[..., 2:lmax+1]
+            plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
+
+            spectra = np.load(os.path.join(r0_01_spectra_dir, total_name))[..., 2:lmax+1]
+            plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k--', **kwargs)
+
+            spectra = np.load(os.path.join(r0_001_spectra_dir, lensed_total_name))[..., 2:lmax+1]
+            plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k', **kwargs)
+
+            spectra = np.load(os.path.join(r0_001_spectra_dir, total_name))[..., 2:lmax+1]
+            plotter(ell, ell*(ell+1)*spectra[2]/2/pi, 'k--', **kwargs)
+
+            plt.annotate("BB", xy=(1.25, 0.00000166), size=annotate_size)
+
+            plt.annotate("r = 0.01", xy=(1.25, 0.000166), size=annotate_size-2)
+
+            plt.annotate("r = 0.001", xy=(1.25, 0.0000166), size=annotate_size-2)
 
 
     plt.show()
@@ -125,16 +172,11 @@ def plot_Cl_error_bars(cl, sigma_cl, lmax=None, color='r', alpha=0.5):
     lower = np.sqrt(ell*(ell+1)*(cl - sigma_cl)[:lmax+1]/2/pi)
     plt.fill_between(ell, upper, lower, facecolor=color, alpha=alpha, lw=0)
 
-def plot_Cl_binned(ell, cl, label=None, plot_log=True):
-    if plot_log:
-        plotter = plt.loglog
-    else:
-        plotter = plt.plot
-
+def plot_Cl_binned(ell, cl, label=None):
     if label:
-        plotter(ell, ell*(ell+1)*cl/2/np.pi, label=label)
+        plt.plot(ell, ell*(ell+1)*cl/2/np.pi, label=label)
     else:
-        plotter(ell, ell*(ell+1)*cl/2/np.pi)
+        plt.plot(ell, ell*(ell+1)*cl/2/np.pi)
 
 def plot_Cl_binned_with_error_bars(ell, Cl, std_Cl, bin_width, **kwargs):
     plt.errorbar(ell, ell*(ell+1)*Cl/2/pi, fmt='o', yerr=ell*(ell+1)*std_Cl/2/pi, xerr=bin_width, **kwargs)

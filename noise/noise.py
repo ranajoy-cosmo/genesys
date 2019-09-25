@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import numpy as np
+import math
 from genesys.utilities import Generic_Class
 
 """
@@ -11,6 +12,20 @@ class Noise():
     def __init__(self, config):
         self.config = Generic_Class()
         self.config.__dict__.update(config.__dict__)
+
+    def initialise_for_segment(self, segment):
+        # Double check this with the one in pointing.py
+        delta_t = 1.0 / self.config.sampling_rate
+        t_start = segment[1]
+        t_stop = segment[2]
+        t_duration = t_stop - t_start
+        self.n_samples = int(math.ceil(t_duration / delta_t))
+
+    def simulate_ts_noise(self):
+        if self.config.noise_type == "white":
+            noise = np.random.normal(loc=0.0, scale=self.config.white_noise_sigma, size=self.n_samples)
+
+        return noise
 
     def get_real_one_sided_psd(self, timestream):
         '''

@@ -20,7 +20,7 @@ pi = np.pi
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # The unit types, and the units are defined individually in this section
-unit_type_list = ['angle', 'solid_angle', 'length', 'frequency', 'time']
+unit_type_list = ['angle', 'solid_angle', 'length', 'frequency', 'time', 'energy']
 
 all_unit_dicts = dict.fromkeys(unit_type_list)
 
@@ -29,6 +29,7 @@ all_unit_dicts['solid_angle'] = {'full_sky' : 4*pi, 'steradian' : 1.0, 'degree_s
 all_unit_dicts['length'] = {'parsec' : 30856775814913700, 'light year' : 9460730472580800, 'km': 1000.0, 'm': 1.0, 'cm' : 1e-2, 'mm' : 1e-3, 'mu_m' : 1e-6, 'nm' : 1e-9, 'angstrom' : 1e-10}
 all_unit_dicts['time'] = {'siderial year' : 365.25*24*60*60.0, 'day' : 24*60*60.0, 'hour' : 60*60.0, 'minute' : 60.0, 'second' : 1.0}
 all_unit_dicts['frequency'] = {'mHz': 1.0e-3, 'Hz': 1.0, 'kHz' : 1.0e3, 'MHz': 1.0e6, 'GHz': 1.0e9, 'THz': 1.0e12}
+all_unit_dicts['energy'] = {'meV': 1.0e-3, 'eV': 1.0, 'keV': 1.0e3, 'MeV': 1.0e6, 'GeV': 1.0e9, 'TeV': 1.0e12, 'PeV': 1.0e15, 'J': 1.60218e-19, 'C': 3.82929e-20}
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
