@@ -5,7 +5,7 @@ This code is embarassingly parallel. that is, there is no explicit communication
 There are two options for running this
 1) Serial : A single process will iterate over all detectors and data segments.
 2) MPI : The different detectors and data segments will be distributed to different processes.
-How to execute this file.
+How to execute this file:
 python sim_timestream.py <CONFIG_FILE_PATH> <RUN_TYPE>
 where, CONFIG_FILE_PATH is the absolute path to the config file to be passes to the code and RUN_TYPE is either 'run_serial' or 'run_mpi'
 """
@@ -13,14 +13,13 @@ where, CONFIG_FILE_PATH is the absolute path to the config file to be passes to 
 
 import sys
 import os
-import importlib
 import time
-from termcolor import colored
-from ..data_io import segment_distribution as segd
-from ..data_io import data_io as dio
-from .detector import Detector
-from ..utilities import unit_conversion as uc
-from ..utilities import prompt
+from genesys import Genesys_Class
+from genesys import global_paths, load_param_file
+from genesys.instruments.instrument import Instrument
+from genesys.data_io import segment_distribution as segd
+from genesys.data_io import data_io as dio
+from genesys.numerical import unit_conversion as uc
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* The master section which distributes the data and collects it
@@ -91,16 +90,21 @@ def local_start_message():
     prompt(display_string)
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-#* Main function definition. This is where the code begins when executed
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+#* MAIN FUNCTION DEFINITION. THIS IS WHERE THE CODE BEGINS WHEN EXECUTED
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 if __name__=="__main__":
     start_time_main = time.time()
 
-    # run_type can be either "mpi" or "serial"
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # THIS BLOCK JUST SETS UP THE RANK AMD SIZE OF THE SIMULATION RUN
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     run_type = sys.argv[1]
+    # RUN_TYPE CAN BE EITHER "mpi" OR "serial"
     assert run_type in ["mpi", "serial"], "Please enter \"mpi\" OR \"serial\" as the second argument."
-    # This block just sets up the rank amd size of the simulation run
+    # NOW SETTING UP THE rank AND size
     if run_type == "mpi":
         from mpi4py import MPI          # This module is imported here to be compatible with systems not having mpi support
         comm = MPI.COMM_WORLD
@@ -109,57 +113,62 @@ if __name__=="__main__":
     else:
         size = 1
         rank = 0
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    # config_file is provided as a dot separated path to the config file with genesys as the parent directory
-    config_file = sys.argv[2]
-    # Importing the general simulation parameters
-    config = importlib.import_module(config_file).config
-    # Importing the scan strategy
-    scan_strategy = importlib.import_module("genesys.scan_strategy." + config.scan_strategy_config).scan_strategy
-    config.__dict__.update(scan_strategy.__dict__)
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # THIS BLOCK LOADS THE CONFIGURATION FILE AND INITIALISES THE INSTRUMENT OBJECT
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # sim_config_file_name IS LOCATED IN config_files DIRECTORY
+    sim_config_file_name = sys.argv[2]
+    current_dir = os.path.dirname(__file__)
+    sim_config_file = os.path.join(current_dir,'config_files', sim_config_file_name)
+    sim_config = load_param_file(file_path=sim_config_file)
+    # Loading the instrument object
+    instrument = Instrument(instrument_name=sim_config['instrument_name'])
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
         
-    # Getting the global list of detectors and segments
-    num_segments = segd.count_segments(config.band_detector_segment_dict)
-    detector_list = segd.get_detector_list(config.band_detector_segment_dict)
-    total_simulation_time = segd.get_total_simulation_time(config.band_detector_segment_dict)
-    # Getting the local list of detectors and segments
-    local_band_detector_segment_dict = segd.get_local_band_detector_segment_dict(rank, size, config.band_detector_segment_dict)
-    local_num_segments = segd.count_segments(local_band_detector_segment_dict)
-    local_detector_list = segd.get_detector_list(local_band_detector_segment_dict)
-    local_simulation_time = segd.get_total_simulation_time(local_band_detector_segment_dict)
-
-    # Global display message
-    if rank == 0:
-        global_start_message()
-    # Local display message
-    local_start_message()
-    # Waiting for all the processes to print out their respectiv start messagee
-    if run_type == "mpi":
-        comm.Barrier()
-
-    # Making the parent directories for the sim
-    if rank == 0:
-        dio.make_top_data_directories(config, dir_list=['sim_dir', 'scan_dir'], verbose=True)
-
-    # Displaying the parameters ofthe individual detectors
-    if rank == 0:
-        for band_name in list(local_band_detector_segment_dict.keys()):
-            for detector_name in list(local_band_detector_segment_dict[band_name].keys()):
-                detector = Detector(band_name, detector_name, config, sim_run=False)
-                detector.display_params()
-    # Waiting for all the processes to print out their respective detector parameters
-    if run_type == "mpi":
-        comm.Barrier()
-
-    #  Running the main simulation routine. This is common to both mpi and serial runs.
-    run_simulation()
-
-    stop_time_main = time.time()
-    prompt(colored("***RANK {} COMPLETE***. Total time taken : {}s\n", color="green").format(rank, stop_time_main - start_time_main))
-    # Waiting for all the processes to finish
-    if run_type == "mpi":
-        comm.Barrier()
-    if rank == 0:
-        prompt(colored("***SIMULATION COMPLETE***\n", color="green"))
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    #  # Getting the global list of detectors and segments
+    #  num_segments = segd.count_segments(config.band_detector_segment_dict)
+    #  detector_list = segd.get_detector_list(config.band_detector_segment_dict)
+    #  total_simulation_time = segd.get_total_simulation_time(config.band_detector_segment_dict)
+    #  # Getting the local list of detectors and segments
+    #  local_band_detector_segment_dict = segd.get_local_band_detector_segment_dict(rank, size, config.band_detector_segment_dict)
+    #  local_num_segments = segd.count_segments(local_band_detector_segment_dict)
+    #  local_detector_list = segd.get_detector_list(local_band_detector_segment_dict)
+    #  local_simulation_time = segd.get_total_simulation_time(local_band_detector_segment_dict)
+#
+    #  # Global display message
+    #  if rank == 0:
+        #  global_start_message()
+    #  # Local display message
+    #  local_start_message()
+    #  # Waiting for all the processes to print out their respectiv start messagee
+    #  if run_type == "mpi":
+        #  comm.Barrier()
+#
+    #  # Making the parent directories for the sim
+    #  if rank == 0:
+        #  dio.make_top_data_directories(config, dir_list=['sim_dir', 'scan_dir'], verbose=True)
+#
+    #  # Displaying the parameters ofthe individual detectors
+    #  if rank == 0:
+        #  for band_name in list(local_band_detector_segment_dict.keys()):
+            #  for detector_name in list(local_band_detector_segment_dict[band_name].keys()):
+                #  detector = Detector(band_name, detector_name, config, sim_run=False)
+                #  detector.display_params()
+    #  # Waiting for all the processes to print out their respective detector parameters
+    #  if run_type == "mpi":
+        #  comm.Barrier()
+#
+    #  #  Running the main simulation routine. This is common to both mpi and serial runs.
+    #  run_simulation()
+#
+    #  stop_time_main = time.time()
+    #  prompt(colored("***RANK {} COMPLETE***. Total time taken : {}s\n", color="green").format(rank, stop_time_main - start_time_main))
+    #  # Waiting for all the processes to finish
+    #  if run_type == "mpi":
+        #  comm.Barrier()
+    #  if rank == 0:
+        #  prompt(colored("***SIMULATION COMPLETE***\n", color="green"))
+#  #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+#  #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

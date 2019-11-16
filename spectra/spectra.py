@@ -1,17 +1,17 @@
+import copy
+import os
 import numpy as np
 import pandas as pd
 import healpy as hp
-import pickle as pkl
-import copy
-import os
-from genesys.global_config import global_paths
+import camb
+from .. import Genesys_Class
 
-class Spectra:
+class Spectra(Genesys_Class):
     """
     Class that handles I/O and manipulation of power spectra
     The spectra are handled as pandas DataFrame
     The multipole ell values are passed as the index and by default ranges between [0,lmax] for unbinned spectra
-    The standard format in which specta are stored is [ell,TT, EE, BB, TE], and appropriate column names are applied anyway for additional columns, which may include TB, EB or anything as long as it's properly labelled
+    The standard format in which specta are stored is [ell, TT, EE, BB, TE], and appropriate column names are applied anyway for additional columns, which may include TB, EB or anything as long as it's properly labelled
     The files are stored to disk as csv files
     The base directory of spectra files are by default global_paths.spectra_dir
     By default the Cl values and NOT the Dl values are written to file
@@ -21,30 +21,35 @@ class Spectra:
     """
 
     # Constructor and I/O routines 
-    def __init__(self, spectra_obj=None, file_name=None, ells=None, lmax=None, columns=None):
+    """
+    This block contains the following methods
+        __init__
+        read_spectra_from_file
+        generate_spectra_from_camb_ini
+        from_dict_spec
+        write_spectra
+    """
+    def __init__(self, other=None, file_name=None, camb_ini_file_name=None, dict_spec=None, ells=None, lmax=None, columns=None):
         """
-        The order of precedence is:
-            spectra_obj > file_name > spectra_np
-        Passing spectra_obj makes it work like a copy constructor.
-        Parameter list requirement: () means optional
-            copy_spectra: spectra_obj
-            read_spectra_from_file: file_name, (lmax, columns)
-            Empty object:
+        The input parameters are:
+            other: A Spectra object
+            file_name: file from which the spectra in the prescribed format is to be read
+            camb_ini: CAMB ini file used to generate new power spectra
+            dict_spec: Spectra in the form of a dictionary
+            ells, lmax and columns: Optional parameters
+        The user must provide only one of the above parameters to get the desired results. Otherwise an empty object is created.
         """ 
-        if spectra_obj:
-            self.copy_spectra(spectra_obj=spectra_obj)
-        elif file_name:
+        if other != None:
+            self.copy_attributes(other=other)
+        elif file_name != None:
             self.read_spectra_from_file(file_name=file_name, columns=columns,lmax=lmax)
+        elif camb_ini_file_name != None:
+            self.generate_spectra_from_camb_ini(camb_ini_file_name=camb_ini_file_name)
+        elif dict_spec != None:
+            self.from_dict_spec(dict_spec=dict_spec)
         else:
-            self.spectra = pd.DataFrame(index=ell)
+            self.spectra = pd.DataFrame(index=ells)
             self.spectra.index.name = 'ell'
-
-    def copy_spectra(self, spectra_obj):
-        """
-        Copy from the spectra_obj to self
-        Copy constructor
-        """
-        self.spectra = copy.deepcopy(spectra_obj.spectra)
 
     def read_spectra_from_file(self, file_name, lmax=None, columns=None):
         """
@@ -56,39 +61,57 @@ class Spectra:
             usecols = ["ell"] + columns
         else:
             usecols = None
-        self.spectra = pd.read_csv(filepath_or_buffer=os.path.join(global_paths.spectra_dir, file_name), index_col="ell", usecols=usecols)
+        file_path = os.path.join(global_paths.spectra_dir, file_name)
+        self.spectra = pd.read_csv(filepath_or_buffer=file_path, index_col="ell", usecols=usecols)
         if lmax:
             self.truncate(after=lmax)
 
-    def from_ndarray(self, spectra_np, ells, columns):
+    def generate_spectra_from_camb_ini(self, camb_ini_file_name):
         """
-        The ndarray spectra is expected to be given such that the first index runs along the ell index
-        The ndarray spectra needs to be transposed to be fit into the dataframe
-        The ell array is expected to be given upto the highest ell among all the spectra columns
-        Unfilled values in the ndarray will be filled up by np.nan and the first np.nan will set the lmax for that column
+        Generates a new spectra from a CAMB ini file
         """
-        self.spectra = pd.DataFrame(spectra_np.T, index=ells, columns=columns)
-        self.spectra.index.name = "ell"
+        camb_ini_file_path = os.path.join(self.global_paths['camb_params_dir'], camb_ini_file_name)
+        params = camb.read_ini(camb_ini_file_path)
+        results = camb.get_results(params)
+        powers = results.get_cmb_power_spectra(params, CMB_unit='muK')
+        self.from_dict_spec(dict_spec=powers)
 
-    def write_spectra(self, file_name):
+    def from_dict_spec(self, dict_spec, ells=None, columns=None):
+        """
+        The spectra is loaded from a dictionary
+        In this case it is assumed all the entries in the dictionary have common ells.
+        If an entry for 'ell' is provided, it is used, otherwise it is assumed it is ordered from ell=0 to lmax
+        """
+        self.spectra = pd.DataFrame.from_dict(data=dict_spec)
+
+    def write_spectra(self, relative_file_path):
         """
         Format for storing: csv
-        The file name is provided with the appropriate extension
+        The relative file path to global_paths.spectra_dir is provided as relative_file_path
         """
-        self.spectra.to_csv(path_or_buf=os.path.join(global_paths.spectra_dir, file_name), index_label="ell")
-
-    def return_copy(self):
-        """
-        Returns a Spectra object that is a copy of self
-        """
-        spectra_ret = Spectra(spectra_obj=self)
-        return spectra_ret
+        spectra_file_path = os.path.join(self.global_paths.spectra_dir, relative_file_path)
+        self.spectra.to_csv(path_or_buf=spectra_file_path, index_label="ell")
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    """
+    This block contains methods for manipulating the ell values and are
+        ells
+        valid_ells_for_column
+        invalid_ells_for_column
+        lmax
+        common_ells_with_nan
+        add_empty_ell_rows
+        remove_ells
+        truncate
+        sort_ells
+        remove_ells_with_common_nan
+        chop_trailing_ells_with_nans
+        reindex_ell
+    """
 
     def ells(self):
         """
-        Return the entire ell index for the entire dataframe
+        Return the ell index column for the dataframe<
         """
         return self.spectra.index.values
 
@@ -259,20 +282,20 @@ class Spectra:
         else: 
             self.remove_columns(drop_columns)
 
-    def join_spectra(self, other, columns_self=None, columns_other=None, return_new=True):
-        """
-        Join two spectra objects, i.e. their dataframe
-        If columns_<> is None, all the columns are taken
-        If return_new is True, a new object is returned keeping all the columns of self, otherwise they are added to self
-        """
-        if columns_self == None:
-            columns_self = self.columns()
-        if columns_other == None:
-            columns_other = other.columns()
-
-        if return_new:
-            spectra_new = self.get_subset_columns(columns=columns_self)
-            for 
+    #  def join_spectra(self, other, columns_self=None, columns_other=None, return_new=True):
+        #  """
+        #  Join two spectra objects, i.e. their dataframe
+        #  If columns_<> is None, all the columns are taken
+        #  If return_new is True, a new object is returned keeping all the columns of self, otherwise they are added to self
+        #  """
+        #  if columns_self == None:
+            #  columns_self = self.columns()
+        #  if columns_other == None:
+            #  columns_other = other.columns()
+#
+        #  if return_new:
+            #  spectra_new = self.get_subset_columns(columns=columns_self)
+            #  for
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     def multiply(self, other, columns=None, return_new=False):

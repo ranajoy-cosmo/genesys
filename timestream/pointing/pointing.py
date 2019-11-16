@@ -3,13 +3,12 @@ import math
 import numpy as np
 import healpy as hp
 from . import pointing_utils as pu
-from ...utilities import Generic_Class, prompt
+from genesys import Genesys_Class
 
-class Pointing():
+class Pointing(Genesys_Class):
     
-    def __init__(self, config):
-        self.config = Generic_Class()
-        self.config.__dict__.update(config.__dict__)
+    def __init__(self, params):
+        self.params.__dict__.update(params.__dict__)
         self.set_initial_axes_and_angles()
         self.set_initial_pointing_vector()
 

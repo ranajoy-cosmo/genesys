@@ -3,52 +3,56 @@ import healpy as hp
 import h5py
 import os
 import math
-from genesys import global_paths
+from .. import Genesys_Class
+from genesys.global_config import global_paths
+from genesys.utilities import prompt
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* Path naming routines
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-"""
-Structure of the simulation data
-The parent directory containing all simulation and analysis runs are in <global_paths.output_dir>
-<sim_dir> : Parent directory for a single simulation and analysis run
-    - <recon_maps_dir> : Could be several different directories depending on how the maps are made
-    - <tod_dir> : One single for this set of simulations
-        - <band_dir> : For each frequency channel. Also contains arrays and metadata that is common to all the detectors in the band.
-            - metadata_file
-            - <detector_dir> : Individual detector in the focal plane. Also contains metadata that is common to all the data chunks
-                - segment_files : HDF5 files containing all the segmented TOD data
 
-The name tags are provided in the config file passed to the simulation run.
-sim_tag
-tod_tag
-recon_tag
-band_name
-detector_name
-segment_name
-"""
-def get_path_to_sim_dir(config):
-    return os.path.join(global_paths.output_dir, config.sim_tag)
-
-def get_path_to_tod_dir(config):
-    return os.path.join(get_path_to_sim_dir(config), config.tod_tag)
- 
-def get_path_to_recon_maps_dir(config):
-    return os.path.join(get_path_to_sim_dir(config), config.recon_tag)
-
-def get_path_to_band_dir(config):
-    return os.path.join(get_path_to_tod_dir(config)) 
-
-def get_path_to_detector_dir(config):
-    return os.path.join(global_paths.output_dir, config.sim_tag, config.scan_tag, config.detector_id)
-
-def get_path_to_segment_dir(config, segment):
+class Path(Genesys_Class):
     """
-    The segment name is given as an integer. It is converted by this routine to the appropriate 4 digit string preceded by 0s.
-    By convention, 1 is added to the segment name. So, the 0th segment will be named '0001'.
+    Structure of the simulation data
+    The parent directory containing all simulation and analysis runs are in <global_paths.output_dir>
+    <sim_dir> : Parent directory for a single simulation and analysis run
+        - <recon_maps_dir> : Could be several different directories depending on how the maps are made
+        - <tod_dir> : One single for this set of simulations
+            - <band_dir> : For each frequency channel. Also contains arrays and metadata that is common to all the detectors in the band.
+                - metadata_file
+                - <detector_dir> : Individual detector in the focal plane. Also contains metadata that is common to all the data chunks
+                    - segment_files : HDF5 files containing all the segmented TOD data
+
+    The name tags are provided in the config file passed to the simulation run.
+    sim_tag
+    tod_tag
+    recon_tag
+    band_name
+    detector_name
+    segment_name
     """
-    segment_name = get_segment_name(segment)
-    return os.path.join(global_paths.output_dir, config.sim_tag, config.scan_tag, config.detector_id, segment_name)
+    def get_path_to_sim_dir(self, config):
+        return os.path.join(self.global_paths['data_dir'], config.sim_tag)
+
+    def get_path_to_tod_dir(self, config):
+        return os.path.join(self.get_path_to_sim_dir(config), config.tod_tag)
+     
+    def get_path_to_recon_maps_dir(self, config):
+        return os.path.join(self.get_path_to_sim_dir(config), config.recon_tag)
+
+    def get_path_to_band_dir(config):
+        return os.path.join(get_path_to_tod_dir(config), 
+
+    def get_path_to_detector_dir(config):
+        return os.path.join(global_paths.output_dir, config.sim_tag, config.scan_tag, config.detector_id)
+
+    def get_path_to_segment_dir(config, segment):
+        """
+        The segment name is given as an integer. It is converted by this routine to the appropriate 4 digit string preceded by 0s.
+        By convention, 1 is added to the segment name. So, the 0th segment will be named '0001'.
+        """
+        segment_name = get_segment_name(segment)
+        return os.path.join(global_paths.output_dir, config.sim_tag, config.scan_tag, config.detector_id, segment_name)
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # Detector naming convention

@@ -2,13 +2,13 @@
 
 import numpy as np
 import math
-from genesys.utilities import Generic_Class
+from genesys.utilities import Genesys_Class
 
 """
 Refer to Numerical Recipes (NR hereafter) in C++, second edition
 """
 
-class Noise():
+class Noise(Genesys_Class):
     def __init__(self, config):
         self.config = Generic_Class()
         self.config.__dict__.update(config.__dict__)

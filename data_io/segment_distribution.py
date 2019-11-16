@@ -2,7 +2,7 @@ import numpy as np
 import os
 import math
 import itertools
-from genesys.global_config import global_paths
+from genesys import global_paths
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* Detector and segment distribution

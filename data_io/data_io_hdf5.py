@@ -55,14 +55,15 @@ def get_path_to_reconstructed_map_file(config, map_type):
 # HDF5 objects
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-def get_simulation_data_file(config, mode='a'):
+def get_simulation_data_file_object(config, mode='a'):
     sim_data_file_name = get_path_to_simulation_data_file(config)
     return h5py.File(sim_data_file_name, mode=mode)
 
-def get_band_group(config, band_name, mode='a'):
+def get_band_group(sim_df_obj, band_name, mode='a'):
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # Band and Detector naming convention
+def get_band_id
 def get_detector_id(band_name, detector_name):
     return band_name + '--' + detector_name
 def get_detector_a_name(detector_name):

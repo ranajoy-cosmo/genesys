@@ -13,7 +13,6 @@ Features include :
 
 import numpy as np
 import healpy as hp
-import os
 import genesys.utilities.unit_conversion as uc
 from genesys.global_config import global_paths
 
@@ -22,10 +21,6 @@ OMEGA_DEGREE_SQ = uc.convert_unit('solid_angle', 1.0, unit_in="degree_square", u
 OMEGA_ARCMIN_SQ = uc.convert_unit('solid_angle', 1.0, unit_in="arcmin_square", unit_out="steradian")
 
 FWHM_FACTOR = 2*np.sqrt(2*np.log(2))                                    #FWHM = FWHM_FACTOR*sigma
-
-fiducial_spectra_folder = os.path.join(global_paths.base_dir, "spectra")
-fiducial_spectra_file = os.path.join(global_paths.base_dir, "spectra" , "planck_parameters/r_0.001/lensedtot_cls.npy")              #Fiducial spectra
-
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* Pixel and time routines
