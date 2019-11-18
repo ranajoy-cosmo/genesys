@@ -13,7 +13,6 @@ scan_strategy:
     t_precession: 11540.88      # seconds. Precession period
     t_spin: 1200                # seconds. Spin period
     duration: 3                 # years
-    data_rate: 9.6                  # GB/day
 
 # Half-wave-plates
 half_wave_plates:

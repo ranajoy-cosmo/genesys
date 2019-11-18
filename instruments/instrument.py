@@ -42,23 +42,26 @@ class Instrument(Genesys_Class):
     def display_scan_strategy(self):
         unit_dict = {'alpha': 'degrees', 'beta': 'degrees', 't_precession': 'seconds', 't_spin': 'seconds', 'duration': 'years'}
         scan_strategy = self.params['scan_strategy']
+        self.prompt("SCAN STRATEGY:")
         for item in list(scan_strategy.keys()):
-            print("{}: {} {}".format(item, scan_strategy[item], unit_dict[item]))
+            self.prompt("\t{}: {} {}".format(item, scan_strategy[item], unit_dict[item]))
 
     def display_half_wave_plate(self):
         hwps = self.params['half_wave_plates']
+        self.prompt("HALF WAVE PLATES:")
         for hwp in list(hwps.keys()):
-            print("{}:".format(hwp))
+            self.prompt("\t{}:".format(hwp))
             for item in list(hwps[hwp].keys()):
-                print("\t{}: {}".format(item, hwps[hwp][item]))
+                self.prompt("\t\t{}: {}".format(item, hwps[hwp][item]))
 
-    def display_channel(self, channel_list=None):
+    def display_channels(self, channel_list=None):
         if channel_list == None:
             channel_list = self.channel_list
+        self.prompt("CHANNELS:")
         for channel in channel_list:
-            print("{}:".format(channel))
+            self.prompt("\t{}:".format(channel))
             for item in list(self.params['channels'][channel]):
-                print("\t{}: {}".format(item, self.params['channels'][channel][item]))
+                self.prompt("\t\t{}: {}".format(item, self.params['channels'][channel][item]))
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Path naming conventions

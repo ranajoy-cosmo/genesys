@@ -8,88 +8,67 @@ from genesys import global_paths
 #* Detector and segment distribution
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-def get_local_band_detector_segment_dict(rank, size, band_detector_segment_dict):
+def get_local_channel_detector_segment_dict(rank, size, channel_detector_dict, num_segments_per_det):
     """
     This function determines the dictionary of detectors and segments for the particular MPI rank.
     The function takes as input the rank, the total number of MPI processes and the global dictionary of all detectors and segments.
     """
     # Counting the total number of segments
-    num_segments = count_segments(band_detector_segment_dict)
+    num_segments_total = count_detectors(channel_detector_dict) * num_segments_per_det
 
     # Counting number of segments per rank and start and stop index
-    num_segments_per_process = math.ceil(num_segments / size)
+    num_segments_per_process = math.ceil(num_segments_total / size)
     start_index = rank * num_segments_per_process
     stop_index = (rank + 1) * num_segments_per_process
 
     # Right now, this is a slow hack job. Can be made much better.
-    local_band_detector_segment_dict = {}
+    local_channel_detector_segment_dict = {}
     count = -1
-    seg_length = 0
-    for band in sorted(list(band_detector_segment_dict.keys())):
-        for detector in sorted(list(band_detector_segment_dict[band].keys())):
-            for segment in band_detector_segment_dict[band][detector]:
+    for channel in sorted(list(channel_detector_dict.keys())):
+        for detector in channel_detector_dict[channel]:
+            for segment in range(num_segments_per_det):
                 count += 1
                 if count < start_index:
                     pass
                 elif count >= start_index and count < stop_index:
-                    if band not in list(local_band_detector_segment_dict.keys()):
-                        local_band_detector_segment_dict[band] = {}
-                    if detector not in list(local_band_detector_segment_dict[band].keys()):
-                        local_band_detector_segment_dict[band][detector] = [] 
-                    local_band_detector_segment_dict[band][detector].append(segment)
-                    seg_length += 1
+                    if channel not in list(local_channel_detector_segment_dict.keys()):
+                        local_channel_detector_segment_dict[channel] = {}
+                    if detector not in list(local_channel_detector_segment_dict[channel].keys()):
+                        local_channel_detector_segment_dict[channel][detector] = [] 
+                    local_channel_detector_segment_dict[channel][detector].append(segment)
                 else:
                     break
             if count >= stop_index:
                 break
 
-    return local_band_detector_segment_dict
+    return local_channel_detector_segment_dict
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-def get_band_detector_time_dictionary_uniform(band_detector_dict, segment_length, segment_list):
-    start_times = segment_list * segment_length
-    stop_times = (segment_list + 1) * segment_length
-    segment_time_list = list(zip(segment_list, start_times, stop_times))
+def get_channel_list(channel_detector_segment_dict):
+    # GET A LIST OF THE CHANNELS THAT ARE PRESENT
+    channel_list = list(channel_detector_segment_dict.keys())
+    return channel_list
 
-    band_detector_time_dict = {}
+def get_formatted_detector_list(channel_detector_segment_dict):
+    # GET A LIST OF THE CHANNELS THAT ARE PRESENT
+    formatted_detector_list = {}.fromkeys(get_channel_list(channel_detector_segment_dict))
+    for channel in list(formatted_detector_list.keys()):
+        formatted_detector_list[channel] = list(channel_detector_segment_dict[channel].keys())
+    return formatted_detector_list
 
-    for band_name in list(band_detector_dict.keys()):
-        band_detector_time_dict[band_name] = {}
-        for detector_name in band_detector_dict[band_name]:
-            band_detector_time_dict[band_name][detector_name] = segment_time_list
+def count_detectors(channel_detector_segment_dict):
+    # COUNT THE TOTAL NUMBER OF DETECTORS IN THE SIMULATION
+    num_detectors = 0
+    for channel in list(channel_detector_segment_dict.keys()):
+        num_detectors += len(channel_detector_segment_dict[channel])
+    return num_detectors
 
-    return band_detector_time_dict
-
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-
-def count_segments(band_detector_segment_dict):
-    # Counting the total number of segments
+def count_segments(channel_detector_segment_dict):
+    # COUNT THE TOTAL NUMBER OF SEGMENTS IN THE SIMULATION
     num_segments = 0
-    for band in list(band_detector_segment_dict.keys()):
-        for detector in list(band_detector_segment_dict[band].keys()):
-            num_segments += len(band_detector_segment_dict[band][detector])
+    for channel in list(channel_detector_segment_dict.keys()):
+        for detector in list(channel_detector_segment_dict[channel].keys()):
+            num_segments += len(channel_detector_segment_dict[channel])
     return num_segments
-
-def get_detector_list(band_detector_segment_dict):
-    detector_name_list = []
-    for band in list(band_detector_segment_dict.keys()):
-        for detector in list(band_detector_segment_dict[band].keys()):
-            detector_name_list += [band+"--"+detector]
-    return detector_name_list
-
-# Needs to be modified for new definition of segment
-def get_formatted_detector_segment_list(band_detector_segment_dict):
-    formatted_det_seg_list = ""
-    for band in list(band_detector_segment_dict.keys()):
-        for detector in list(band_detector_segment_dict[band].keys()):
-            formatted_det_seg_list += "{}--{}: {}\n".format(band, detector, ', '.join([str(seg) for seg in band_detector_segment_dict[band][detector]]))
-    return formatted_det_seg_list
-
-def get_total_simulation_time(band_detector_segment_dict):
-    total_time = 0
-    for band_name in list(band_detector_segment_dict.keys()):
-        for detector_name in list(band_detector_segment_dict[band_name].keys()):
-            total_time += sum([seg[2] - seg[1] for seg in band_detector_segment_dict[band_name][detector_name]])
-    return total_time
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

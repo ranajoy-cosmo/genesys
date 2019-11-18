@@ -14,25 +14,28 @@ where, CONFIG_FILE_PATH is the absolute path to the config file to be passes to 
 import sys
 import os
 import time
+from termcolor import colored
 from genesys import Genesys_Class
-from genesys import global_paths, load_param_file
+from genesys import global_paths, load_param_file, prompt
 from genesys.instruments.instrument import Instrument
 from genesys.data_io import segment_distribution as segd
-from genesys.data_io import data_io as dio
+from genesys.data_io.data_io import Data_IO
 from genesys.numerical import unit_conversion as uc
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-#* The master section which distributes the data and collects it
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+#* THE MASTER SECTION WHICH DISTRIBUTES THE DATA AND COLLECTS IT
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 def run_simulation():
     count = 0
     cumulative_time_taken = 0
 
-    for band_name in list(local_band_detector_segment_dict.keys()):
-        for detector_name in list(local_band_detector_segment_dict[band_name].keys()):
-            detector = Detector(band_name, detector_name, config)
-            for segment in local_band_detector_segment_dict[band_name][detector_name]:
+    for channel_name in list(local_channel_detector_segment_dict.keys()):
+        for detector_name in list(local_channel_detector_segment_dict[channel_name].keys()):
+            detector = Detector(channel_name, detector_name, config)
+            for segment in local_channel_detector_segment_dict[channel_name][detector_name]:
                 segment_start_time = time.time()
                 count += 1
                 detector.segment_start_prompt(rank, segment)
@@ -43,49 +46,48 @@ def run_simulation():
                 prompt("Rank {} finished {} of {} segments.\nTime taken: {}s. Total time taken: {}, Projected time: {}\n".format(rank, count, local_num_segments, time_taken, cumulative_time_taken, cumulative_time_taken*local_num_segments/count))
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-#* The start messages
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+#* THE START MESSAGES
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 def global_start_message():
-    display_string = colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n", color='blue')
-    display_string += colored("#* ", color='blue') + colored("GENESYS\n", color='green')
-    display_string += colored("#* ", color='blue') + colored("BEGINNING TIMESTREAM SIMULATION\n", color='green')
-    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n", color='blue')
+    display_string = colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
+    display_string += colored("#*", color='blue') + 25*" " + colored("GENESYS", color='green') + 25*" " + colored("*#\n", color='blue')
+    display_string += colored("#*", color='blue') + 13*" " + colored("BEGINNING TIMESTREAM SIMULATION", color='green') + 13*" " + colored("*#\n", color='blue')
+    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
     display_string += "RUN TYPE: {}\n".format(run_type)
     display_string += "# OF PROCESSES: {}\n".format(size)
-    display_string += "SIMULATION TAG: {}\n".format(config.sim_tag)
-    display_string += "SCAN TAG: {}\n".format(config.scan_tag)
-    display_string += "SPECIAL TAG: {}\n".format(config.special_tag)
-    display_string += "SIMULATION POLARISATION TYPE: {}\n".format(config.sim_pol_type)
-    display_string += "COORDINATE SYSTEM: {}\n".format(config.coordinate_system)
-    display_string += "# OF DETECTORS: {}\n".format(len(detector_list))
-    display_string += "DETECTOR LIST: {}\n".format(', '.join(detector_list))
-    display_string += "TOTAL NUMBER OF SEGMENTS : {}\n".format(num_segments)
-    display_string += "TOTAL SIMULATION TIME : {}s {}d {}y\n".format(total_simulation_time, uc.convert_unit('time', total_simulation_time, 'second', 'day'), uc.convert_unit('time', total_simulation_time, 'second', 'siderial year'))
-    display_string += "SCAN STRATEGY NAME: {}\n".format(config.scan_strategy_name)
-    display_string += "POLARISATION MODULATION TYPE: {}\n".format(config.polarisation_modulation)
-    if config.polarisation_modulation == "continuous_HWP":
-        display_string += "HWP initial phase: {} degrees\n".format(config.HWP_phase_ini)
-        display_string += "HWP angular speed: {} RPM\n".format(config.HWP_rpm)
-    if config.polarisation_modulation == "stepped_HWP":
-        display_string += "HWP initial phase: {} degrees\n".format(config.HWP_phase_ini)
-        display_string += "HWP step size: {} degrees\n".format(config.HWP_step)
-        display_string += "HWP step duration: {} s\n".format(config.HWP_step_duration)
-    display_string += "PRECESSION PERIOD: {} seconds\n".format(config.t_prec)
-    display_string += "SPIN PERIOD: {} seconds\n".format(config.t_spin)
-    display_string += "ALPHA: {} degrees\n".format(config.alpha)
-    display_string += "BETA: {} degrees\n".format(config.beta)
-    display_string += "TOD WRITE PRODUCTS: {}\n".format(config.ts_data_products)
-    display_string += "NOTES: {}\n".format(config.notes)
+    display_string += "SIMULATION TAG: {}\n".format(sim_config['sim_tag'])
+    display_string += "TOD TAG: {}\n".format(sim_config['scan_tag'])
+    display_string += "SPECIAL TAG: {}\n".format(sim_config['special_tag'])
+    display_string += "SIMULATION POLARISATION TYPE: {}\n".format(sim_config['sim_pol_type'])
+    display_string += "COORDINATE SYSTEM: {}\n".format(sim_config['coordinate_system'])
+    display_string += "CHANNEL LIST: {}\n".format(channel_list_global)
+    display_string += "# OF CHANNELS: {}\n".format(len(channel_list_global))
+    display_string += "DETECTOR LIST: {}\n".format(formatted_detector_list_global)
+    display_string += "# OF DETECTORS: {}\n".format(num_detectors_global)
+    display_string += "TOTAL NUMBER OF SEGMENTS : {}\n".format(num_segments_global)
+    display_string += "TOTAL SIMULATION TIME : {}s {}d {}y\n".format(simulation_time_global, uc.convert_unit('time', simulation_time_global, 'second', 'day'), uc.convert_unit('time', simulation_time_global, 'second', 'siderial year'))
+    #  display_string += "POLARISATION MODULATION TYPE: {}\n".format(sim_config['polarisation_modulation'])
+    #  if config.polarisation_modulation == "continuous_HWP":
+        #  display_string += "HWP initial phase: {} degrees\n".format(sim_config['HWP_phase_ini'])
+        #  display_string += "HWP angular speed: {} RPM\n".format(config.HWP_rpm)
+    #  if config.polarisation_modulation == "stepped_HWP":
+        #  display_string += "HWP initial phase: {} degrees\n".format(config.HWP_phase_ini)
+        #  display_string += "HWP step size: {} degrees\n".format(config.HWP_step)
+        #  display_string += "HWP step duration: {} s\n".format(config.HWP_step_duration)
     display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n\n", color='blue')
     prompt(display_string)
 
 def local_start_message():
     display_string = colored("#* RANK: {} #*#*#*#*#*#*#*#*#*#*\n".format(rank), color="green")
-    display_string += "# OF DETECTORS: {}\n".format(len(local_detector_list))
-    display_string += "DETECTOR LIST: {}\n".format(', '.join(local_detector_list))
-    display_string += "LOCAL NUMBER OF SEGMENTS: {}\n".format(local_num_segments)
-    display_string += "TOTAL LOCAL SIMULATION TIME : {}s {}d {}y\n".format(local_simulation_time, uc.convert_unit('time', local_simulation_time, 'second', 'day'), uc.convert_unit('time', local_simulation_time, 'second', 'siderial year'))
+    display_string += "CHANNEL LIST: {}\n".format(channel_list_local)
+    display_string += "# OF CHANNELS: {}\n".format(len(channel_list_local))
+    display_string += "DETECTOR LIST: {}\n".format(formatted_detector_list_local)
+    display_string += "# OF DETECTORS: {}\n".format(num_detectors_local)
+    display_string += "LOCAL NUMBER OF SEGMENTS: {}\n".format(num_segments_local)
+    display_string += "TOTAL LOCAL SIMULATION TIME : {}s {}d {}y\n".format(simulation_time_local, uc.convert_unit('time', simulation_time_local, 'second', 'day'), uc.convert_unit('time', simulation_time_local, 'second', 'siderial year'))
     display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n\n", color="green")
     prompt(display_string)
 
@@ -123,35 +125,71 @@ if __name__=="__main__":
     current_dir = os.path.dirname(__file__)
     sim_config_file = os.path.join(current_dir,'config_files', sim_config_file_name)
     sim_config = load_param_file(file_path=sim_config_file)
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+        
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # THIS BLOCK GETS THE LOCAL AND GLOBAL DICTIONARY OF BANDS, DETECTORS AND SEGMENTS
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # GETTING THE GLOBAL LIST OF DETECTORS AND SEGMENTS
+    channel_detector_segment_dict_global = segd.get_local_channel_detector_segment_dict(0, 1, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
+    channel_list_global = segd.get_channel_list(channel_detector_segment_dict_global)
+    formatted_detector_list_global = segd.get_channel_list(channel_detector_segment_dict_global)
+    num_detectors_global = segd.count_detectors(channel_detector_segment_dict_global)
+    num_segments_global = segd.count_segments(channel_detector_segment_dict_global)
+    simulation_time_global = num_segments_global * sim_config['segment_length']
+    # GETTING THE LOCAL LIST OF DETECTORS AND SEGMENTS
+    channel_detector_segment_dict_local = segd.get_local_channel_detector_segment_dict(rank, size, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
+    channel_list_local = segd.get_channel_list(channel_detector_segment_dict_local)
+    formatted_detector_list_local = segd.get_channel_list(channel_detector_segment_dict_local)
+    num_detectors_local = segd.count_detectors(channel_detector_segment_dict_local)
+    num_segments_local = segd.count_segments(channel_detector_segment_dict_global)
+    num_segments_local = segd.count_segments(channel_detector_segment_dict_local)
+    simulation_time_local = num_segments_local * sim_config['segment_length']
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # THIS BLOCK LOADS THE INSTRUMENT AND THE LOCAL DETECTOR OBJECTS
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Loading the instrument object
     instrument = Instrument(instrument_name=sim_config['instrument_name'])
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-        
-    #  # Getting the global list of detectors and segments
-    #  num_segments = segd.count_segments(config.band_detector_segment_dict)
-    #  detector_list = segd.get_detector_list(config.band_detector_segment_dict)
-    #  total_simulation_time = segd.get_total_simulation_time(config.band_detector_segment_dict)
-    #  # Getting the local list of detectors and segments
-    #  local_band_detector_segment_dict = segd.get_local_band_detector_segment_dict(rank, size, config.band_detector_segment_dict)
-    #  local_num_segments = segd.count_segments(local_band_detector_segment_dict)
-    #  local_detector_list = segd.get_detector_list(local_band_detector_segment_dict)
-    #  local_simulation_time = segd.get_total_simulation_time(local_band_detector_segment_dict)
-#
-    #  # Global display message
-    #  if rank == 0:
-        #  global_start_message()
-    #  # Local display message
-    #  local_start_message()
-    #  # Waiting for all the processes to print out their respectiv start messagee
-    #  if run_type == "mpi":
-        #  comm.Barrier()
-#
-    #  # Making the parent directories for the sim
-    #  if rank == 0:
-        #  dio.make_top_data_directories(config, dir_list=['sim_dir', 'scan_dir'], verbose=True)
-#
-    #  # Displaying the parameters ofthe individual detectors
-    #  if rank == 0:
+
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # THIS BLOCK DOES THE OPENING DISPLAY MESSAGES
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # GLOBAL DISPLAY MESSAGE
+    if rank == 0:
+        global_start_message()
+    # LOCAL DISPLAY MESSAGE
+    display_string = colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
+    display_string += colored("#*", color='blue') + 16*" " + colored("PROCESS DATA DISTRIBUTION", color='green') + 16*" " + colored("*#\n", color='blue')
+    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
+    local_start_message()
+    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
+    # WAITING FOR ALL THE PROCESSES TO PRINT OUT THEIR RESPECTIV START MESSAGEE
+    if run_type == "mpi":
+        comm.Barrier()
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # THIS BLOCK MAKES THE PARENT DATA DIRECTORIES
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    if rank == 0:
+        global_dio = Data_IO(sim_params)
+        global_dio.make_top_data_directories(dir_list=['sim_dir', 'tod_dir'])
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # THIS BLOCK DOES THE INSTRUMENT DISPLAY MESSAGES 
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    if rank == 0:
+        display_string = colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
+        display_string += colored("#*", color='blue') + 18*" " + colored("INSTRUMENT PARAMETERS", color='green') + 18*" " + colored("*#\n", color='blue')
+        display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
+        instrument.display_scan_strategy()
+        instrument.display_half_wave_plate()
+        instrument.display_channels()
+        display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
         #  for band_name in list(local_band_detector_segment_dict.keys()):
             #  for detector_name in list(local_band_detector_segment_dict[band_name].keys()):
                 #  detector = Detector(band_name, detector_name, config, sim_run=False)
