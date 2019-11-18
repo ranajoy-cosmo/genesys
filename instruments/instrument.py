@@ -9,7 +9,7 @@ If None is provided for focal_plane and scan_strategy, the default files will be
 """
 
 import os
-from .. import Genesys_Class
+from genesys import Genesys_Class
 
 class Instrument(Genesys_Class):
     def __init__(self, other=None, instrument_name=None):
@@ -18,7 +18,7 @@ class Instrument(Genesys_Class):
         If other is given, the instance variables of other are copied into self
         If instrument_name is given, the intrument parameters are loaded from the instrument_dir
         """
-        if other != None:
+        if other is not None:
             self.copy_other(other)
         elif instrument_name != None:
             self.configure_instrument(instrument_name=instrument_name)
@@ -67,14 +67,14 @@ class Instrument(Genesys_Class):
     # Path naming conventions
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    def path_to_instrument_dir(self, instrument_dir_name):
-        return os.path.join(self.global_paths['instruments_dir'], instrument_dir_name)
+    def path_to_instrument_dir(self, instrument_name):
+        return os.path.join(self.global_paths['instruments_dir'], instrument_name)
 
-    def path_to_instrument_param_file(self, instrument_dir_name, instrument_param_file_name="instrument_params.yaml"):
+    def path_to_instrument_param_file(self, instrument_name, instrument_param_file_name="instrument_params.yaml"):
         """
         Default instrument param file name: instrument.yaml
         """
-        return os.path.join(self.path_to_instrument_dir(instrument_dir_name), instrument_param_file_name)
+        return os.path.join(self.path_to_instrument_dir(instrument_name), instrument_param_file_name)
 
     #  #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     #  # Validating the parameters
