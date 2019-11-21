@@ -57,16 +57,16 @@ def add_method(cls):
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # Prompter utility
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-
-@add_method(Genesys_Class)
-def prompt(text, outstream=sys.stdout, color=None):
-    """
-    Flush out any text to the outstream provided immediately.
-    """
-    if color:
-        text = colored(text, color) 
-    outstream.write(text)
-    outstream.flush()
+#
+#  @add_method(Genesys_Class)
+#  def prompt(text, outstream=sys.stdout, color=None):
+    #  """
+    #  Flush out any text to the outstream provided immediately.
+    #  """
+    #  if color:
+        #  text = colored(text, color)
+    #  outstream.write(text)
+    #  outstream.flush()
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # Parameter loading method

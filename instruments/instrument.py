@@ -19,7 +19,7 @@ class Instrument(Genesys_Class):
         If instrument_name is given, the intrument parameters are loaded from the instrument_dir
         """
         if other is not None:
-            self.copy_other(other)
+            self.copy_attributes(other)
         elif instrument_name != None:
             self.configure_instrument(instrument_name=instrument_name)
         else:
@@ -42,26 +42,32 @@ class Instrument(Genesys_Class):
     def display_scan_strategy(self):
         unit_dict = {'alpha': 'degrees', 'beta': 'degrees', 't_precession': 'seconds', 't_spin': 'seconds', 'duration': 'years'}
         scan_strategy = self.params['scan_strategy']
-        self.prompt("SCAN STRATEGY:")
+        print("SCAN STRATEGY:")
         for item in list(scan_strategy.keys()):
-            self.prompt("\t{}: {} {}".format(item, scan_strategy[item], unit_dict[item]))
+            print("\t{}: {} {}".format(item, scan_strategy[item], unit_dict[item]))
 
     def display_half_wave_plate(self):
         hwps = self.params['half_wave_plates']
-        self.prompt("HALF WAVE PLATES:")
+        print("HALF WAVE PLATES:")
         for hwp in list(hwps.keys()):
-            self.prompt("\t{}:".format(hwp))
+            print("\t{}:".format(hwp))
             for item in list(hwps[hwp].keys()):
-                self.prompt("\t\t{}: {}".format(item, hwps[hwp][item]))
+                print("\t\t{}: {}".format(item, hwps[hwp][item]))
 
     def display_channels(self, channel_list=None):
         if channel_list == None:
             channel_list = self.channel_list
-        self.prompt("CHANNELS:")
+        print("CHANNELS:")
         for channel in channel_list:
-            self.prompt("\t{}:".format(channel))
+            print("\t{}:".format(channel))
             for item in list(self.params['channels'][channel]):
-                self.prompt("\t\t{}: {}".format(item, self.params['channels'][channel][item]))
+                print("\t\t{}: {}".format(item, self.params['channels'][channel][item]))
+
+    def info(self, channel_list=None):
+        self.display_scan_strategy()
+        if 'half_wave_plates' in self.params.keys():
+            self.display_half_wave_plate()
+            self.display_channels(channel_list)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Path naming conventions

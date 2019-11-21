@@ -1,30 +1,22 @@
 import numpy as np
 import copy
+from genesys import Genesys_Class
 
 """
 Class for handling timestream objects
 """
 
-class Timestream():
-    def __init__(self, other=None, filename=None, data_items=[], note=None):
-        if other != None:
-            self.copy_timestream(other)
-        elif filename != None:
-            pass
+class Timestream(Genesys_Class):
+    def __init__(self, other=None, sim_params=None, detector_params=None, segment=None):
+        if other is not None:
+            self.copy_attributes(other=other)
+        elif detector_params is not None:
+            self.configure_timestream(sim_params, detector_params, segment)
         else:
-            self.data = dict.fromkeys(data_items)
-            self.note = note
+            self.ts = {}
 
-    def copy_timestream(self, other):
-        self.data = copy.deepcopy(other.data)
-        self.note = copy.deepcopy(other.note)
-
-    def read_ts_from_file(self, file_name, data_items=None):
+    def configure_timestream(self, sim_params, detector_params, segment):
         pass
-
-    def return_copy(self):
-        return Timestream(self)
-
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     def data_items(self):

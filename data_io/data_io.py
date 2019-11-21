@@ -4,6 +4,7 @@ import h5py
 import os
 import math
 from genesys import Genesys_Class
+from genesys import add_method
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* Path naming routines
@@ -64,18 +65,6 @@ class Data_IO(Genesys_Class):
 
         return exists
 
-    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    #* MAKING NEW DATA DIRECTORIES
-    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-
-    def make_directory(dir_name, exist_ok=False):
-        """
-        Make a new directory if it does not exist already
-        If exists_ok is False, an OSErroris raised if the directory already exists
-        """
-        if not os.path.exists(dir_name):
-            os.makedirs(dir_name, exist_ok=exist_ok)
-
     def make_top_data_directories(self, dir_list, verbose=False):
         """
         This function will create the top level directories under which the simulated data will be written to.
@@ -116,6 +105,19 @@ class Data_IO(Genesys_Class):
         self.make_directory(self.paths['channel_dir'], exist_ok=True)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+#* MAKING NEW DATA DIRECTORIES
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+@add_method(Data_IO)
+def make_directory(dir_name, exist_ok=False):
+    """
+    Make a new directory if it does not exist already
+    If exists_ok is False, an OSErroris raised if the directory already exists
+    """
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name, exist_ok=exist_ok)
 
 def write_segment_data(config, segment, data, data_name):
     segment_path = get_path_to_segment_dir(config, segment)

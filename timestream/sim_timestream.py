@@ -16,8 +16,9 @@ import os
 import time
 from termcolor import colored
 from genesys import Genesys_Class
-from genesys import global_paths, load_param_file, prompt
+from genesys import global_paths, load_param_file
 from genesys.instruments.instrument import Instrument
+from genesys.instruments.detector import Detector
 from genesys.data_io import segment_distribution as segd
 from genesys.data_io.data_io import Data_IO
 from genesys.numerical import unit_conversion as uc
@@ -32,10 +33,10 @@ def run_simulation():
     count = 0
     cumulative_time_taken = 0
 
-    for channel_name in list(local_channel_detector_segment_dict.keys()):
-        for detector_name in list(local_channel_detector_segment_dict[channel_name].keys()):
+    for channel_name in list(channel_detector_segment_dict_local.keys()):
+        for detector_name in list(channel_detector_segment_dict_local[channel_name].keys()):
             detector = Detector(channel_name, detector_name, config)
-            for segment in local_channel_detector_segment_dict[channel_name][detector_name]:
+            for segment in channel_detector_segment_dict_local[channel_name][detector_name]:
                 segment_start_time = time.time()
                 count += 1
                 detector.segment_start_prompt(rank, segment)
@@ -52,23 +53,23 @@ def run_simulation():
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 def global_start_message():
-    display_string = colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
-    display_string += colored("#*", color='blue') + 25*" " + colored("GENESYS", color='green') + 25*" " + colored("*#\n", color='blue')
-    display_string += colored("#*", color='blue') + 13*" " + colored("BEGINNING TIMESTREAM SIMULATION", color='green') + 13*" " + colored("*#\n", color='blue')
-    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
-    display_string += "RUN TYPE: {}\n".format(run_type)
-    display_string += "# OF PROCESSES: {}\n".format(size)
-    display_string += "SIMULATION TAG: {}\n".format(sim_config['sim_tag'])
-    display_string += "TOD TAG: {}\n".format(sim_config['scan_tag'])
-    display_string += "SPECIAL TAG: {}\n".format(sim_config['special_tag'])
-    display_string += "SIMULATION POLARISATION TYPE: {}\n".format(sim_config['sim_pol_type'])
-    display_string += "COORDINATE SYSTEM: {}\n".format(sim_config['coordinate_system'])
-    display_string += "CHANNEL LIST: {}\n".format(channel_list_global)
-    display_string += "# OF CHANNELS: {}\n".format(len(channel_list_global))
-    display_string += "DETECTOR LIST: {}\n".format(formatted_detector_list_global)
-    display_string += "# OF DETECTORS: {}\n".format(num_detectors_global)
-    display_string += "TOTAL NUMBER OF SEGMENTS : {}\n".format(num_segments_global)
-    display_string += "TOTAL SIMULATION TIME : {}s {}d {}y\n".format(simulation_time_global, uc.convert_unit('time', simulation_time_global, 'second', 'day'), uc.convert_unit('time', simulation_time_global, 'second', 'siderial year'))
+    print(colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+    print(colored("#*", color='blue') + 25*" " + colored("GENESYS", color='green') + 25*" " + colored("*#", color='blue'))
+    print(colored("#*", color='blue') + 13*" " + colored("BEGINNING TIMESTREAM SIMULATION", color='green') + 13*" " + colored("*#", color='blue'))
+    print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+    print("RUN TYPE: {}".format(run_type))
+    print("# OF PROCESSES: {}".format(size))
+    print("SIMULATION TAG: {}".format(sim_config['sim_tag']))
+    print("TOD TAG: {}".format(sim_config['tod_tag']))
+    print("SPECIAL TAG: {}".format(sim_config['special_tag']))
+    print("SIMULATION POLARISATION TYPE: {}".format(sim_config['sim_pol_type']))
+    print("COORDINATE SYSTEM: {}".format(sim_config['coordinate_system']))
+    print("CHANNEL LIST: {}".format(channel_list_global))
+    print("# OF CHANNELS: {}".format(len(channel_list_global)))
+    print("DETECTOR LIST: {}".format(formatted_detector_list_global))
+    print("# OF DETECTORS: {}".format(num_detectors_global))
+    print("TOTAL NUMBER OF SEGMENTS : {}".format(num_segments_global))
+    print("TOTAL SIMULATION TIME : {}s {}d {}y".format(simulation_time_global, uc.convert_unit('time', simulation_time_global, 'second', 'day'), uc.convert_unit('time', simulation_time_global, 'second', 'siderial year')))
     #  display_string += "POLARISATION MODULATION TYPE: {}\n".format(sim_config['polarisation_modulation'])
     #  if config.polarisation_modulation == "continuous_HWP":
         #  display_string += "HWP initial phase: {} degrees\n".format(sim_config['HWP_phase_ini'])
@@ -77,19 +78,17 @@ def global_start_message():
         #  display_string += "HWP initial phase: {} degrees\n".format(config.HWP_phase_ini)
         #  display_string += "HWP step size: {} degrees\n".format(config.HWP_step)
         #  display_string += "HWP step duration: {} s\n".format(config.HWP_step_duration)
-    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n\n", color='blue')
-    prompt(display_string)
+    print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n", color='blue'))
 
 def local_start_message():
-    display_string = colored("#* RANK: {} #*#*#*#*#*#*#*#*#*#*\n".format(rank), color="green")
-    display_string += "CHANNEL LIST: {}\n".format(channel_list_local)
-    display_string += "# OF CHANNELS: {}\n".format(len(channel_list_local))
-    display_string += "DETECTOR LIST: {}\n".format(formatted_detector_list_local)
-    display_string += "# OF DETECTORS: {}\n".format(num_detectors_local)
-    display_string += "LOCAL NUMBER OF SEGMENTS: {}\n".format(num_segments_local)
-    display_string += "TOTAL LOCAL SIMULATION TIME : {}s {}d {}y\n".format(simulation_time_local, uc.convert_unit('time', simulation_time_local, 'second', 'day'), uc.convert_unit('time', simulation_time_local, 'second', 'siderial year'))
-    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n\n", color="green")
-    prompt(display_string)
+    print(colored("#* RANK: {} #*#*#*#*#*#*#*#*#*#*".format(rank), color="green"))
+    print("CHANNEL LIST: {}".format(channel_list_local))
+    print("# OF CHANNELS: {}".format(len(channel_list_local)))
+    print("DETECTOR LIST: {}".format(formatted_detector_list_local))
+    print("# OF DETECTORS: {}".format(num_detectors_local))
+    print("LOCAL NUMBER OF SEGMENTS: {}".format(num_segments_local))
+    print("TOTAL LOCAL SIMULATION TIME : {}s {}d {}y".format(simulation_time_local, uc.convert_unit('time', simulation_time_local, 'second', 'day'), uc.convert_unit('time', simulation_time_local, 'second', 'siderial year')))
+    print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n", color="green"))
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -161,11 +160,11 @@ if __name__=="__main__":
     if rank == 0:
         global_start_message()
     # LOCAL DISPLAY MESSAGE
-    display_string = colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
-    display_string += colored("#*", color='blue') + 16*" " + colored("PROCESS DATA DISTRIBUTION", color='green') + 16*" " + colored("*#\n", color='blue')
-    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
+    print(colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+    print(colored("#*", color='blue') + 16*" " + colored("PROCESS DATA DISTRIBUTION", color='green') + 16*" " + colored("*#", color='blue'))
+    print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
     local_start_message()
-    display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
+    print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
     # WAITING FOR ALL THE PROCESSES TO PRINT OUT THEIR RESPECTIV START MESSAGEE
     if run_type == "mpi":
         comm.Barrier()
@@ -175,7 +174,7 @@ if __name__=="__main__":
     # THIS BLOCK MAKES THE PARENT DATA DIRECTORIES
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     if rank == 0:
-        global_dio = Data_IO(sim_params)
+        global_dio = Data_IO(sim_config)
         global_dio.make_top_data_directories(dir_list=['sim_dir', 'tod_dir'])
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
@@ -183,21 +182,29 @@ if __name__=="__main__":
     # THIS BLOCK DOES THE INSTRUMENT DISPLAY MESSAGES 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     if rank == 0:
-        display_string = colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
-        display_string += colored("#*", color='blue') + 18*" " + colored("INSTRUMENT PARAMETERS", color='green') + 18*" " + colored("*#\n", color='blue')
-        display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
-        instrument.display_scan_strategy()
-        instrument.display_half_wave_plate()
-        instrument.display_channels()
-        display_string += colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n", color='blue')
-        #  for band_name in list(local_band_detector_segment_dict.keys()):
-            #  for detector_name in list(local_band_detector_segment_dict[band_name].keys()):
-                #  detector = Detector(band_name, detector_name, config, sim_run=False)
-                #  detector.display_params()
-    #  # Waiting for all the processes to print out their respective detector parameters
-    #  if run_type == "mpi":
-        #  comm.Barrier()
-#
+        print(colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+        print(colored("#*", color='blue') + 18*" " + colored("INSTRUMENT PARAMETERS", color='green') + 18*" " + colored("*#", color='blue'))
+        print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+        instrument.info()
+        print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # THIS BLOCK DOES THE DETECTOR DISPLAY MESSAGES 
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    if rank == 0:
+        print(colored("\n#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+        print(colored("#*", color='blue') + 19*" " + colored("DETECTOR PARAMETERS", color='green') + 19*" " + colored("*#", color='blue'))
+        print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+        for channel in list(channel_detector_segment_dict_local.keys()):
+            for detector_name in list(channel_detector_segment_dict_local[channel].keys()):
+                detector = Detector(instrument_name=sim_config['instrument_name'], channel_name=channel, detector_name=detector_name)
+                detector.info()
+        print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#", color='blue'))
+    # Waiting for all the processes to print out their respective detector parameters
+    if run_type == "mpi":
+        comm.Barrier()
+
     #  #  Running the main simulation routine. This is common to both mpi and serial runs.
     #  run_simulation()
 #

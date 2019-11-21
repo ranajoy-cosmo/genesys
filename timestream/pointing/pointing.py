@@ -2,12 +2,16 @@ import sys
 import math
 import numpy as np
 import healpy as hp
+import copy
 from . import pointing_utils as pu
 from genesys import Genesys_Class
 
 class Pointing(Genesys_Class):
     
     def __init__(self, params):
+        """
+        Parameters required: alpha, beta, 
+        """
         self.params.__dict__.update(params.__dict__)
         self.set_initial_axes_and_angles()
         self.set_initial_pointing_vector()
@@ -16,10 +20,7 @@ class Pointing(Genesys_Class):
 
     def set_initial_axes_and_angles(self):
         """
-        The initial position of the satellite is assumed to be such that the
-        anti-solar precession axis is the x-axis,
-        the spin axis is in the x-z plane and at a positive angle of alpha degrees to the precession axis,
-        the axis of revolution is the z-axis.
+        The initial position of the satellite is assumed to be such that the anti-solar precession axis is the x-axis, the spin axis is in the x-z plane and at a positive angle of alpha degrees to the precession axis, the axis of revolution is the z-axis.
         The initial pointing of individual detectors is set in gen_initial_vec()
         """
         # alpha and beta are provided in degrees in the config files.
