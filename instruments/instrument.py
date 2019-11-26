@@ -12,7 +12,7 @@ import os
 from genesys import Genesys_Class
 
 class Instrument(Genesys_Class):
-    def __init__(self, other=None, instrument_name=None):
+    def __init__(self, instrument_name=None, other=None):
         """
         Constructor for Instrument class
         If other is given, the instance variables of other are copied into self
@@ -85,42 +85,3 @@ class Instrument(Genesys_Class):
     #  #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     #  # Validating the parameters
     #  #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-#
-    #  def set_main_instrument_param_fields(self, main_instrument_param_fileds=None):
-        #  """
-        #  Sets the main parameter fields for the instrument
-        #  """
-        #  if main_instrument_param_fileds == None:
-            #  self.main_instrument_param_fields = ['instrument_name', 'version', 'scan_strategy', 'half_wave_plates', 'channels']
-        #  else:
-            #  self.main_instrument_param_fields = main_instrument_param_fields
-#
-    #  def set_channel_param_fields(self, channel_param_fields=None):
-        #  """
-        #  Sets the parameter fields for the channels
-        #  """
-        #  if channel_param_fileds == None:
-            #  self.channel_param_fields = ['central_frequency', 'bandwidth', 'beam_fwhm', 'pixel_size', 'num_detectors', 'detector_NET', 'detector_yield', 'noise_margin', 'pol_modulation', 'channel_param_file']
-        #  else:
-            #  self.channel_param_fields = channel_param_fields
-#
-    #  def set_scan_strategy_param_fields(self, scan_strategy_param_fields=None):
-        #  """
-        #  Sets the parameter fields for the scan strategy
-        #  """
-        #  if scan_strategy_param_fields == None:
-            #  self.scan_strategy_param_fields = ['alpha', 'beta', 't_precession', 't_spin', 'duration', 'data_rate']
-        #  else:
-            #  self.scan_strategy_param_fields = scan_strategy_param_fields
-#
-    #  def set_hwp_param_fields(self, hwp_param_fields=None)
-        #  """
-        #  Sets the parameter fields for the half wave plate
-        #  """
-        #  if hwp_param_fields == None:
-            #  self.hwp_param_fields = ['rotation', 'rpm']
-        #  else:
-            #  self.hwp_param_fields = hwp_param_fields
-#
-    #  def set_main_instrument_param_to_default(self):
-        #  for

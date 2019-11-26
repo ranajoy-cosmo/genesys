@@ -3,72 +3,88 @@ import os
 import math
 import itertools
 from genesys import global_paths
+from genesys import Genesys_Class
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* Detector and segment distribution
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+class Data_Segment(Genesys_Class):
+    def __init__(self, rank, size, channel_detector_dict, num_segments_per_det):
+        self.channel_detector_segment_dict = self.get_channel_detector_segment_dict(rank, size, channel_detector_dict, num_segments_per_det)
 
-def get_local_channel_detector_segment_dict(rank, size, channel_detector_dict, num_segments_per_det):
-    """
-    This function determines the dictionary of detectors and segments for the particular MPI rank.
-    The function takes as input the rank, the total number of MPI processes and the global dictionary of all detectors and segments.
-    """
-    # Counting the total number of segments
-    num_segments_total = count_detectors(channel_detector_dict) * num_segments_per_det
+    def get_channel_detector_segment_dict(self, rank, size, channel_detector_dict, num_segments_per_det):
+        """
+        This function determines the dictionary of detectors and segments for the particular MPI rank.
+        The function takes as input the rank, the total number of MPI processes and the global dictionary of all detectors and segments.
+        """
+        # COUNTING THE TOTAL NUMBER OF SEGMENTS.
+        num_detectors = 0
+        for channel_name in list(channel_detector_dict.keys()):
+            num_detectors += len(channel_detector_dict[channel_name])
+        num_segments_total = num_detectors * num_segments_per_det
 
-    # Counting number of segments per rank and start and stop index
-    num_segments_per_process = math.ceil(num_segments_total / size)
-    start_index = rank * num_segments_per_process
-    stop_index = (rank + 1) * num_segments_per_process
+        # COUNTING NUMBER OF SEGMENTS PER RANK AND START AND STOP INDEX
+        num_segments_per_process = math.ceil(num_segments_total / size)
+        start_index = rank * num_segments_per_process
+        stop_index = (rank + 1) * num_segments_per_process
 
-    # Right now, this is a slow hack job. Can be made much better.
-    local_channel_detector_segment_dict = {}
-    count = -1
-    for channel in sorted(list(channel_detector_dict.keys())):
-        for detector in channel_detector_dict[channel]:
-            for segment in range(num_segments_per_det):
-                count += 1
-                if count < start_index:
-                    pass
-                elif count >= start_index and count < stop_index:
-                    if channel not in list(local_channel_detector_segment_dict.keys()):
-                        local_channel_detector_segment_dict[channel] = {}
-                    if detector not in list(local_channel_detector_segment_dict[channel].keys()):
-                        local_channel_detector_segment_dict[channel][detector] = [] 
-                    local_channel_detector_segment_dict[channel][detector].append(segment)
-                else:
+        # RIGHT NOW, THIS IS A SLOW HACK JOB. CAN BE MADE MUCH BETTER.
+        channel_detector_segment_dict = {}
+        count = -1
+        for channel_name in sorted(list(channel_detector_dict.keys())):
+            for detector_name in channel_detector_dict[channel_name]:
+                for segment in range(num_segments_per_det):
+                    count += 1
+                    if count < start_index:
+                        pass
+                    elif count >= start_index and count < stop_index:
+                        if channel_name not in list(channel_detector_segment_dict.keys()):
+                            channel_detector_segment_dict[channel_name] = {}
+                        if detector_name not in list(channel_detector_segment_dict[channel_name].keys()):
+                            channel_detector_segment_dict[channel_name][detector_name] = [] 
+                        channel_detector_segment_dict[channel_name][detector_name].append(segment)
+                    else:
+                        break
+                if count >= stop_index:
                     break
-            if count >= stop_index:
-                break
 
-    return local_channel_detector_segment_dict
+        return channel_detector_segment_dict
 
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-def get_channel_list(channel_detector_segment_dict):
-    # GET A LIST OF THE CHANNELS THAT ARE PRESENT
-    channel_list = list(channel_detector_segment_dict.keys())
-    return channel_list
+    def channel_list(self):
+        # GET A LIST OF THE CHANNELS THAT ARE PRESENT
+        return list(self.channel_detector_segment_dict.keys())
 
-def get_formatted_detector_list(channel_detector_segment_dict):
-    # GET A LIST OF THE CHANNELS THAT ARE PRESENT
-    formatted_detector_list = {}.fromkeys(get_channel_list(channel_detector_segment_dict))
-    for channel in list(formatted_detector_list.keys()):
-        formatted_detector_list[channel] = list(channel_detector_segment_dict[channel].keys())
-    return formatted_detector_list
+    def num_channels(self):
+        return len(self.channel_list())
 
-def count_detectors(channel_detector_segment_dict):
-    # COUNT THE TOTAL NUMBER OF DETECTORS IN THE SIMULATION
-    num_detectors = 0
-    for channel in list(channel_detector_segment_dict.keys()):
-        num_detectors += len(channel_detector_segment_dict[channel])
-    return num_detectors
+    def detectors_in_channel(self, channel_name):
+        # GET A LIST OF THE DETECTOR IN A PARTICULAR CHANNELS
+        return list(self.channel_detector_segment_dict[channel_name].keys())
 
-def count_segments(channel_detector_segment_dict):
-    # COUNT THE TOTAL NUMBER OF SEGMENTS IN THE SIMULATION
-    num_segments = 0
-    for channel in list(channel_detector_segment_dict.keys()):
-        for detector in list(channel_detector_segment_dict[channel].keys()):
-            num_segments += len(channel_detector_segment_dict[channel])
-    return num_segments
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    def num_detectors_in_channel(self, channel_name):
+        return len(self.detectors_in_channel(channel_name))
+
+    def num_detectors(self):
+        # COUNT THE TOTAL NUMBER OF DETECTORS IN THE SIMULATION
+        num_detectors = 0
+        for channel_name in self.channel_list():
+            num_detectors += len(self.detectors_in_channel(channel_name))
+        return num_detectors
+
+    def formatted_detector_list(self):
+        # GET A FORMATTED LIST OF THE CHANNELS AND DETECTORS
+        fmt_detector_list = {}.fromkeys(self.channel_list())
+        for channel_name in list(self.channel_list()):
+            fmt_detector_list[channel_name] = self.detectors_in_channel(channel_name)
+        return fmt_detector_list
+
+    def num_segments(self):
+        # COUNT THE TOTAL NUMBER OF SEGMENTS IN THE SIMULATION
+        num_segments = 0
+        for channel_name in self.channel_list():
+            for detector_name in self.detectors_in_channel(channel_name):
+                num_segments += len(self.channel_detector_segment_dict[channel_name][detector_name])
+        return num_segments
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

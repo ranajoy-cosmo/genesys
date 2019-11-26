@@ -11,8 +11,8 @@ def gen_rotation_quat(thetas, axis_vec):
     Each row is an individual quaternion given by
     [cos(theta/2), sin(theta/2)*(x, y, z)]
     and, axis_vec=(x, y, z) is the axis of rotation.
-    The axis_vec is assumed to be an unit vector, and hence the quaternion will be an unit vector.
-    Theta is assumed to be in radians.
+    The axis_vec is an unit vector, and hence the quaternion will be an unit vector.
+    Theta is in radians.
     The last two are considered to improve performance and save time on parsing additional lines.
     theta input shape : (N,) or a scalar     
     axis_vec input shape : (N,3) or (3,)
