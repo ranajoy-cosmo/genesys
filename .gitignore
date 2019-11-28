@@ -18,3 +18,4 @@ spectra/camb_output
 *custom*
 instrument/*
 timestream_simulation/job_launcher.sh
+notebook

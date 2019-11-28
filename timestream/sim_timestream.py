@@ -14,6 +14,7 @@ where, CONFIG_FILE_PATH is the absolute path to the config file to be passes to 
 import sys
 import os
 import time
+import h5py
 from termcolor import colored
 from functools import partial
 from genesys import Genesys_Class
@@ -36,17 +37,32 @@ def run_simulation():
     cumulative_time_taken = 0
 
     for channel_name in data_seg_local.channel_list():
+        dio.set_path_for_channel(channel_name)
+        dio.make_channel_directory()
         for detector_name in data_seg_local.detectors_in_channel(channel_name):
             detector = Detector(instrument_name=sim_config['instrument_name'], channel_name=channel_name, detector_name=detector_name)
+            detector.initialise_pointing()
+            detector.load_map(sim_config['sim_pol_type'])
+            dio.set_path_for_detector(detector_name)
+            dio.make_detector_directory()
             for segment in data_seg_local.channel_detector_segment_dict[channel_name][detector_name]:
+                print("Rank {} doing segment {} of detector {} in channel {}".format(rank, segment, detector_name, channel_name))
                 segment_start_time = time.time()
                 count += 1
-                ts = TStream(sim_config=sim_config, detector_params=detector.params, segment=segment)
+                ts = TStream(sim_config=sim_config, detector=detector, segment=segment+1)
+                ts.generate_scan_tstream()
+                write_tstream(ts.ts, dio.get_path_to_segment_file(segment))
                 segment_stop_time = time.time()
                 time_taken = segment_stop_time - segment_start_time
                 cumulative_time_taken += time_taken
                 print("Rank {} finished {} of {} segments.\nTime taken: {}s. Total time taken: {}, Projected time: {}\n".format(rank, count, data_seg_local.num_segments(), time_taken, cumulative_time_taken, cumulative_time_taken*data_seg_local.num_segments()/count))
 
+def write_tstream(ts, file_name):
+    print(list(ts.keys()))
+    f = h5py.File(file_name, 'a')
+    for item in list(ts.keys()):
+        f.create_dataset(item, data=ts[item])
+    f.close()
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* THE START MESSAGES
@@ -73,6 +89,8 @@ def global_start_message():
     print("SEGMENT LENGTH: {}s = {}d = {}y".format(sim_config['segment_length'], uc.convert_unit('time', sim_config['segment_length'], 'second', 'day'), uc.convert_unit('time', sim_config['segment_length'], 'second', 'siderial year')))
     sim_time = data_seg_global.num_segments() * sim_config['segment_length']
     print("TOTAL SIMULATION TIME : {}s = {}d = {}y".format(sim_time, uc.convert_unit('time', sim_time, 'second', 'day'), uc.convert_unit('time', sim_time, 'second', 'siderial year')))
+    sim_time = data_seg_global.num_segments() * sim_config['segment_length'] / data_seg_global.num_detectors()
+    print("TOTAL SIMULATION TIME PER DETECTOR: {}s = {}d = {}y".format(sim_time, uc.convert_unit('time', sim_time, 'second', 'day'), uc.convert_unit('time', sim_time, 'second', 'siderial year')))
     print(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n", color='blue'))
 
 def local_start_message():
@@ -127,7 +145,7 @@ if __name__=="__main__":
     # THIS BLOCK GETS THE LOCAL AND GLOBAL DICTIONARY OF BANDS, DETECTORS AND SEGMENTS
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     data_seg_global = Data_Segment(0, 1, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
-    data_seg_local = Data_Segment(rank, 1, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
+    data_seg_local = Data_Segment(rank, size, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -152,9 +170,9 @@ if __name__=="__main__":
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # THIS BLOCK MAKES THE PARENT DATA DIRECTORIES
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    dio = Data_IO(sim_config)
     if rank == 0:
-        global_dio = Data_IO(sim_config)
-        global_dio.make_top_data_directories(dir_list=['sim_dir', 'tod_dir'])
+        dio.make_top_data_directories(dir_list=['sim_dir', 'tod_dir'])
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

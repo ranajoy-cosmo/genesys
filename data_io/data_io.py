@@ -28,30 +28,32 @@ class Data_IO(Genesys_Class):
     def __init__(self, sim_params=None):
         self.paths = {}
         if sim_params is not None:
-            self.paths['sim_dir'] = os.path.join(self.global_paths['data_dir'], sim_params['sim_tag'])
+            self.paths['sim_dir'] = os.path.join(self.global_paths['output_dir'], sim_params['sim_tag'])
             self.paths['tod_dir'] = os.path.join(self.paths['sim_dir'], sim_params['tod_tag'])
             if 'recon_tag' in sim_params:
-                self.paths['recon_dir'] = os.path.join(self.global_paths['data_dir'], sim_params['recon_tag'])
+                self.paths['recon_dir'] = os.path.join(self.global_paths['sim_dir'], sim_params['recon_tag'])
 
-    def set_path_for_detector(self, detector_params):
-        self.paths['channel_dir'] = os.path.join(self.paths['tod_dir'], detector_params['channel_name'])
-        self.paths['detector_dir'] = os.path.join(self.paths['channel_dir'], detector_params['detector_name'])
+    def set_path_for_channel(self, channel_name):
+        self.paths['channel_dir'] = os.path.join(self.paths['tod_dir'], channel_name)
 
-    def get_path_to_segment_file(config, segment, fill_size=7):
-        segment_name = get_segment_name(segment, fill_size=fill_size)
+    def set_path_for_detector(self, detector_name):
+        self.paths['detector_dir'] = os.path.join(self.paths['channel_dir'], detector_name)
+
+    def get_path_to_segment_file(self, segment, fill_size=7):
+        segment_name = self.get_segment_name(segment, fill_size=fill_size)
         return os.path.join(self.paths['detector_dir'], segment_name + '.hdf5')
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # SEGMENT NAMING CONVENTION
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    def get_segment_name(segment, fill_size=7):
+    def get_segment_name(self, segment, fill_size=7):
         """
         * COPY OF DESCRIPTION IN CLASS DOC *
         Segment naming convention:
             - Segment 1 starts with time stamp 0.0
             - There are 7 charachters in the segment name, with empty places filled with 0. Ex. Segment 42 will be named 0000042
         """
-        return str(segment+1).zfill(fill_size)
+        return str(segment).zfill(fill_size)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     #* FILE EXISTENCE
@@ -102,7 +104,7 @@ class Data_IO(Genesys_Class):
         self.make_directory(self.paths['channel_dir'], exist_ok=True)
 
     def make_detector_directory(self, verbose=False):
-        self.make_directory(self.paths['channel_dir'], exist_ok=True)
+        self.make_directory(self.paths['detector_dir'], exist_ok=True)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 

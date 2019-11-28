@@ -38,12 +38,14 @@ channels:
         central_frequency: 40.0           # GHz
         bandwidth: 12.0                     # GHz
         beam_fwhm: 69.3                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
-        detector_NET: 209.72                # uk.sqrt(s)
+        # detector_NET: 209.72                # uk.sqrt(s)
+        detector_NET: 64.21                # uk.sqrt(s). Scaled for 6 detectors
         detector_yield: 1.0
         noise_margin: 1.0
+        noise_type: white
         pol_modulation: HWP_1
         # OTHER OPTION BEING scan
         detector_param_file: LFT_40GHz_params.yaml
@@ -53,7 +55,7 @@ channels:
         central_frequency: 50.0           # GHz
         bandwidth: 15.0                     # GHz
         beam_fwhm: 56.8                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
         detector_NET: 115.94                # uk.sqrt(s)
@@ -67,7 +69,7 @@ channels:
         central_frequency: 60.0           # GHz
         bandwidth: 14.0                     # GHz
         beam_fwhm: 49.0                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
         detector_NET: 91.12                # uk.sqrt(s)
@@ -81,7 +83,7 @@ channels:
         central_frequency: 68.0           # GHz
         bandwidth: 16.0                     # GHz
         beam_fwhm: 41.6                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
         detector_NET: 76.40                # uk.sqrt(s)
@@ -95,7 +97,7 @@ channels:
         central_frequency: 68.0           # GHz
         bandwidth: 16.0                     # GHz
         beam_fwhm: 44.5                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
         detector_NET: 124.86                # uk.sqrt(s)
@@ -109,7 +111,7 @@ channels:
         central_frequency: 78.0           # GHz
         bandwidth: 18.0                     # GHz
         beam_fwhm: 36.9                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
         detector_NET: 65.78                # uk.sqrt(s)
@@ -123,7 +125,7 @@ channels:
         central_frequency: 78.0           # GHz
         bandwidth: 18.0                     # GHz
         beam_fwhm: 40.0                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
         detector_NET: 97.92                # uk.sqrt(s)
@@ -137,7 +139,7 @@ channels:
         central_frequency: 89.0           # GHz
         bandwidth: 20.0                     # GHz
         beam_fwhm: 33.0                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
         detector_NET: 59.95                # uk.sqrt(s)
@@ -151,7 +153,7 @@ channels:
         central_frequency: 89.0           # GHz
         bandwidth: 20.0                     # GHz
         beam_fwhm: 36.7                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
         detector_NET: 79.78                # uk.sqrt(s)
@@ -165,7 +167,7 @@ channels:
         central_frequency: 100.0           # GHz
         bandwidth: 23.0                     # GHz
         beam_fwhm: 30.2                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
         detector_NET: 68.64                # uk.sqrt(s)
@@ -179,7 +181,7 @@ channels:
         central_frequency: 100.0           # GHz
         bandwidth: 23.0                     # GHz
         beam_fwhm: 37.8                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 11.6                      # mm
         num_detectors: 366
         detector_NET: 81.77                # uk.sqrt(s)
@@ -193,7 +195,7 @@ channels:
         central_frequency: 119.0           # GHz
         bandwidth: 36.0                     # GHz
         beam_fwhm: 26.3                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
         detector_NET: 51.98                # uk.sqrt(s)
@@ -207,7 +209,7 @@ channels:
         central_frequency: 119.0           # GHz
         bandwidth: 36.0                     # GHz
         beam_fwhm: 33.6                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 11.6                      # mm
         num_detectors: 488
         detector_NET: 62.68                # uk.sqrt(s)
@@ -221,7 +223,7 @@ channels:
         central_frequency: 140.0           # GHz
         bandwidth: 42.0                     # GHz
         beam_fwhm: 23.7                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
         detector_NET: 50.69                # uk.sqrt(s)
@@ -235,7 +237,7 @@ channels:
         central_frequency: 166.0           # GHz
         bandwidth: 50.0                     # GHz
         beam_fwhm: 28.9                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 11.6                      # mm
         num_detectors: 488
         detector_NET: 56.79                # uk.sqrt(s)
@@ -249,7 +251,7 @@ channels:
         central_frequency: 195.0           # GHz
         bandwidth: 59.0                     # GHz
         beam_fwhm: 28.0                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 11.6                      # mm
         num_detectors: 366
         detector_NET: 60.20                # uk.sqrt(s)
@@ -263,7 +265,7 @@ channels:
         central_frequency: 195.0           # GHz
         bandwidth: 59.0                     # GHz
         beam_fwhm: 28.6                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 6.6                      # mm
         num_detectors: 254
         detector_NET: 110.39                # uk.sqrt(s)
@@ -277,7 +279,7 @@ channels:
         central_frequency: 235.0           # GHz
         bandwidth: 71.0                     # GHz
         beam_fwhm: 24.7                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 6.6                      # mm
         num_detectors: 254
         detector_NET: 106.8                # uk.sqrt(s)
@@ -291,7 +293,7 @@ channels:
         central_frequency: 280.0           # GHz
         bandwidth: 84.0                     # GHz
         beam_fwhm: 22.5                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 6.6                      # mm
         num_detectors: 254
         detector_NET: 126.7                # uk.sqrt(s)
@@ -305,7 +307,7 @@ channels:
         central_frequency: 337.0           # GHz
         bandwidth: 101.0                     # GHz
         beam_fwhm: 20.9                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 6.6                      # mm
         num_detectors: 254
         detector_NET: 176.09                # uk.sqrt(s)
@@ -319,7 +321,7 @@ channels:
         central_frequency: 402.0           # GHz
         bandwidth: 92.0                     # GHz
         beam_fwhm: 17.9                     # arcminutes
-        sampling_rate: 10                   # Hz
+        sampling_rate: 31                   # Hz
         pixel_size: 5.7                      # mm
         num_detectors: 338
         detector_NET: 405.62                # uk.sqrt(s)

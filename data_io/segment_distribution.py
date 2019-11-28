@@ -42,7 +42,7 @@ class Data_Segment(Genesys_Class):
                             channel_detector_segment_dict[channel_name] = {}
                         if detector_name not in list(channel_detector_segment_dict[channel_name].keys()):
                             channel_detector_segment_dict[channel_name][detector_name] = [] 
-                        channel_detector_segment_dict[channel_name][detector_name].append(segment)
+                        channel_detector_segment_dict[channel_name][detector_name].append(segment+1)
                     else:
                         break
                 if count >= stop_index:

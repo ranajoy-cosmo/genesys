@@ -14,55 +14,44 @@ class Sky_Map(Genesys_Class):
         False -> Pixel seen
         True -> Pixel not seen
     """
-    def __init__(self, other=None, map_file_name=None, sky_map_np=None, fields=None, labels=None):
+    def __init__(self, map_file_name=None, field=None, sky_map_np=None, other=None):
         """
-        Constructor
-        Order of preference:
-            other -> copy_attributes(other) : Copy constructor
-            map_file_name -> read_map_from_file(map_file_name, fields, map_labels) : Read Healpix map from file
+        CONSTRUCTOR
+        ORDER OF PREFERENCE:
+            map_file_name -> read_map_from_file(map_file_name, field) : Read Healpix map from file
             map_np -> from_np_array(map_np) : Assign from a map existing as a numpy array
+            other -> copy_attributes(other) : Copy constructor
             None -> Empty object
         """
-        if other is not None:
-            self.copy_attributes(other=other)
-        elif map_file_name is not None:
-            self.read_map_from_file(map_file_name=map_file_name, fields=fields, labels=labels)
+        if map_file_name is not None:
+            self.read_map_from_file(map_file_name=map_file_name, field=field)
         elif sky_map_np is not None:
-            self.from_np_array(sky_map_np, labels=labels)
+            self.from_np_array(sky_map_np)
+        elif other is not None:
+            self.copy_attributes(other=other)
         else:
             self.sky_map = None
-            self.label_dict = {}
             self.nside = None
 
-    def read_map_from_file(self, map_file_name, field=None, labels=None):
+    def read_map_from_file(self, map_file_name, field=None):
         """
-        Read map from file
-        The base directory of all maps is assumed to be global_config.maps_dir
+        THE BASE DIRECTORY OF ALL MAPS IS ASSUMED TO BE global_paths['maps_dir']
         """
         if field == None:
             field = (0)
-        if labels == None:
-            labels = np.arange(field.size)
-        self.sky_map = hp.read_map(self.get_path_to_map_file(map_file_name), field=field)
-        self.label_dict = {k: v for v, k in enumerate(labels)}
+        self.sky_map = hp.read_map(self.get_path_to_map_file(map_file_name), field=field, verbose=False)
         self.nside = hp.get_nside(self.sky_map)
 
-    def from_np_array(self, sky_map_np, labels=None):
+    def from_np_array(self, sky_map_np):
         """
-        Accepts a Healpix map in numpy array format
+        ACCEPTS A HEALPIX MAP IN NUMPY ARRAY FORMAT
         """
         self.sky_map = sky_map_np
-        if labels == None:
-            if hp.maptype(self.sky_map) == 0: 
-                labels = [0]
-            else:
-                labels = np.arange(self.sky_map.shape[0])
-        self.label_dict = {k: v for v, k in enumerate(labels)}
         self.nside = hp.get_nside(self.sky_map)
 
     def write_map(self, map_file_name):
         """
-        Writes map to file
+        WRITES MAP TO FILE
         """
         hp.write_map(self.get_path_to_map_file(map_file_name), self.sky_map)
 

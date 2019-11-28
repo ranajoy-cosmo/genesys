@@ -14,9 +14,9 @@ global_config_file = "ita_owl_fat.yaml"  # Only this line needs to change betwee
 
 class Genesys_Class:
     """
-    An empty class that can be used as a template for any object.
-    Basic features:
-        copy_other: Copy the attributes of another object
+    AN EMPTY CLASS THAT CAN BE USED AS A TEMPLATE FOR ANY OBJECT.
+    BASIC FEATURES:
+        copy_other: COPY THE ATTRIBUTES OF ANOTHER OBJECT
     """
 
     def __init__(self):
@@ -38,10 +38,13 @@ class Genesys_Class:
         return copy.deepcopy(self)
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# This method allows for adding an external method to a class
-# From: https://medium.com/@mgarod/dynamically-add-a-method-to-a-class-in-python-c49204b85bd6
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
 def add_method(cls):
+    """
+    This method allows for adding an external method to a class
+    From: https://medium.com/@mgarod/dynamically-add-a-method-to-a-class-in-python-c49204b85bd6
+    """
     def decorator(func):
         @wraps(func) 
         def wrapper(self, *args, **kwargs): 
@@ -55,7 +58,7 @@ def add_method(cls):
 # This allows them to be used both independently as themselves as well as as methods of Genesys_Class
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# Prompter utility
+# PROMPTER UTILITY
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #
 #  @add_method(Genesys_Class)
@@ -69,7 +72,7 @@ def add_method(cls):
     #  outstream.flush()
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# Parameter loading method
+# PARAMETER LOADING METHOD
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 @add_method(Genesys_Class)
@@ -89,7 +92,7 @@ def load_param_file(file_handle=None, file_path=None):
     return param_data
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# This block defines the global system configuration and the global paths
+# THIS BLOCK DEFINES THE GLOBAL SYSTEM CONFIGURATION AND THE GLOBAL PATHS
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 current_dir = os.path.dirname(__file__)
