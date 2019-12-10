@@ -54,16 +54,20 @@ def show_valid_units(unit_type):
     unit_list = list(unit_dict.keys())
     print("Valid units : {}".format(unit_list))
 
-def convert_unit(unit_type, quantity, unit_in, unit_out, verbose=False):
+def conversion_factor(unit_type, unit_in, unit_out, verbose=False):
     validate_unit_type(unit_type)
     unit_dict = all_unit_dicts[unit_type]
     validate_unit(unit_type, unit_in)
     validate_unit(unit_type, unit_out)
+    conv_factor = unit_dict[unit_in] / unit_dict[unit_out]
+    if verbose:
+        print("{} to {} conversion factor: {}".format(unit_in, unit_out, conv_factor))
+    return conv_factor
 
-    conversion_factor = unit_dict[unit_in] / unit_dict[unit_out]
-    converted_quantity = quantity * conversion_factor
-
+def convert_unit(quantity, unit_type, unit_in, unit_out, verbose=False):
+    conv_factor = conversion_factor(unit_type, unit_in, unit_out)
+    converted_quantity = quantity * conv_factor
     if verbose:
         print("{} {} = {} {}".format(quantity, unit_in, converted_quantity, unit_out))
-
     return converted_quantity
+

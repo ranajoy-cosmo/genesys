@@ -67,6 +67,10 @@ class Data_IO(Genesys_Class):
 
         return exists
 
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    #* MAKING NEW DATA DIRECTORIES
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
     def make_top_data_directories(self, dir_list, verbose=False):
         """
         This function will create the top level directories under which the simulated data will be written to.
@@ -108,9 +112,6 @@ class Data_IO(Genesys_Class):
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-#* MAKING NEW DATA DIRECTORIES
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 @add_method(Data_IO)
 def make_directory(dir_name, exist_ok=False):
@@ -120,27 +121,3 @@ def make_directory(dir_name, exist_ok=False):
     """
     if not os.path.exists(dir_name):
         os.makedirs(dir_name, exist_ok=exist_ok)
-
-def write_segment_data(config, segment, data, data_name):
-    segment_path = get_path_to_segment_dir(config, segment)
-    if config.special_tag == "":
-        data_special_name = data_name
-    else:
-        data_special_name = config.special_tag + '_' + data_name
-    np.save(os.path.join(segment_path, data_special_name), data)
-
-def read_segment_data(config, segment, data_name):
-    segment_path = get_path_to_segment_dir(config, segment)
-    if config.special_tag == "":
-        data_special_name = data_name
-    else:
-        data_special_name = config.special_tag + '_' + data_name
-    data = np.load(os.path.join(segment_path, data_special_name + '.npy'))
-    return data
-
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-
-def write_sky_map(config, sky_map, map_name):
-    recon_dir = get_path_to_recon_dir(config)
-    map_file_name = os.path.join(recon_dir, map_name + '.fits')
-    hp.write_map(map_file_name, sky_map)

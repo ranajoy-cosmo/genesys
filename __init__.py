@@ -19,11 +19,12 @@ class Genesys_Class:
         copy_other: COPY THE ATTRIBUTES OF ANOTHER OBJECT
     """
 
-    def __init__(self):
+    def __init__(self, other=None):
         """
         Does nothing. Expect this to be overridden by the child class
         """
-        pass
+        if other != None:
+            self.copy_attributes(other)
 
     def copy_attributes(self, other):
         """
@@ -60,16 +61,16 @@ def add_method(cls):
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # PROMPTER UTILITY
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-#
-#  @add_method(Genesys_Class)
-#  def prompt(text, outstream=sys.stdout, color=None):
-    #  """
-    #  Flush out any text to the outstream provided immediately.
-    #  """
-    #  if color:
-        #  text = colored(text, color)
-    #  outstream.write(text)
-    #  outstream.flush()
+
+@add_method(Genesys_Class)
+def prompt(text, outstream=sys.stdout, color=None):
+    """
+    FLUSH OUT ANY TEXT TO THE outstream PROVIDED IMMEDIATELY.
+    """
+    if color:
+        text = colored(text, color)
+    outstream.write(text)
+    outstream.flush()
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # PARAMETER LOADING METHOD
@@ -105,16 +106,13 @@ global_paths = global_param_dict['global_paths']
 
 # Forming the paths
 global_paths['base_dir'] = current_dir
-global_paths['output_dir'] = os.path.join(global_paths['data_dir'], global_paths['rel_output_dir']) 
-global_paths['maps_dir'] = os.path.join(global_paths['data_dir'], global_paths['rel_maps_dir']) 
-global_paths['spectra_dir'] = os.path.join(global_paths['data_dir'], global_paths['rel_spectra_dir']) 
+global_paths['output_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_output_dir']) 
+global_paths['maps_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_maps_dir']) 
+global_paths['spectra_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_spectra_dir']) 
+global_paths['data_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_data_dir']) 
 global_paths['camb_params_dir'] = os.path.join(current_dir, 'spectra', 'camb_params') 
 global_paths['instruments_dir'] = os.path.join(current_dir, 'instruments')
 
 # Adds these dictionaries as class members of Genesys_Class
 Genesys_Class.global_system = global_system
 Genesys_Class.global_paths = global_paths
-
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# Path naming conventions to be followed throught the genesys ecosystem
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

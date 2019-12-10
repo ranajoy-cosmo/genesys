@@ -7,10 +7,10 @@ from genesys.maps import Sky_Map
 class Detector(Instrument):
     # Instrument ALREADY INHERITS FROM Genesys_Class
     def __init__(self, instrument_name=None, channel_name=None, detector_name=None, other=None):
-        if other is not None:
-            self.copy_attributes(other)
-        elif detector_name is not None:
+        if detector_name != None:
             self.configure_detector(instrument_name, channel_name, detector_name)
+        elif other != None:
+            self.copy_attributes(other)
         else:
             pass
 
@@ -32,10 +32,15 @@ class Detector(Instrument):
             self.params['noise']['noise_type'] = channel_params['noise_type']
         if 'white_noise_rms' not in self.params['noise'] or self.params['noise']['white_noise_rms'] is None:
             self.params['noise']['white_noise_rms'] = channel_params['detector_NET']
-        if 'pol_modulation' not in self.params or self.params['pol_modulation'] is None:
-            self.params['pol_modulation'] = channel_params['pol_modulation']
+        if self.params['noise']['noise_type'] == '1_over_f':
+            if 'f_knee' not in self.params['noise'] or self.params['noise']['f_knee'] is None:
+                self.params['noise']['f_knee'] = channel_params['f_knee']
+            if 'noise_alpha' not in self.params['noise'] or self.params['noise']['noise_alpha'] is None:
+                self.params['noise']['noise_alpha'] = channel_params['noise_alpha']
         if 'sampling_rate' not in self.params or self.params['sampling_rate'] is None:
             self.params['sampling_rate'] = channel_params['sampling_rate']
+        if 'pol_modulation' not in self.params or self.params['pol_modulation'] is None:
+            self.params['pol_modulation'] = channel_params['pol_modulation']
         if self.params['pol_modulation'] != 'scan':
             self.params['HWP'] = inst_params['half_wave_plates'][channel_params['pol_modulation']]
             self.params['HWP']['HWP_label'] = channel_params['pol_modulation']

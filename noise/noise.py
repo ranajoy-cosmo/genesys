@@ -9,13 +9,25 @@ Refer to Numerical Recipes (NR hereafter) in C++, second edition
 """
 
 class Noise(Genesys_Class):
-    def __init__(self, params):
-        self.params = params
+    def __init__(self, params, sampling_rate, n_samples):
+        self.params = copy.deepcopy(params)
+        self.params['sampling_rate'] = sampling_rate
+        self.n_samples = n_samples
 
-    def simulate_ts_noise(self, n_samples):
-        if self.params['noise_type'] == "white":
-            noise = np.random.normal(loc=0.0, scale=self.params['white_noise_rms'], size=n_samples)
+    def simulate_noise(self):
+        if self.params['noise_type'] == 'white':
+            noise = get_white_noise()
+        if self.params['noise_type'] == '1/f':
+            noise = get_1_over_f_noise()
         return noise
+
+    def get_white_noise(self):
+        return np.random.normal(loc=0.0, scale=self.params['white_noise_rms'], size=self.n_samples)
+
+    def get_1_over_f_noise(self):
+        return None
+
+    def plot_psd(self, noise_ts):
 #
     #  def get_real_one_sided_psd(self, timestream):
         #  '''

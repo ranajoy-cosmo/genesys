@@ -20,8 +20,9 @@ global_system:
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 global_paths:
-    data_dir: /mn/stornext/d14/comap/ranajoyb # The directory where large files are written down. For example the scratch system at NERSC. Please do not set this somewhere with very limited storage as it'll fill up fast. Ideally it should have space of the order of a few TeraBytes.
-    # The following directories are the locations on the user's system where large files get stored. Softlinks to these will be generated for easy access of the content of these directories.
-    rel_output_dir: genesys_output # The directory for I/O during execution and storing simulation data.
-    rel_maps_dir: genesys_maps # The directory under the data directory where the input maps are stored.
-    rel_spectra_dir: genesys_spectra # The directory under the data directory where the CMB spectra are stored.
+    storage_dir: /mn/stornext/d14/comap/ranajoyb/Genesys_Files # The directory where large files are written down. For example the scratch system at NERSC. Please do not set this somewhere with very limited storage as it'll fill up fast. Ideally it should have space of the order of a few TeraBytes.
+    # The following directories are the locations relative to storage_dir. Softlinks to these will be generated for easy access of the content of these directories.
+    real_output_dir: output # The directory for I/O during execution and storing simulation data.
+    real_maps_dir: maps # The directory under the data directory where the input maps are stored.
+    real_spectra_dir: spectra # The directory under the data directory where the CMB spectra are stored.
+    real_data_dir: data # The directory under the data directory where the CMB spectra are stored.

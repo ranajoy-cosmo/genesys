@@ -1,27 +1,25 @@
-"""
-class for handling instrument parameter loading and handling
-The instrument is specified by a instrument_name folder.
-The folder contains the following files
-    instrument.ini -> Top level instrument specifications, scan strategies, polarisation modulator
-    focal_plane.ini -> Focal plane and channel descriptions.
-    detectors_<channel>.ini -> Individual detector configuration for each channel
-If None is provided for focal_plane and scan_strategy, the default files will be loaded. Otherwise the custom files will be loaded
-"""
 
 import os
 from genesys import Genesys_Class
 
 class Instrument(Genesys_Class):
+    """
+    class for handling instrument parameter loading and handling
+    The instrument is described in a instrument_name folder.
+    The folder contains the following files
+        instrument.yaml -> Top level instrument specifications, scan strategies, polarisation modulator
+        <Channel_name>.yaml -> Individual detector parameters.
+    """
     def __init__(self, instrument_name=None, other=None):
         """
         Constructor for Instrument class
         If other is given, the instance variables of other are copied into self
-        If instrument_name is given, the intrument parameters are loaded from the instrument_dir
+        If instrument_name is given, the intrument parameters are loaded from the corresponding directory
         """
-        if other is not None:
-            self.copy_attributes(other)
-        elif instrument_name != None:
+        if instrument_name != None:
             self.configure_instrument(instrument_name=instrument_name)
+        elif other != None:
+            self.copy_attributes(other)
         else:
             pass
 
@@ -82,6 +80,6 @@ class Instrument(Genesys_Class):
         """
         return os.path.join(self.path_to_instrument_dir(instrument_name), instrument_param_file_name)
 
-    #  #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    #  # Validating the parameters
-    #  #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # Validating the parameters
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

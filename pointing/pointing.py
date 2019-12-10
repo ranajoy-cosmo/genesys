@@ -3,6 +3,7 @@ import math
 import numpy as np
 import healpy as hp
 import copy
+import genesys.numerical.unit_conversion as uc
 import quaternion as qt
 from genesys import Genesys_Class
 
@@ -10,46 +11,55 @@ t_year = 365.25 * 24 * 60 * 60
 class Pointing(Genesys_Class):
     """
     Class for generating the pointing
+    Left-handed Cartesian coordiante system
+    The initial position of the satellite is assumed to be such that the anti-solar precession axis is the x-axis, 
+    the spin axis is in the x-z plane and at a positive angle of alpha degrees to the precession axis, 
+    the axis of revolution is the z-axis.
     """
     def __init__(self, pointing_params):
         self.params = copy.deepcopy(pointing_params)
+        self.set_to_correct_units()
         self.set_initial_axes_and_angles()
         self.set_initial_pointing_vector()
 
-    def set_initial_axes_and_angles(self):
-        """
-        Left-handed Cartesian coordiante system
-        The initial position of the satellite is assumed to be such that the anti-solar precession axis is the x-axis, 
-        the spin axis is in the x-z plane and at a positive angle of alpha degrees to the precession axis, 
-        the axis of revolution is the z-axis.
-        """
-        # alpha and beta are provided in degrees in the param files and need to be converted to radians
-        alpha = np.radians(self.params['scan_strategy']['alpha'])
-        beta = np.radians(self.params['scan_strategy']['beta'])
-        boresight_opening_angle = alpha + beta
+    def set_to_correct_units(self):
+        self.params['alpha'] *= uc.conversion_factor('angle', 'degree', 'radian')
+        self.params['beta'] *= uc.conversion_factor('angle', 'degree', 'radian')
+        if 'pos' in self.params:
+            self.params['pos'] *= uc.conversion_factor('angle', 'arcmin', 'radian')
 
+    def set_rotation_axes(self):
         self.axis_rev = np.array([0.0, 0.0, 1.0])
         self.axis_prec = np.array([1.0, 0.0, 0.0])
-        self.axis_spin = np.array([np.cos(alpha), 0.0, np.sin(alpha)])
+        self.axis_spin = np.array([np.cos(self.params['alpha']), 0.0, np.sin(self.params['alpha'])])
+
+    def set_boresight_axes(self):
+        boresight_opening_angle = self.params['alpha'] + self.params['beta']
         self.axis_boresight = np.array([np.cos(boresight_opening_angle), 0.0, np.sin(boresight_opening_angle)])
         self.axis_boresight_rot_x = np.array([np.cos(boresight_opening_angle - np.pi/2.0), 0.0, np.sin(boresight_opening_angle - np.pi/2.0)])
 
-    def set_initial_pointing_vector(self):
-        """
-        The initial pointing of each detector is set independently.
-        The position on the focal plane for each detector is different, hence their projection on the sky.
-        """
-        # The focal plane position, pos is provided as a tuple (x,y) in arc-mins
-        # The offset, offset is provided as a tuple (x,y) in arc-seconds
-        total_pos_rad = np.radians((np.array(self.params['pos']) / 60.0) + (np.array(self.params['offset']) / 60.0 / 60.0))
-
+    def set_detector_axis(self):
         y_axis = np.array([0.0, 1.0, 0.0])
-        q_rot_x = self.gen_rotation_quat(total_pos_rad[0], self.axis_boresight_rot_x)
-        q_rot_y = self.gen_rotation_quat(total_pos_rad[1], -1.0*y_axis)
+
+        q_rot_x = self.gen_rotation_quat(self.params['pos'][0], self.axis_boresight_rot_x)
+        q_rot_y = self.gen_rotation_quat(self.params['pos'][1], -1.0*y_axis)
 
         q_rot_total = q_rot_x * q_rot_y
 
-        self.pointing_vector_initial = self.rotate_vector(q_rot_total, self.axis_boresight)
+        self.detector_axis = self.rotate_vector(q_rot_total, self.axis_boresight)
+
+    def set_detector_axis_offset(self, beam_integration_offset=[0.0,0.0]):
+        # beam_integration_offset is given in arcmin
+        y_axis = np.array([0.0, 1.0, 0.0])
+
+        pos_offset = uc.convert_unit(self.params['pos'], 'angle', 'arcmin', 'radian') + uc.convert_unit(self.params['offset'], 'angle', 'arcsec', 'radian') + uc.convert_unit(beam_integration_offset, 'angle', 'arcmin', 'radian')
+
+        q_rot_x = self.gen_rotation_quat(pos_offset, self.axis_boresight_rot_x)
+        q_rot_y = self.gen_rotation_quat(pos_offset, -1.0*y_axis)
+
+        q_rot_total = q_rot_x * q_rot_y
+
+        self.detector_axis_offset = self.rotate_vector(q_rot_total, self.axis_boresight)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 

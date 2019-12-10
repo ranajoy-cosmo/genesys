@@ -2,18 +2,19 @@
 
 import os
 import sys
-from genesys.global_config import global_paths
+from genesys import global_paths
 
 def make_links():
-    os.symlink(global_paths.output_dir, os.path.join(global_paths.base_dir, "output"))
-    os.symlink(global_paths.maps_dir, os.path.join(global_paths.base_dir, "maps", "map_files"))
-    os.symlink(global_paths.spectra_dir, os.path.join(global_paths.base_dir, "spectra", "spectra_files"))
-    os.symlink(global_paths.spectra_dir, os.path.join(global_paths.base_dir, "spectra", "camb_output"))
+    os.symlink(global_paths['output_dir'], os.path.join(global_paths['base_dir'], "output"))
+    os.symlink(global_paths['data_dir'], os.path.join(global_paths['base_dir'], "data"))
+    os.symlink(global_paths['maps_dir'], os.path.join(global_paths['base_dir'], "maps", "map_files"))
+    os.symlink(global_paths['spectra_dir'], os.path.join(global_paths['base_dir'], "spectra", "spectra_files"))
 
 def remove_links():
-    os.unlink(os.path.join(global_paths.base_dir, "output"))
-    os.unlink(os.path.join(global_paths.base_dir, "maps", "map_files"))
-    os.unlink(os.path.join(global_paths.base_dir, "spectra", "spectra_files"))
+    os.unlink(os.path.join(global_paths['base_dir'], "output"))
+    os.unlink(os.path.join(global_paths['base_dir'], "data"))
+    os.unlink(os.path.join(global_paths['base_dir'], "maps", "map_files"))
+    os.unlink(os.path.join(global_paths['base_dir'], "spectra", "spectra_files"))
 
 if __name__=="__main__":
     try:

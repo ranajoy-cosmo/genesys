@@ -19,3 +19,6 @@ spectra/camb_output
 instrument/*
 timestream_simulation/job_launcher.sh
 notebook
+noise/fourier_analysis.py
+huffman.py
+timestream/genesys_to_comm.py

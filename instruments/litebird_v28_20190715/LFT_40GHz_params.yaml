@@ -9,7 +9,7 @@
         noise_type: white
         white_noise_rms: 40.0   # uk*sqrt(s)  
         f_knee:             # mHz
-        alpha:
+        noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0001b:
@@ -20,7 +20,7 @@
         noise_type: white
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
-        alpha:
+        noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0002a:
@@ -31,7 +31,7 @@
         noise_type: white
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
-        alpha:
+        noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0002b:
@@ -42,7 +42,7 @@
         noise_type: white
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
-        alpha:
+        noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0003a:
@@ -53,7 +53,7 @@
         noise_type: white
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
-        alpha:
+        noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0003b:
@@ -64,5 +64,5 @@
         noise_type: white
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
-        alpha:
+        noise_alpha:
     pos: [0.0,0.0]              # arcmins
