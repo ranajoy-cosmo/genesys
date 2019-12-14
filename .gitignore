@@ -14,7 +14,8 @@ __pycache__
 noise/noise_rms_with_lmax.py
 spectra/camb_params
 spectra/run_camb.sh
-spectra/camb_output
+spectra/spectra_files
+maps/map_files
 *custom*
 instrument/*
 timestream_simulation/job_launcher.sh
