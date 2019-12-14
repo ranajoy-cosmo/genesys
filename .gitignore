@@ -22,3 +22,5 @@ notebook
 noise/fourier_analysis.py
 huffman.py
 timestream/genesys_to_comm.py
+*.ipynb_checkpoints
+*ipynb
