@@ -1,4 +1,3 @@
-
 import os
 from genesys import Genesys_Class
 

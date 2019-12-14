@@ -3,11 +3,13 @@ import math
 import numpy as np
 import healpy as hp
 import copy
-import genesys.numerical.unit_conversion as uc
+from genesys.numerical.unit_conversion import Unit_Converter
 import quaternion as qt
 from genesys import Genesys_Class
 
-t_year = 365.25 * 24 * 60 * 60
+uc = Unit_Converter()
+t_year = uc.convert_unit(1.0, 'time', 'siderial year', 'second')
+
 class Pointing(Genesys_Class):
     """
     Class for generating the pointing
@@ -17,21 +19,24 @@ class Pointing(Genesys_Class):
     the axis of revolution is the z-axis.
     """
     def __init__(self, pointing_params):
-        self.params = copy.deepcopy(pointing_params)
-        self.set_to_correct_units()
+        self.copy_params(pointing_params)
+        self.set_to_standard_units()
+        self.set_rotation_axes()
         self.set_initial_axes_and_angles()
         self.set_initial_pointing_vector()
 
-    def set_to_correct_units(self):
+    def set_to_standard_units(self):
         self.params['alpha'] *= uc.conversion_factor('angle', 'degree', 'radian')
         self.params['beta'] *= uc.conversion_factor('angle', 'degree', 'radian')
         if 'pos' in self.params:
             self.params['pos'] *= uc.conversion_factor('angle', 'arcmin', 'radian')
+        if 'HWP' in self.params:
+            self.params['HWP']['rpm'] *= uc.conversion_factor('angular_speed', 'rpm', 'radians/sec')        # RPM to radians/sec
 
     def set_rotation_axes(self):
-        self.axis_rev = np.array([0.0, 0.0, 1.0])
-        self.axis_prec = np.array([1.0, 0.0, 0.0])
-        self.axis_spin = np.array([np.cos(self.params['alpha']), 0.0, np.sin(self.params['alpha'])])
+        self.axis_rev = np.array([0.0, 0.0, 1.0])       # z-axis, pointing upward
+        self.axis_prec = np.array([1.0, 0.0, 0.0])      # x-axis, anti-solar axis
+        self.axis_spin = np.array([np.cos(self.params['alpha']), 0.0, np.sin(self.params['alpha'])])        # at alpha degrees to axis_prec in the x-z plane
 
     def set_boresight_axes(self):
         boresight_opening_angle = self.params['alpha'] + self.params['beta']

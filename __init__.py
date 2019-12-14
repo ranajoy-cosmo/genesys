@@ -18,23 +18,31 @@ class Genesys_Class:
     BASIC FEATURES:
         copy_other: COPY THE ATTRIBUTES OF ANOTHER OBJECT
     """
-
     def __init__(self, other=None):
         """
-        Does nothing. Expect this to be overridden by the child class
+        EXPECT THIS TO BE OVERRIDDEN BY THE CHILD CLASS
         """
         if other != None:
             self.copy_attributes(other)
 
+    def copy_params(self, *params_list):
+        """
+        DEEPCOPY PARAMS TO SELF
+        """
+        if not hasattr(self, 'params'):
+            self.params = {}
+        for params in params_list:
+            self.params.update(params)
+
     def copy_attributes(self, other):
         """
-        Copy just the instance attributes. Methods and class attributes are not copied
+        COPY JUST THE INSTANCE VARIABLES. METHODS AND CLASS VARIABLES ARE NOT COPIED
         """
-        self.__dict__ = copy.deepcopy(other.__dict__) 
+        self.__dict__.update(other.__dict__) 
 
     def return_copy(self):
         """
-        Return an entire copy of self
+        RETURN AN ENTIRE COPY OF SELF
         """
         return copy.deepcopy(self)
 
@@ -43,33 +51,36 @@ class Genesys_Class:
 
 def add_method(cls):
     """
-    This method allows for adding an external method to a class
-    From: https://medium.com/@mgarod/dynamically-add-a-method-to-a-class-in-python-c49204b85bd6
+    THIS METHOD ALLOWS FOR ADDING AN EXTERNAL METHOD TO A CLASS
+    FROM: https://medium.com/@mgarod/dynamically-add-a-method-to-a-class-in-python-c49204b85bd6
     """
     def decorator(func):
         @wraps(func) 
         def wrapper(self, *args, **kwargs): 
             return func(*args, **kwargs)
         setattr(cls, func.__name__, wrapper)
-        # Note we are not binding func, but wrapper which accepts self but does exactly the same as func
-        return func # returning func means func can still be used normally
+        # NOTE WE ARE NOT BINDING FUNC, BUT WRAPPER WHICH ACCEPTS self BUT DOES EXACTLY THE SAME AS func
+        return func # RETURNING func MEANS func CAN STILL BE USED NORMALLY
     return decorator
 
-# The subsequent methods are written with a @add_method(Genesys_Class) before its definition
-# This allows them to be used both independently as themselves as well as as methods of Genesys_Class
+# THE SUBSEQUENT METHODS ARE WRITTEN WITH A @add_method(Genesys_Class) BEFORE ITS DEFINITION
+# THIS ALLOWS THEM TO BE USED BOTH INDEPENDENTLY AS THEMSELVES AS WELL AS AS METHODS OF Genesys_Class
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # PROMPTER UTILITY
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 @add_method(Genesys_Class)
-def prompt(text, outstream=sys.stdout, color=None):
+def prompt(text, nature='general', outstream=sys.stdout):
     """
     FLUSH OUT ANY TEXT TO THE outstream PROVIDED IMMEDIATELY.
     """
-    if color:
-        text = colored(text, color)
-    outstream.write(text)
+    if nature == 'general':
+        outstream.write(text)
+    elif nature == 'info':
+        outstream.write(colored('INFO: ', 'yellow') + text)
+    elif nature == 'warning':
+        outstream.write(colored('WARNING: ', 'red') + text)
     outstream.flush()
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -77,18 +88,18 @@ def prompt(text, outstream=sys.stdout, color=None):
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 @add_method(Genesys_Class)
-def load_param_file(file_handle=None, file_path=None):
+def load_param_file(file_path=None, file_handle=None):
     """
-    Loads the parameters into a python dictionary from the file_handle
-    Precedence:
-        file_handle > file_path
+    LOADS THE PARAMETERS INTO A PYTHON DICTIONARY
+    PRECEDENCE:
+        file_path > file_handle
     """
     yaml = YAML(typ='safe')
-    if file_handle != None:
-        param_data = yaml.load(file_handle)
-    else:
+    if file_path != None:
         with open(file_path, 'r') as file_handle:
             param_data = yaml.load(file_handle)
+    else:
+        param_data = yaml.load(file_handle)
 
     return param_data
 
@@ -104,7 +115,7 @@ with open(os.path.join(current_dir, 'global_config', global_config_file), 'r') a
 global_system = global_param_dict['global_system']
 global_paths = global_param_dict['global_paths']
 
-# Forming the paths
+# FORMING THE PATHS
 global_paths['base_dir'] = current_dir
 global_paths['output_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_output_dir']) 
 global_paths['maps_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_maps_dir']) 
@@ -113,6 +124,6 @@ global_paths['data_dir'] = os.path.join(global_paths['storage_dir'], global_path
 global_paths['camb_params_dir'] = os.path.join(current_dir, 'spectra', 'camb_params') 
 global_paths['instruments_dir'] = os.path.join(current_dir, 'instruments')
 
-# Adds these dictionaries as class members of Genesys_Class
+# ADDS THESE DICTIONARIES AS CLASS MEMBERS OF GENESYS_CLASS
 Genesys_Class.global_system = global_system
 Genesys_Class.global_paths = global_paths

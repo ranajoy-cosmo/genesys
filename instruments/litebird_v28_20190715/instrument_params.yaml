@@ -28,6 +28,10 @@ half_wave_plates:
         rotation: continuous
         rpm: 61.0                   # rounds per minute
 
+velocity:
+    simulate: False
+    velocity_file: satellite_velocity.hdf5 
+
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # This section contains the definition for each channel on the focal plane
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
