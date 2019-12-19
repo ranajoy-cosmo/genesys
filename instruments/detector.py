@@ -1,54 +1,39 @@
 import os
 import copy
-from genesys.instruments.instrument import Instrument
+from genesys import Genesys_Class
 from genesys.pointing import Pointing
-from genesys.maps import Sky_Map
+#  from genesys.maps import Sky_Map
+#  from genesys.timestream.timestream import TStream
  
-class Detector(Instrument):
+class Detector(Genesys_Class):
     # Instrument ALREADY INHERITS FROM Genesys_Class
-    def __init__(self, instrument_name=None, channel_name=None, detector_name=None, other=None):
-        if detector_name != None:
-            self.configure_detector(instrument_name, channel_name, detector_name)
-        elif other != None:
+    def __init__(self, channel_obj, detector_name, other=None):
+        if other != None:
             self.copy_attributes(other)
         else:
-            pass
-
-    def configure_detector(self, instrument_name, channel_name, detector_name):
-        # GETTING THE INSTRUMENT PARAMS
-        instrument_param_file_path = self.path_to_instrument_param_file(instrument_name)
-        inst_params = self.load_param_file(file_path=instrument_param_file_path)
-        channel_params = inst_params['channels'][channel_name]
-        # GETTING THE DETECTOR PARAMS FOR THE ENTIRE CHANNEL
-        detector_file_name = channel_params['detector_param_file']
-        detector_param_file_path = self.path_to_detector_param_file(instrument_name, detector_file_name)
-        detector_params = self.load_param_file(file_path=detector_param_file_path)
-        # GETTING THE DETECTOR SPECIFIC PARAMS
-        self.params = detector_params[detector_name]
-        self.params['scan_strategy'] = copy.deepcopy(inst_params['scan_strategy'])
-        self.params['channel_name'] = channel_name
-        # ADDING CHANNEL-WIDE PARAMETERS IF NOT PRESENT FOR DETECTOR
-        if 'noise_type' not in self.params['noise'] or self.params['noise']['noise_type'] is None:
-            self.params['noise']['noise_type'] = channel_params['noise_type']
-        if 'white_noise_rms' not in self.params['noise'] or self.params['noise']['white_noise_rms'] is None:
-            self.params['noise']['white_noise_rms'] = channel_params['detector_NET']
-        if self.params['noise']['noise_type'] == '1_over_f':
-            if 'f_knee' not in self.params['noise'] or self.params['noise']['f_knee'] is None:
-                self.params['noise']['f_knee'] = channel_params['f_knee']
-            if 'noise_alpha' not in self.params['noise'] or self.params['noise']['noise_alpha'] is None:
-                self.params['noise']['noise_alpha'] = channel_params['noise_alpha']
-        if 'sampling_rate' not in self.params or self.params['sampling_rate'] is None:
-            self.params['sampling_rate'] = channel_params['sampling_rate']
-        if 'pol_modulation' not in self.params or self.params['pol_modulation'] is None:
-            self.params['pol_modulation'] = channel_params['pol_modulation']
-        if self.params['pol_modulation'] != 'scan':
-            self.params['HWP'] = inst_params['half_wave_plates'][channel_params['pol_modulation']]
-            self.params['HWP']['HWP_label'] = channel_params['pol_modulation']
-        if 'offset' not in self.params or self.params['offset'] == None:
-            self.params['offset'] = [0.0,0.0]
+            self.params = {}
+            self.params.update(channel_obj.params['detectors'][detector_name])
+            self.params['name'] = detector_name
+            self.params['channel_name'] = channel_obj.params['commons']['name']
+            self.params['scan_strategy'] = copy.deepcopy(channel_obj.params['commons']['scan_strategy'])
+            if 'noise' not in self.params:
+                self.params['noise'] = {}
+            get_param_if_None(self.params['noise'], channel_obj.params['commons']['noise'], ['noise_type', 'white_noise_rms']) 
+            if self.params['noise']['noise_type'] == '1_over_f':
+                get_param_if_None(self.params['noise'], channel_obj.params['commons']['noise'], ['f_knee', 'noise_alpha'])
+            # OTHER PARAMS
+            get_param_if_None(self.params, channel_obj.params['commons'], ['sampling_rate', 'pol_modulation'])
+            if self.params['pol_modulation'] != 'scan':
+                self.params['HWP'] = channel_obj.params['commons']['HWP']
 
     def initialise_pointing(self):
+        pointing_params = {}
+        pointing_params.update(self.params.scan_strategy)
+        pointing_params['pos'] = self.params['pos']
         self.pointing = Pointing(self.params)
+
+    def initialise_timestream_segment(self, sim_config, segment):
+        self.ts = TStream(sim_config, segment)
 
     def load_map(self, pol_type='IQU'):
         """
@@ -70,17 +55,44 @@ class Detector(Instrument):
     # PARAMTERE DISPLAY ROUTINES
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    def display_half_wave_plate(self):
-        hwp = self.params['HWP']
+    def display_hwp(self):
+        hwp_param = self.params['HWP']
         print("HALF WAVE PLATE:")
-        for item in list(hwp.keys()):
-            print("\t\t{}: {}".format(item, hwp[item]))
+        for item in list(hwp_param.keys()):
+            print(f"\t{item}: {hwp_param[item]}")
+
+    def display_noise(self):
+        noise_param = self.params['noise']
+        print("Noise:")
+        for item in list(noise_param.keys()):
+            print(f"\t{item}: {noise_param[item]}")
+
+    def display_scan_strategy(self):
+        unit_dict = {'alpha': 'degrees', 'beta': 'degrees', 't_precession': 'seconds', 't_spin': 'seconds', 'duration': 'years'}
+        ss_params = self.params['scan_strategy']
+        print("SCAN STRATEGY:")
+        for item in ss_params.keys():
+            print(f"\t{item}: {ss_params[item]} {unit_dict[item]}")
 
     def info(self):
-        print("Channel {} and Detector {}".format(self.params['channel_name'], self.params['detector_name'])) 
+        print(f"Channel {self.params['channel_name']} and Detector {self.params['name']}") 
+        for item in self.params.keys():
+            if item == 'noise':
+                self.display_noise()
+            elif item == 'HWP' and self.params['pol_modulation'] != 'scan':
+                self.display_hwp()
+            elif item == 'scan_strategy':
+                self.display_scan_strategy()
+            else:
+                print(f"{item}: {self.params[item]}")
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Path naming conventions
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     def path_to_detector_param_file(self, instrument_name, detector_file_name):
         return os.path.join(self.path_to_instrument_dir(instrument_name), detector_file_name)
+
+def get_param_if_None(dict_1, dict_2, items):
+    for item in items:
+        if item not in dict_1 or dict_1[item] == None:
+            dict_1[item] = dict_2[item]

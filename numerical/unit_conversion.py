@@ -21,11 +21,12 @@ class Unit_Converter:
         self.all_unit_dicts = {
                 'angle': {'radian' : 1.0, 'degree' : pi/180.0, 'arcmin' : pi/180.0/60.0, 'arcsec' : pi/180.0/60.0/60.0},
                 'solid_angle': {'full_sky' : 4*pi, 'steradian' : 1.0, 'degree_square' : (pi/180.0)**2, 'arcmin_square' : (pi/180.0/60.0)**2, 'arcsec_square' : (pi/180.0/60.0/60.0)**2},
-                'angular_velocity': {'rpm' : 1.0/60.0, 'rps' : 1.0, 'radians/min' : 2*pi/60.0, 'radians/sec' : 2*pi},
+                'angular_velocity': {'rpm' : 1.0, 'rps' : 60.0, 'radians/min' : 1.0/(2*pi), 'radians/sec' : 60.0/(2*pi), 'degree/min': 1.0/360.0, 'degree/sec': 60.0/360.0},
                 'length': {'parsec' : 30856775814913700, 'light year' : 9460730472580800, 'km': 1000.0, 'm': 1.0, 'cm' : 1e-2, 'mm' : 1e-3, 'mu_m' : 1e-6, 'nm' : 1e-9, 'angstrom' : 1e-10},
-                'time': {'siderial year' : 365.25*24*60*60.0, 'day' : 24*60*60.0, 'hour' : 60*60.0, 'minute' : 60.0, 'second' : 1.0, 'milli-second' : 1e-3, 'micro-second' : 1e-6},
+                'time': {'siderial year' : 365.25*24*60*60.0, 'day' : 24*60*60.0, 'hour' : 60*60.0, 'minute' : 60.0, 'sec' : 1.0, 'milli-sec' : 1e-3, 'micro-sec' : 1e-6},
                 'frequency': {'mHz': 1.0e-3, 'Hz': 1.0, 'kHz' : 1.0e3, 'MHz': 1.0e6, 'GHz': 1.0e9, 'THz': 1.0e12},
                 'energy': {'meV': 1.0e-3, 'eV': 1.0, 'keV': 1.0e3, 'MeV': 1.0e6, 'GeV': 1.0e9, 'TeV': 1.0e12, 'PeV': 1.0e15, 'J': 1.60218e-19, 'C': 3.82929e-20}}
+        self.standard_units = {'angle': 'radian', 'solid_angle': 'steradian', 'angular_velocity': 'radians/sec', 'length': 'm', 'time': 'sec', 'frequency': 'Hz', 'energy': 'eV'}
 
     def conversion_factor(self, unit_type, unit_in, unit_out, verbose=False):
         unit_dict = self.all_unit_dicts[unit_type]

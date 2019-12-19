@@ -103,6 +103,21 @@ def load_param_file(file_path=None, file_handle=None):
 
     return param_data
 
+@add_method(Genesys_Class)
+def dump_param_file(yaml_dict, file_path=None, file_handle=None):
+    """
+    DUMPS THE PYTHON DICTIONARY INTO A yaml FILE
+    PRECEDENCE:
+        file_path > file_handle
+    """
+    yaml = YAML(typ='safe')
+    if file_path != None:
+        with open(file_path, 'w') as file_handle:
+            yaml.dump(yaml_dump, file_handle)
+    else:
+        yaml.dump(yaml_dump, file_handle)
+
+
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # THIS BLOCK DEFINES THE GLOBAL SYSTEM CONFIGURATION AND THE GLOBAL PATHS
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

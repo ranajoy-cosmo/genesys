@@ -9,13 +9,23 @@ Class for handling timestream objects
 """
 
 class TStream(Genesys_Class):
-    def __init__(self, sim_config, detector, segment):
-        self.sim_config = sim_config
-        self.detector = detector
+    def __init__(self, sim_config, segment):
+        self.copy_params(sim_config)
         self.segment = segment
-        self.ts = {}
-        self.set_n_samples()
-        self.noise = Noise(detector.params['noise'])
+        self.t_stream = {}
+
+    def get_time_steps(self, segment, segment_length, sampling_rate, n_samples):
+        """
+        Convention: segment 1 is the first and starts at t=0
+        Caveat: The first time sample will always start at the beginning of a segment. 
+        This ensures equal sample numbers per segment
+        """
+        delta_t = 1.0 / self.detector.params['sampling_rate']
+        #  n_samples = int(math.ceil(self.sim_config['segment_length'] / delta_t))
+        t_start = (segment - 1) * segment_length
+        delta_t = 1.0 / sampling_rate
+        t_steps = t_start + delta_t * np.arange(n_samples)
+        return t_steps
 
     def generate_scan_tstream(self):
         theta, phi, psi = self.detector.pointing.get_pointing_and_pol_angle(self.segment, self.sim_config['segment_length'], self.detector.params['sampling_rate'], self.n_samples, self.sim_config['coordinate_system'])
@@ -37,8 +47,4 @@ class TStream(Genesys_Class):
         self.ts['theta'] = theta
         self.ts['phi'] = phi
         self.ts['psi'] = psi
-
-    def set_n_samples(self):
-        delta_t = 1.0 / self.detector.params['sampling_rate']
-        self.n_samples = int(math.ceil(self.sim_config['segment_length'] / delta_t))
 

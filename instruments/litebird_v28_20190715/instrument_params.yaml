@@ -15,7 +15,7 @@ scan_strategy:
     duration: 3                 # years
 
 # Half-wave-plates
-half_wave_plates:
+HWP:
     HWP_1:          # For the LFT telescope
         rotation: continuous
         rpm: 46.0                   # rounds per minute
@@ -45,14 +45,15 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
-        # detector_NET: 209.72                # uk.sqrt(s)
-        detector_NET: 64.21                # uk.sqrt(s). Scaled for 6 detectors
-        detector_yield: 1.0
-        noise_margin: 1.0
-        noise_type: white
+        noise:
+            noise_type: white
+            # white_noise_rms: 209.72                # uk.sqrt(s)
+            white_noise_rms: 64.21                # uk.sqrt(s). Scaled for 6 detectors
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
         # OTHER OPTION BEING scan
-        detector_param_file: LFT_40GHz_params.yaml
+        channel_param_file: LFT_40GHz_params.yaml
 
     # LFT, 50 GHz
     'LFT_50GHz':
@@ -62,11 +63,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
-        detector_NET: 115.94                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 115.94                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_50GHz_params.yaml
+        channel_param_file: LFT_50GHz_params.yaml
 
     # LFT, 60 GHz
     'LFT_60GHz':
@@ -76,11 +78,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
-        detector_NET: 91.12                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 91.12                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_60GHz_params.yaml
+        channel_param_file: LFT_60GHz_params.yaml
 
     # LFT, 68_16 GHz
     'LFT_68_16GHz':
@@ -90,11 +93,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
-        detector_NET: 76.40                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 76.40                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_68_16GHz_params.yaml
+        channel_param_file: LFT_68_16GHz_params.yaml
 
     # LFT, 68_24 GHz
     'LFT_68_24GHz':
@@ -104,11 +108,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
-        detector_NET: 124.86                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 124.86                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_68_24GHz_params.yaml
+        channel_param_file: LFT_68_24GHz_params.yaml
 
     # LFT, 78_16 GHz
     'LFT_78_16GHz':
@@ -118,11 +123,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
-        detector_NET: 65.78                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 65.78                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_78_16GHz_params.yaml
+        channel_param_file: LFT_78_16GHz_params.yaml
 
     # LFT, 78_24 GHz
     'LFT_78_24GHz':
@@ -132,11 +138,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
-        detector_NET: 97.92                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 97.92                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_78_24GHz_params.yaml
+        channel_param_file: LFT_78_24GHz_params.yaml
 
     # LFT, 89_16 GHz
     'LFT_89_16GHz':
@@ -146,11 +153,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
-        detector_NET: 59.95                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 59.95                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_89_16GHz_params.yaml
+        channel_param_file: LFT_89_16GHz_params.yaml
 
     # LFT, 89_24 GHz
     'LFT_89_24GHz':
@@ -160,11 +168,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 24                      # mm
         num_detectors: 64
-        detector_NET: 79.78                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 79.78                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_89_24GHz_params.yaml
+        channel_param_file: LFT_89_24GHz_params.yaml
 
     # LFT, 100 GHz
     'LFT_100GHz':
@@ -174,11 +183,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
-        detector_NET: 68.64                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 68.64                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_100GHz_params.yaml
+        channel_param_file: LFT_100GHz_params.yaml
 
     # MFT, 100 GHz
     'MFT_100GHz':
@@ -188,11 +198,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 11.6                      # mm
         num_detectors: 366
-        detector_NET: 81.77                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 81.77                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_2
-        detector_param_file: MFT_100GHz_params.yaml
+        channel_param_file: MFT_100GHz_params.yaml
 
     # LFT, 119 GHz
     'LFT_119GHz':
@@ -202,11 +213,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
-        detector_NET: 51.98                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 51.98                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_119GHz_params.yaml
+        channel_param_file: LFT_119GHz_params.yaml
 
     # MFT, 119 GHz
     'MFT_119GHz':
@@ -216,11 +228,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 11.6                      # mm
         num_detectors: 488
-        detector_NET: 62.68                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 62.68                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_2
-        detector_param_file: MFT_119GHz_params.yaml
+        channel_param_file: MFT_119GHz_params.yaml
 
     # LFT, 140 GHz
     'LFT_140GHz':
@@ -230,11 +243,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 16                      # mm
         num_detectors: 144
-        detector_NET: 50.69                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 50.69                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_1
-        detector_param_file: LFT_140GHz_params.yaml
+        channel_param_file: LFT_140GHz_params.yaml
 
     # MFT, 166 GHz
     'MFT_166GHz':
@@ -244,11 +258,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 11.6                      # mm
         num_detectors: 488
-        detector_NET: 56.79                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 56.79                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_2
-        detector_param_file: MFT_140GHz_params.yaml
+        channel_param_file: MFT_140GHz_params.yaml
 
     # MFT, 195 GHz
     'MFT_195GHz':
@@ -258,11 +273,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 11.6                      # mm
         num_detectors: 366
-        detector_NET: 60.20                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 60.20                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_2
-        detector_param_file: MFT_195GHz_params.yaml
+        channel_param_file: MFT_195GHz_params.yaml
 
     # HFT, 195 GHz
     'HFT_195GHz':
@@ -272,11 +288,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 6.6                      # mm
         num_detectors: 254
-        detector_NET: 110.39                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 110.39                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_3
-        detector_param_file: HFT_195GHz_params.yaml
+        channel_param_file: HFT_195GHz_params.yaml
 
     # HFT, 235 GHz
     'HFT_235GHz':
@@ -286,11 +303,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 6.6                      # mm
         num_detectors: 254
-        detector_NET: 106.8                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 106.8                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_3
-        detector_param_file: HFT_235GHz_params.yaml
+        channel_param_file: HFT_235GHz_params.yaml
 
     # HFT, 280 GHz
     'HFT_280GHz':
@@ -300,11 +318,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 6.6                      # mm
         num_detectors: 254
-        detector_NET: 126.7                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 126.7                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_3
-        detector_param_file: HFT_280GHz_params.yaml
+        channel_param_file: HFT_280GHz_params.yaml
 
     # HFT, 337 GHz
     'HFT_337GHz':
@@ -314,11 +333,12 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 6.6                      # mm
         num_detectors: 254
-        detector_NET: 176.09                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 176.09                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_3
-        detector_param_file: HFT_337GHz_params.yaml
+        channel_param_file: HFT_337GHz_params.yaml
 
     # HFT, 402 GHz
     'HFT_402GHz':
@@ -328,8 +348,9 @@ channels:
         sampling_rate: 31                   # Hz
         pixel_size: 5.7                      # mm
         num_detectors: 338
-        detector_NET: 405.62                # uk.sqrt(s)
-        detector_yield: 1.0
-        noise_margin: 1.0
+        noise:
+            white_noise_rms: 405.62                # uk.sqrt(s)
+            detector_yield: 1.0
+            noise_margin: 1.0
         pol_modulation: HWP_3
-        detector_param_file: HFT_402GHz_params.yaml
+        channel_param_file: HFT_402GHz_params.yaml
