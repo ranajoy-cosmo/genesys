@@ -3,13 +3,15 @@ import sys
 import copy
 from termcolor import colored
 from functools import wraps
-from ruamel.yaml import YAML
-
-# The its_owl_fat file is used by Ranajoy at ITA. Other users, please set the lines above to your preferred configuration file.
-global_config_file = "ita_owl_fat.yaml"  # Only this line needs to change between systems
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# This block defines the generic class to be inherited by all other classes in the genesys ecosystem
+# THIS BLOCK IS THE ONLY PLACE A USER NEEDS TO MODIFY 
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# THIS CAN ALSO BE SET IN THE GLOBAL PATHS BLOCK. CHECK DESCRIPTION THERE
+storage_dir = "/mn/stornext/d14/comap/ranajoyb/Genesys_Files"
+
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# THIS BLOCK DEFINES THE GENERIC CLASS TO BE INHERITED BY ALL OTHER CLASSES IN THE genesys ECOSYSTEM
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 class Genesys_Class:
@@ -22,21 +24,21 @@ class Genesys_Class:
         """
         EXPECT THIS TO BE OVERRIDDEN BY THE CHILD CLASS
         """
+        self.params = {}
         if other != None:
             self.copy_attributes(other)
 
-    def copy_params(self, *params_list):
+    def copy_params(self, *param_list):
         """
-        DEEPCOPY PARAMS TO SELF
+        COPY PARAMS TO SELF
+        IF param_list IS SPECIFIED, ONLY THOSE PARAMS ARE COPIED
         """
-        if not hasattr(self, 'params'):
-            self.params = {}
-        for params in params_list:
-            self.params.update(params)
+        for param in param_list:
+            self.params.update(param)
 
     def copy_attributes(self, other):
         """
-        COPY JUST THE INSTANCE VARIABLES. METHODS AND CLASS VARIABLES ARE NOT COPIED
+        COPY JUST THE INSTANCE VARIABLES INCLUDING params. METHODS AND CLASS VARIABLES ARE NOT COPIED
         """
         self.__dict__.update(other.__dict__) 
 
@@ -81,6 +83,8 @@ def prompt(text, nature='general', outstream=sys.stdout):
         outstream.write(colored('INFO: ', 'yellow') + text)
     elif nature == 'warning':
         outstream.write(colored('WARNING: ', 'red') + text)
+    else:
+        raise Exception("Nature of prompt -- no")
     outstream.flush()
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -88,57 +92,46 @@ def prompt(text, nature='general', outstream=sys.stdout):
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 @add_method(Genesys_Class)
-def load_param_file(file_path=None, file_handle=None):
+def load_yaml_file(file_path=None):
     """
     LOADS THE PARAMETERS INTO A PYTHON DICTIONARY
-    PRECEDENCE:
-        file_path > file_handle
     """
     yaml = YAML(typ='safe')
-    if file_path != None:
-        with open(file_path, 'r') as file_handle:
-            param_data = yaml.load(file_handle)
-    else:
-        param_data = yaml.load(file_handle)
-
-    return param_data
+    with open(file_path, 'r') as f:
+        yaml_dict = yaml.load(f)
+    return yaml_dict
 
 @add_method(Genesys_Class)
-def dump_param_file(yaml_dict, file_path=None, file_handle=None):
+def dump_yaml_file(yaml_dict, file_path=None):
     """
     DUMPS THE PYTHON DICTIONARY INTO A yaml FILE
-    PRECEDENCE:
-        file_path > file_handle
     """
     yaml = YAML(typ='safe')
-    if file_path != None:
-        with open(file_path, 'w') as file_handle:
-            yaml.dump(yaml_dump, file_handle)
-    else:
-        yaml.dump(yaml_dump, file_handle)
+    with open(file_path, 'w') as f:
+        yaml.dump(yaml_dict, f)
 
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# THIS BLOCK DEFINES THE GLOBAL SYSTEM CONFIGURATION AND THE GLOBAL PATHS
+# THIS BLOCK DEFINES THE GLOBAL PATHS
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+global_paths = {}
 
 current_dir = os.path.dirname(__file__)
-
-with open(os.path.join(current_dir, 'global_config', global_config_file), 'r') as f:
-    global_param_dict = load_param_file(file_handle=f)
-
-global_system = global_param_dict['global_system']
-global_paths = global_param_dict['global_paths']
+# THE DIRECTORY WHERE LARGE FILES ARE WRITTEN DOWN. FOR EXAMPLE THE scratch SYSTEM AT NERSC.
+# PLEASE DO NOT SET THIS SOMEWHERE WITH VERY LIMITED STORAGE AS IT'LL FILL UP FAST.
+# IDEALLY IT SHOULD HAVE SPACE OF THE ORDER OF A FEW TERABYTES.
+#  storage_dir = current_dir
 
 # FORMING THE PATHS
 global_paths['base_dir'] = current_dir
-global_paths['output_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_output_dir']) 
-global_paths['maps_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_maps_dir']) 
-global_paths['spectra_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_spectra_dir']) 
-global_paths['data_dir'] = os.path.join(global_paths['storage_dir'], global_paths['real_data_dir']) 
-global_paths['camb_params_dir'] = os.path.join(current_dir, 'spectra', 'camb_params') 
-global_paths['instruments_dir'] = os.path.join(current_dir, 'instruments')
+global_paths['storage_dir'] = storage_dir
+global_paths['output_dir'] = os.path.join(global_paths['storage_dir'], 'output') 
+global_paths['maps_dir'] = os.path.join(global_paths['storage_dir'], 'maps') 
+global_paths['spectra_dir'] = os.path.join(global_paths['storage_dir'], 'spectra')
+global_paths['data_dir'] = os.path.join(global_paths['storage_dir'], 'data')
+#  global_paths['camb_params_dir'] = os.path.join(current_dir, 'spectra', 'camb_params')
+#  global_paths['instruments_dir'] = os.path.join(current_dir, 'instruments')
 
-# ADDS THESE DICTIONARIES AS CLASS MEMBERS OF GENESYS_CLASS
-Genesys_Class.global_system = global_system
+# ADDS THE DICTIONARY AS CLASS MEMBER OF GENESYS_CLASS
 Genesys_Class.global_paths = global_paths
