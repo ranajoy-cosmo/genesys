@@ -7,7 +7,7 @@
 *.png
 output
 map_files/
-spectra_files/
+spectrum_files/
 *.out
 *.slurm
 __pycache__

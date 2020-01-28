@@ -1,30 +1,31 @@
 import os
 import copy
 from genesys import Genesys_Class
-from genesys.pointing import Pointing
+#  from genesys.pointing import Pointing
 #  from genesys.maps import Sky_Map
 #  from genesys.timestream.timestream import TStream
  
 class Detector(Genesys_Class):
-    # Instrument ALREADY INHERITS FROM Genesys_Class
-    def __init__(self, channel_obj, detector_name, other=None):
-        if other != None:
-            self.copy_attributes(other)
-        else:
-            self.params = {}
-            self.params.update(channel_obj.params['detectors'][detector_name])
-            self.params['name'] = detector_name
-            self.params['channel_name'] = channel_obj.params['commons']['name']
-            self.params['scan_strategy'] = copy.deepcopy(channel_obj.params['commons']['scan_strategy'])
-            if 'noise' not in self.params:
-                self.params['noise'] = {}
-            get_param_if_None(self.params['noise'], channel_obj.params['commons']['noise'], ['noise_type', 'white_noise_rms']) 
-            if self.params['noise']['noise_type'] == '1_over_f':
-                get_param_if_None(self.params['noise'], channel_obj.params['commons']['noise'], ['f_knee', 'noise_alpha'])
-            # OTHER PARAMS
-            get_param_if_None(self.params, channel_obj.params['commons'], ['sampling_rate', 'pol_modulation'])
-            if self.params['pol_modulation'] != 'scan':
-                self.params['HWP'] = channel_obj.params['commons']['HWP']
+    def __init__(self, channel_obj, detector_name):
+        self.params = {}
+        self.params['detector_name'] = detector_name
+        self.params['channel_name'] = channel_obj.params['channel_name']
+        self.params.update(channel_obj.params['detectors'][detector_name])
+        self.params['scan_strategy'] = {}
+        self.params['scan_strategy'].update(channel_obj.params['scan_strategy'])
+        if 'noise' not in self.params:
+            self.params['noise'] = {}
+        get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['noise_type', 'white_noise_rms']) 
+        if self.params['noise']['noise_type'] == '1_over_f':
+            get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['f_knee', 'noise_alpha'])
+        # OTHER PARAMS
+        get_param_if_None(self.params, channel_obj.params, ['sampling_rate', 'pol_modulation', 'input_map_file'])
+        if self.params['pol_modulation'] != 'scan':
+            self.params['HWP'] = {}
+            self.params['HWP'].update(channel_obj.params['HWP'])
+
+    def initialise_noise(self):
+        self.noise = Noise(self.params['noise'])
 
     def initialise_pointing(self):
         pointing_params = {}
@@ -42,13 +43,13 @@ class Detector(Genesys_Class):
             IQU -> All I,Q,U read. field=(0,1,2)
             _QU -> All I,Q,U read but I set to 0. field=(0,1,2) 
         """
-        input_map_path = self.params['input_map_path']
+        input_map_path = self.params['input_map_file']
         if pol_type == 'I':
-            self.sky_map = Sky_Map(self.params['input_map_path'], field=(0))
+            self.sky_map = Sky_Map(self.params['input_map_file'], field=(0))
         if pol_type == 'IQU':
-            self.sky_map = Sky_Map(self.params['input_map_path'], field=(0,1,2))
+            self.sky_map = Sky_Map(self.params['input_map_file'], field=(0,1,2))
         if pol_type == '_QU':
-            self.sky_map = Sky_Map(self.params['input_map_path'], field=(0,1,2))
+            self.sky_map = Sky_Map(self.params['input_map_file'], field=(0,1,2))
             self.sky_map[0] *= 0.0
                 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -85,12 +86,11 @@ class Detector(Genesys_Class):
                 self.display_scan_strategy()
             else:
                 print(f"{item}: {self.params[item]}")
-    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    # Path naming conventions
-    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    def path_to_detector_param_file(self, instrument_name, detector_file_name):
-        return os.path.join(self.path_to_instrument_dir(instrument_name), detector_file_name)
+                
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# HELPER ROUTINES NOT PART OF Detector CLASS
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 def get_param_if_None(dict_1, dict_2, items):
     for item in items:

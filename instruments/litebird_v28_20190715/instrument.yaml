@@ -51,9 +51,9 @@ channels:
             white_noise_rms: 64.21                # uk.sqrt(s). Scaled for 6 detectors
             detector_yield: 1.0
             noise_margin: 1.0
-        pol_modulation: HWP_1
-        # OTHER OPTION BEING scan
-        channel_param_file: LFT_40GHz_params.yaml
+        pol_modulation: HWP_1                       # OTHER OPTION BEING scan
+        channel_param_file: LFT_40GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 50 GHz
     'LFT_50GHz':
@@ -68,7 +68,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_50GHz_params.yaml
+        channel_param_file: LFT_50GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 60 GHz
     'LFT_60GHz':
@@ -83,7 +84,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_60GHz_params.yaml
+        channel_param_file: LFT_60GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 68_16 GHz
     'LFT_68_16GHz':
@@ -98,7 +100,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_68_16GHz_params.yaml
+        channel_param_file: LFT_68_16GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 68_24 GHz
     'LFT_68_24GHz':
@@ -113,7 +116,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_68_24GHz_params.yaml
+        channel_param_file: LFT_68_24GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 78_16 GHz
     'LFT_78_16GHz':
@@ -128,7 +132,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_78_16GHz_params.yaml
+        channel_param_file: LFT_78_16GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 78_24 GHz
     'LFT_78_24GHz':
@@ -143,7 +148,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_78_24GHz_params.yaml
+        channel_param_file: LFT_78_24GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 89_16 GHz
     'LFT_89_16GHz':
@@ -158,7 +164,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_89_16GHz_params.yaml
+        channel_param_file: LFT_89_16GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 89_24 GHz
     'LFT_89_24GHz':
@@ -173,7 +180,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_89_24GHz_params.yaml
+        channel_param_file: LFT_89_24GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 100 GHz
     'LFT_100GHz':
@@ -188,7 +196,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_100GHz_params.yaml
+        channel_param_file: LFT_100GHz.yaml
+        input_map_file: test_map.fits
 
     # MFT, 100 GHz
     'MFT_100GHz':
@@ -203,7 +212,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_2
-        channel_param_file: MFT_100GHz_params.yaml
+        channel_param_file: MFT_100GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 119 GHz
     'LFT_119GHz':
@@ -218,7 +228,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_119GHz_params.yaml
+        channel_param_file: LFT_119GHz.yaml
+        input_map_file: test_map.fits
 
     # MFT, 119 GHz
     'MFT_119GHz':
@@ -233,7 +244,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_2
-        channel_param_file: MFT_119GHz_params.yaml
+        channel_param_file: MFT_119GHz.yaml
+        input_map_file: test_map.fits
 
     # LFT, 140 GHz
     'LFT_140GHz':
@@ -248,7 +260,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
-        channel_param_file: LFT_140GHz_params.yaml
+        channel_param_file: LFT_140GHz.yaml
+        input_map_file: test_map.fits
 
     # MFT, 166 GHz
     'MFT_166GHz':
@@ -263,7 +276,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_2
-        channel_param_file: MFT_140GHz_params.yaml
+        channel_param_file: MFT_140GHz.yaml
+        input_map_file: test_map.fits
 
     # MFT, 195 GHz
     'MFT_195GHz':
@@ -278,7 +292,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_2
-        channel_param_file: MFT_195GHz_params.yaml
+        channel_param_file: MFT_195GHz.yaml
+        input_map_file: test_map.fits
 
     # HFT, 195 GHz
     'HFT_195GHz':
@@ -293,7 +308,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_3
-        channel_param_file: HFT_195GHz_params.yaml
+        channel_param_file: HFT_195GHz.yaml
+        input_map_file: test_map.fits
 
     # HFT, 235 GHz
     'HFT_235GHz':
@@ -308,7 +324,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_3
-        channel_param_file: HFT_235GHz_params.yaml
+        channel_param_file: HFT_235GHz.yaml
+        input_map_file: test_map.fits
 
     # HFT, 280 GHz
     'HFT_280GHz':
@@ -323,7 +340,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_3
-        channel_param_file: HFT_280GHz_params.yaml
+        channel_param_file: HFT_280GHz.yaml
+        input_map_file: test_map.fits
 
     # HFT, 337 GHz
     'HFT_337GHz':
@@ -338,7 +356,8 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_3
-        channel_param_file: HFT_337GHz_params.yaml
+        channel_param_file: HFT_337GHz.yaml
+        input_map_file: test_map.fits
 
     # HFT, 402 GHz
     'HFT_402GHz':
@@ -353,4 +372,5 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_3
-        channel_param_file: HFT_402GHz_params.yaml
+        channel_param_file: HFT_402GHz.yaml
+        input_map_file: test_map.fits

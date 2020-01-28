@@ -3,6 +3,7 @@ import sys
 import copy
 from termcolor import colored
 from functools import wraps
+from ruamel.yaml import YAML
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # THIS BLOCK IS THE ONLY PLACE A USER NEEDS TO MODIFY 
@@ -84,7 +85,7 @@ def prompt(text, nature='general', outstream=sys.stdout):
     elif nature == 'warning':
         outstream.write(colored('WARNING: ', 'red') + text)
     else:
-        raise Exception("Nature of prompt -- no")
+        raise Exception(f"Nature of prompt '{nature}' not recognised")
     outstream.flush()
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -92,7 +93,7 @@ def prompt(text, nature='general', outstream=sys.stdout):
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 @add_method(Genesys_Class)
-def load_yaml_file(file_path=None):
+def load_param_file(file_path=None):
     """
     LOADS THE PARAMETERS INTO A PYTHON DICTIONARY
     """
@@ -102,7 +103,7 @@ def load_yaml_file(file_path=None):
     return yaml_dict
 
 @add_method(Genesys_Class)
-def dump_yaml_file(yaml_dict, file_path=None):
+def dump_param_file(yaml_dict, file_path=None):
     """
     DUMPS THE PYTHON DICTIONARY INTO A yaml FILE
     """
