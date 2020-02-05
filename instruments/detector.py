@@ -1,6 +1,6 @@
-import os
-import copy
+from termcolor import colored
 from genesys import Genesys_Class
+from genesys.numerical.unit_conversion import Unit_Converter
 #  from genesys.pointing import Pointing
 #  from genesys.maps import Sky_Map
 #  from genesys.timestream.timestream import TStream
@@ -23,6 +23,13 @@ class Detector(Genesys_Class):
         if self.params['pol_modulation'] != 'scan':
             self.params['HWP'] = {}
             self.params['HWP'].update(channel_obj.params['HWP'])
+
+    def to_standard_units(self):
+        uc = Unit_Converter()
+        self.params['scan_strategy']['alpha'] *= uc.conversion_factor('angle', 'degree', 'radian')
+        self.params['scan_strategy']['beta'] *= uc.conversion_factor('angle', 'degree', 'radian')
+        self.params['pos'] *= uc.conversion_factor('angle', 'arcmin', 'radian')
+        self.params['HWP']['spin_rate'] *= uc.conversion_factor('angular_velocity', 'rpm', 'radians/sec')
 
     def initialise_noise(self):
         self.noise = Noise(self.params['noise'])
@@ -58,34 +65,35 @@ class Detector(Genesys_Class):
 
     def display_hwp(self):
         hwp_param = self.params['HWP']
-        print("HALF WAVE PLATE:")
+        self.prompt("HALF WAVE PLATE:")
         for item in list(hwp_param.keys()):
-            print(f"\t{item}: {hwp_param[item]}")
+            self.prompt(f"\t{item}: {hwp_param[item]}")
 
     def display_noise(self):
         noise_param = self.params['noise']
-        print("Noise:")
+        self.prompt("Noise:")
         for item in list(noise_param.keys()):
-            print(f"\t{item}: {noise_param[item]}")
+            self.prompt(f"\t{item}: {noise_param[item]}")
 
     def display_scan_strategy(self):
         unit_dict = {'alpha': 'degrees', 'beta': 'degrees', 't_precession': 'seconds', 't_spin': 'seconds', 'duration': 'years'}
         ss_params = self.params['scan_strategy']
-        print("SCAN STRATEGY:")
+        self.prompt("SCAN STRATEGY:")
         for item in ss_params.keys():
-            print(f"\t{item}: {ss_params[item]} {unit_dict[item]}")
+            self.prompt(f"\t{item}: {ss_params[item]} {unit_dict[item]}")
 
     def info(self):
-        print(f"Channel {self.params['channel_name']} and Detector {self.params['name']}") 
+        self.prompt(colored("\n#*#*#* ", color="green") + f"{self.params['channel_name']} -- {self.params['detector_name']}"+ colored(" #*#*#* ", color="green")) 
         for item in self.params.keys():
             if item == 'noise':
                 self.display_noise()
             elif item == 'HWP' and self.params['pol_modulation'] != 'scan':
                 self.display_hwp()
-            elif item == 'scan_strategy':
-                self.display_scan_strategy()
+            elif item in ['detector_name', 'channel_name', 'scan_strategy']:
+                pass
             else:
-                print(f"{item}: {self.params[item]}")
+                self.prompt(f"{item}: {self.params[item]}")
+        self.prompt(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*", color="green"))
 
                 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

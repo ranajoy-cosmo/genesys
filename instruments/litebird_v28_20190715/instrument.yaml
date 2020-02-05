@@ -18,15 +18,15 @@ scan_strategy:
 HWP:
     HWP_1:          # For the LFT telescope
         rotation: continuous
-        rpm: 46.0                   # rounds per minute
+        spin_rate: 46.0                   # rounds per minute
 
     HWP_2:          # For the MFT telescope
         rotation: continuous
-        rpm: 39.0                   # rounds per minute
+        spin_rate: 39.0                   # rounds per minute
 
     HWP_3:          # For the HFT telescope
         rotation: continuous
-        rpm: 61.0                   # rounds per minute
+        spin_rate: 61.0                   # rounds per minute
 
 velocity:
     simulate: False

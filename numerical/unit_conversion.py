@@ -28,7 +28,13 @@ class Unit_Converter:
                 'energy': {'meV': 1.0e-3, 'eV': 1.0, 'keV': 1.0e3, 'MeV': 1.0e6, 'GeV': 1.0e9, 'TeV': 1.0e12, 'PeV': 1.0e15, 'J': 1.60218e-19, 'C': 3.82929e-20}}
         self.standard_units = {'angle': 'radian', 'solid_angle': 'steradian', 'angular_velocity': 'radians/sec', 'length': 'm', 'time': 'sec', 'frequency': 'Hz', 'energy': 'eV'}
 
+    def verify_units(self, unit_type, unit_in, unit_out):
+        assert unit_type in self.all_unit_dicts, f"{unit_type} not a valid unit_type"
+        assert unit_in in self.all_unit_dicts[unit_type], f"{unit_in} not a valid unit_type for {unit_type}"
+        assert unit_out in self.all_unit_dicts[unit_type], f"{unit_out} not a valid unit_type for {unit_type}"
+
     def conversion_factor(self, unit_type, unit_in, unit_out, verbose=False):
+        self.verify_units(unit_type, unit_in, unit_out)
         unit_dict = self.all_unit_dicts[unit_type]
         conv_factor = unit_dict[unit_in] / unit_dict[unit_out]
         if verbose:

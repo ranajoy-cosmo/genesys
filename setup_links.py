@@ -2,6 +2,7 @@
 
 import os
 import sys
+import argparse
 from genesys import global_paths
 
 rel_output_dir = os.path.join(global_paths['base_dir'], 'output')
@@ -31,11 +32,10 @@ def remove_links():
     os.unlink(rel_spectra_dir)
 
 if __name__=="__main__":
-    try:
-        action = sys.argv[1]
-        if action == "link":
-            make_links()
-        elif action == "unlink":
-            remove_links()
-    except IndexError:
-        print("Input argument must be either \"link\" or \"unlink\"")
+    parser = argparse.ArgumentParser(description="Make or severe symlinks to storage directories")
+    parser.add_argument('action', type=str, choices=['link', 'unlink'], help='Action to take. \'link\' OR \'unlink\'')
+    in_args = parser.parse_args()
+    if in_args.action == "link":
+        make_links()
+    else:
+        remove_links()

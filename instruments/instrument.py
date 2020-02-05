@@ -39,37 +39,38 @@ class Instrument(Genesys_Class):
     def display_scan_strategy(self):
         unit_dict = {'alpha': 'degrees', 'beta': 'degrees', 't_precession': 'seconds', 't_spin': 'seconds', 'duration': 'years'}
         scan_strategy = self.params['scan_strategy']
-        self.prompt("\nSCAN STRATEGY:\n")
+        self.prompt("\nSCAN STRATEGY:")
         for item in scan_strategy:
-            self.prompt(f"\t{item}: {scan_strategy[item]} {unit_dict[item]}\n")
+            self.prompt(f"\t{item}: {scan_strategy[item]} {unit_dict[item]}")
 
     def display_half_wave_plates(self):
+        unit_dict = {'spin_rate': 'rpm'}
         hwps = self.params['HWP']
-        self.prompt("\nHALF WAVE PLATES:\n")
+        self.prompt("\nHALF WAVE PLATES:")
         for hwp in hwps:
-            self.prompt(f"\t{hwp}:\n")
+            self.prompt(f"\t{hwp}:")
             for item in list(hwps[hwp]):
-                self.prompt(f"\t\t{item}: {hwps[hwp][item]}\n")
+                self.prompt(f"\t\t{item}: {hwps[hwp][item]} {unit_dict[item]}")
 
     def display_channels(self, channel_list=None):
-        unit_dict = {'central_frequency': 'GHz', 'bandwidth': 'GHz', 'beam_fwhm': 'arcmins', 'sampling_rate': 'Hz', 'pixel_size': 'mm', 'num_detectors': '', 'noise_type': '', 'white_noise_rms': 'uk.sqrt(s)', 'detector_yield': '', 'noise_margin': '', 'pol_modulation': '', 'channel_param_file': ''}
+        unit_dict = {'central_frequency': 'GHz', 'bandwidth': 'GHz', 'beam_fwhm': 'arcmins', 'sampling_rate': 'Hz', 'pixel_size': 'mm', 'num_detectors': '', 'noise_type': '', 'white_noise_rms': 'uk.sqrt(s)', 'detector_yield': '', 'noise_margin': '', 'pol_modulation': '', 'channel_param_file': '', 'input_map_file': ''}
         channels = self.params['channels']
         if channel_list == None:
             channel_list = channels.keys()
-        self.prompt("\nCHANNELS:\n")
+        self.prompt("\nCHANNELS:")
         for channel in channel_list:
-            self.prompt(f"\t{channel}:\n")
+            self.prompt(f"\t{channel}:")
             for item in list(channels[channel]):
                 if item != 'noise':
-                    self.prompt(f"\t\t{item}: {channels[channel][item]} {unit_dict[item]}\n")
+                    self.prompt(f"\t\t{item}: {channels[channel][item]} {unit_dict[item]}")
                 else:
-                    self.prompt("\t\tnoise/detector\n")
+                    self.prompt("\t\tnoise/detector")
                     for noise_item in list(channels[channel]['noise']):
-                        self.prompt(f"\t\t\t{noise_item}: {channels[channel]['noise'][noise_item]} {unit_dict[noise_item]}\n")
+                        self.prompt(f"\t\t\t{noise_item}: {channels[channel]['noise'][noise_item]} {unit_dict[noise_item]}")
 
     def info(self, channel_list=None):
-        self.prompt(f"\nInstrument name: {self.params['instrument_name']}\n")
-        self.prompt(f"Version: {self.params['version']}\n")
+        self.prompt(f"\nInstrument name: {self.params['instrument_name']}")
+        self.prompt(f"Version: {self.params['version']}")
         self.display_scan_strategy()
         if 'HWP' in self.params:
             self.display_half_wave_plates()

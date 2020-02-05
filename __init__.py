@@ -79,11 +79,11 @@ def prompt(text, nature='general', outstream=sys.stdout):
     FLUSH OUT ANY TEXT TO THE outstream PROVIDED IMMEDIATELY.
     """
     if nature == 'general':
-        outstream.write(text)
+        outstream.write(text+'\n')
     elif nature == 'info':
-        outstream.write(colored('INFO: ', 'yellow') + text)
+        outstream.write(colored('INFO: ', 'yellow') + text+'\n')
     elif nature == 'warning':
-        outstream.write(colored('WARNING: ', 'red') + text)
+        outstream.write(colored('WARNING: ', 'red') + text+'\n')
     else:
         raise Exception(f"Nature of prompt '{nature}' not recognised")
     outstream.flush()
