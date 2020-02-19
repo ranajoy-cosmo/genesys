@@ -81,9 +81,9 @@ def prompt(text, nature='general', outstream=sys.stdout):
     if nature == 'general':
         outstream.write(text+'\n')
     elif nature == 'info':
-        outstream.write(colored('INFO: ', 'yellow') + text+'\n')
+        outstream.write(colored('\u25CF ', 'green') + text+'\n')
     elif nature == 'warning':
-        outstream.write(colored('WARNING: ', 'red') + text+'\n')
+        outstream.write(colored('\u25CF ', 'red') + text+'\n')
     else:
         raise Exception(f"Nature of prompt '{nature}' not recognised")
     outstream.flush()

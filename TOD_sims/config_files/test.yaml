@@ -21,13 +21,6 @@ coordinate_system: galactic
 # INSTRUMENT CONFIGURATION FILE. THIS IS GOING TO BE A SINGLE FILE CONTAINING THE SPECIFICATIONS OF THE INSTRUMENT, SCANNING AND EACH OBSERVING CHANNEL.
 instrument_name: litebird_v28_20190715
 
-# verbosity values:
-#   0 : No messages
-#   1 : Sim messages
-#   2 : Sim messages + Instrument messages
-#   3 : Sim messages + Instrument messages + Detector messages
-verbosity: 1
-
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # DATA SELECTION
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -36,7 +29,7 @@ verbosity: 1
 
 channel_detector_dict: {'LFT_40GHz' : ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']}
 segment_length: 131490                      # seconds
-num_segments_per_det: 240
+num_segments_per_det: 1
 
 # #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # # Read & Write

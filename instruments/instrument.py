@@ -44,7 +44,7 @@ class Instrument(Genesys_Class):
             self.prompt(f"\t{item}: {scan_strategy[item]} {unit_dict[item]}")
 
     def display_half_wave_plates(self):
-        unit_dict = {'spin_rate': 'rpm'}
+        unit_dict = {'spin_rate': 'rpm', 'rotation': ''}
         hwps = self.params['HWP']
         self.prompt("\nHALF WAVE PLATES:")
         for hwp in hwps:

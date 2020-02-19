@@ -8,80 +8,70 @@ import quaternion as qt
 from genesys import Genesys_Class
 
 uc = Unit_Converter()
-t_year = uc.convert_unit(1.0, 'time', 'siderial year', 'second')
+t_year = uc.convert_unit(1.0, 'time', 'siderial year', 'sec')
 pi = np.pi
 
 class Pointing(Genesys_Class):
     """
-    Class for generating the pointing
-    Left-handed Cartesian coordiante system
-    The initial position of the satellite is assumed to be such that the anti-solar precession axis is the x-axis, 
-    the spin axis is in the x-z plane and at a positive angle of alpha degrees to the precession axis, 
-    the axis of revolution is the z-axis.
+    
+    CLASS FOR GENERATING THE POINTING
+    LEFT-HANDED CARTESIAN COORDIANTE SYSTEM
+    BY CONVENTION AT TIME t=0, THE PRECESSION(ANTI-SOLAR) AXIS IS ALONG THE x-axis
+    THE SPIN AXIS IS IN THE X-Z PLANE AND AT A POSITIVE ANGLE OF alpha DEGREES TO THE PRECESSION AXIS, 
+    THE AXIS OF REVOLUTION IS THE Z-AXIS.
     """
     def __init__(self, pointing_params):
-        self.copy_params(pointing_params)
+        self.params = {}
+        self.params.update(pointing_params)
         self.set_to_standard_units()
         self.set_rotation_axes()
-        self.set_boresight_axes()
+        self.set_boresight_axis()
+        self.set_detector_axis()
 
     def set_to_standard_units(self):
         self.params['alpha'] *= uc.conversion_factor('angle', 'degree', 'radian')
         self.params['beta'] *= uc.conversion_factor('angle', 'degree', 'radian')
-        if 'pos' in self.params:
-            self.params['pos'] *= uc.conversion_factor('angle', 'arcmin', 'radian')
-        if 'HWP' in self.params:
-            self.params['HWP']['rpm'] *= uc.conversion_factor('angular_speed', 'rpm', 'radians/sec')        # RPM to radians/sec
+        self.params['pos'] = np.array(self.params['pos'])
+        self.params['pos'] *= uc.conversion_factor('angle', 'arcmin', 'radian')
+        if 'HWP_spin_rate' in self.params:
+            self.params['HWP_spin_rate'] *= uc.conversion_factor('angular_velocity', 'rpm', 'radians/sec')        # RPM to radians/sec
 
     def set_rotation_axes(self):
-        self.axis_rev = np.array([0.0, 0.0, 1.0])       # z-axis, pointing upward
+        self.axis_orbit = np.array([0.0, 0.0, 1.0])       # z-axis, pointing upward
         self.axis_prec = np.array([1.0, 0.0, 0.0])      # x-axis, anti-solar axis
         self.axis_spin = np.array([np.cos(self.params['alpha']), 0.0, np.sin(self.params['alpha'])])        # at alpha degrees to axis_prec in the x-z plane
 
-    def set_boresight_axes(self):
+    def set_boresight_axis(self):
         """
-        This axis is common for all detectors on the instrument
-        The detector axis is got by rotating the boresight axis
+        THE BORESIGHT AXIS IS COMMON FOR ALL DETECTORS ON THE INSTRUMENT
+        IT PASSES THROUGH THE CENTRE OF THE FOCAL PLANE
         """
         boresight_opening_angle = self.params['alpha'] + self.params['beta']
         self.axis_boresight = np.array([np.cos(boresight_opening_angle), 0.0, np.sin(boresight_opening_angle)])
-        self.axis_boresight_rot_x = np.array([np.cos(boresight_opening_angle - pi/2.0), 0.0, np.sin(boresight_opening_angle - pi/2.0)])
 
     def set_detector_axis(self):
         """
-        The pointing axis for each individual detector is generated here
-        The axis for the polarisation axis is also generated here
+        THE POINTING AXIS FOR EACH INDIVIDUAL DETECTOR IS GENERATED HERE
+        THE AXIS FOR THE POLARISATION AXIS IS ALSO GENERATED HERE
         """
-        y_axis = np.array([0.0, 1.0, 0.0])
-        q_rot_x = self.gen_rotation_quat(self.params['pos'][0], self.axis_boresight_rot_x)
-        q_rot_y = self.gen_rotation_quat(self.params['pos'][1], -1.0*y_axis)
-        q_rot_total = q_rot_x * q_rot_y
-        self.detector_axis = self.rotate_vector(q_rot_total, self.axis_boresight)
+        detector_opening_angle = self.params['alpha'] + self.params['beta'] + self.params['pos'][1]
+        det_sight_vshifted = np.array([np.cos(detector_opening_angle), 0.0, np.sin(detector_opening_angle)])
+        det_sight_orth_xz = np.array([np.cos(detector_opening_angle + pi/2.0), 0.0, np.sin(detector_opening_angle + pi/2.0)])
+        q_rot_x = self.gen_rotation_quat(self.params['pos'][0], det_sight_orth_xz)
+        self.axis_detector_sight = self.rotate_vector(q_rot_x, det_sight_vshifted)
+        # TO DO: POLARISAITION AXIS
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    def get_pointing_and_pol_angle(self, segment, segment_length, sampling_rate, n_samples, coordinate_system):
+    def generate_obv_quaternion(self, t_steps, coordinate_system):
         """
-        This is called for each new segment
-        The simulation times, quaternions are set accordingly for the particular segment
-        """
-        t_steps = self.get_t_steps(segment, segment_length, sampling_rate, n_samples)
-        self.total_rotation_quaternion = self.generate_quaternion(t_steps, coordinate_system)
-        sky_pointing = self.rotate_vector(self.total_rotation_quaternion, self.pointing_vector_initial)
-        pol_angle = self.get_pol_ang(t_steps, sky_pointing)
-        theta, phi = hp.vec2ang(sky_pointing)
-        return theta, phi, pol_angle
-
-    def generate_obv_quaternion(self, t_steps, coordinate_system, t_steps):
-        """
-        The observation quaternion is defined by 3 consecutive rotations
-        1) Spin about axis_spin with angular speed w_spin
-        2) Precession about axis_prec with angular speed w_prec
-        3) Rotation about axis_orbit with angular speed w_orbit
-        *4) Coordinate change to Galactic, if specified
+        THE OBSERVATION QUATERNION IS DEFINED BY 3 CONSECUTIVE ROTATIONS
+        1) SPIN ABOUT AXIS_SPIN WITH ANGULAR SPEED W_SPIN
+        2) PRECESSION ABOUT AXIS_PREC WITH ANGULAR SPEED W_PREC
+        3) ROTATION ABOUT AXIS_ORBIT WITH ANGULAR SPEED W_ORBIT
+        *4) COORDINATE CHANGE TO GALACTIC, IF SPECIFIED
         """
         # TO DO: Define inter-unit conversion factor method in unit_conversion
-        # Right now we need quantities in radians/sec
         w_orbit = 2*pi / t_year
         w_prec = 2*pi / self.params['t_precession']
         w_spin = 2*pi / self.params['t_spin']
@@ -90,24 +80,32 @@ class Pointing(Genesys_Class):
             total_rotation_quaternion = self.quaternion_coordinate_transformation('E','G') * total_rotation_quaternion
         return total_rotation_quaternion
 
-    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    def get_pointing_and_pol_angle(self, t_steps, coordinate_system):
+        """
+        GIVEN THE INITIAL VALUES OF THE BORESIGHT POINTING THE POINTING FOR ANY SUBSEQUENT
+        SET OF t_steps CAN BE DETERMINED. SEE NEXT FUNCTION FOR psi.
+        """
+        total_rotation_quaternion = self.generate_obv_quaternion(t_steps, coordinate_system)
+        v_pointing = self.rotate_vector(total_rotation_quaternion, self.axis_detector_sight)
+        theta, phi = hp.vec2ang(v_pointing)
+        psi = self.get_polariser_angle(total_rotation_quaternion, v_pointing)
+        return theta, phi, psi
 
-    # Generating the polarisation angle
-    def get_pol_ang(self, t_steps, v_observed):
-        if self.params['pol_modulation'] == 'scan':
-            initial_phase = np.radians(self.params['pol_phase_ini'])
-            y_axis = self.rotate_vector(self.total_rotation_quaternion, np.array([0.0,1.0,0.0]))
-            sinalpha = y_axis[...,0] * v_observed[...,1] - y_axis[...,1] * v_observed[...,0]
-            cosalpha = y_axis[...,2] - v_observed[...,2] * np.sum(y_axis*v_observed, axis=-1)
-            pol_ang =  (initial_phase + np.arctan2(sinalpha, cosalpha)) % (2*pi)
-        else:
-            HWP_angular_speed = 2*pi * self.params['HWP']['rpm'] / 60.0         # RPM to radians/sec
-            pol_ang = (t_steps*HWP_angular_speed) % (2*pi)
-        return pol_ang
+    def get_polariser_angle(self, total_rotation_quaternion, v_pointing):
+        """
+        THE psi IS ONLY FOR THE INTRINSIC POLARISATION AXIS ROTATION 
+        ALONG WITH THE INSTRUMENT MOTION. THIS VALUE NEEDS TO BE ADDED TO ANY INITIAL ORIENTATION
+        OF THE POLARISATION AXIS
+        """
+        y_axis = self.rotate_vector(total_rotation_quaternion, np.array([0.0,1.0,0.0]))
+        sinalpha = y_axis[...,0] * v_pointing[...,1] - y_axis[...,1] * v_pointing[...,0]
+        cosalpha = y_axis[...,2] - v_pointing[...,2] * np.sum(y_axis*v_pointing, axis=-1)
+        psi =  np.arctan2(sinalpha, cosalpha)
+        return psi
 
-    def get_hit_pix(self, theta, phi, nside):
-        hit_pix = hp.ang2pix(nside, theta, phi)
-        return hit_pix
+    def get_hwp_angle(self, t_steps):
+        hwp_psi = (self.params['HWP_spin_rate'] * t_steps) % (2*np.pi)
+        return hwp_psi
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # The Quaternion algebra section
