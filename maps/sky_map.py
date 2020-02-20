@@ -6,22 +6,21 @@ import os
 
 class Sky_Map(Genesys_Class):
     """
-    This class has useful utility functions for manipulating Healpix maps and masks
-    Healpy mask convention :
-        0(False) -> Pixel not seen
-        1(True) -> Pixel seen
-    Masked map mask convention :
-        False -> Pixel seen
-        True -> Pixel not seen
+    THIS CLASS HAS USEFUL UTILITY FUNCTIONS FOR MANIPULATING HEALPix MAPS AND MASKS
+    TWO MEMBER VARIABLES: sky_map, nside
+    IF A sky_map IS MASKED, sky_map WILL CONTAIN THE MASKED MAP IN THE HEALPY FORMAT
+    HEALPY MASK CONVENTION :
+        0(False) -> PIXEL NOT SEEN
+        1(True) -> PIXEL SEEN
     """
     def __init__(self, map_file_name=None, field=None, sky_map_np=None, other=None):
         """
         CONSTRUCTOR
         ORDER OF PREFERENCE:
-            map_file_name -> read_map_from_file(map_file_name, field) : Read Healpix map from file
-            map_np -> from_np_array(map_np) : Assign from a map existing as a numpy array
-            other -> copy_attributes(other) : Copy constructor
-            None -> Empty object
+            MAP_FILE_NAME -> READ_MAP_FROM_FILE(MAP_FILE_NAME, FIELD) : READ HEALPix MAP FROM FILE
+            map_np -> from_np_array(map_np) : ASSIGN FROM A MAP EXISTING AS A NUMPY ARRAY
+            other -> copy_attributes(other) : COPY CONSTRUCTOR
+            None -> EMPTY OBJECT
         """
         if map_file_name is not None:
             self.read_map_from_file(map_file_name=map_file_name, field=field)
@@ -69,17 +68,15 @@ class Sky_Map(Genesys_Class):
 
     def mask_map(self, binary_mask):
         """
-        Masks the given sky map with the binary mask.
-        At least with healpy version >= 1.11.0, the number of sky maps does not matter.
-        For example, passing a single binary mask for a set of I,Q,U sky maps, will apply the same mask for all the three.
-        Passing a set of masks in the form of an array will assign the masks to the corresponding sky maps.
-        In general, the masks are assigned in a cyclic manner. For example if sky_map has 4 maps and binary_mask has 2 masks, then:
+        MASKS THE GIVEN SKY MAP WITH THE BINARY MASK.
+        FOR EXAMPLE, PASSING A SINGLE BINARY MASK FOR A SET OF I,Q,U SKY MAPS, WILL APPLY THE SAME MASK TO ALL THE THREE.
+        IN GENERAL, THE MASKS ARE ASSIGNED IN A CYCLIC MANNER. FOR EXAMPLE IF SKY_MAP HAS 4 MAPS AND BINARY_MASK HAS 2 MASKS, THEN:
         binary_mask[0] -> sky_map[0]
         binary_mask[1] -> sky_map[1]
         binary_mask[0] -> sky_map[2]
         binary_mask[1] -> sky_map[3]
         """
-        # Checking that the sky map and mask have the same resolution
+        # CHECKING THAT THE SKY MAP AND MASK HAVE THE SAME RESOLUTION
         assert self.nside == binary_mask.nside, "nside of sky map and mask does not match.\nnside of sky map : {}\nnside of mask : {}".format(self.nside, binary_mask.nside)
 
         self.sky_map = hp.ma(self.sky_map) 

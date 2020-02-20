@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import numpy as np
 import healpy as hp
 import sys
@@ -242,27 +240,45 @@ def local_start_message():
 if __name__=="__main__":
     start_time_main = time.time()
 
-    # run_type can be either "mpi" or "serial"
-    run_type = sys.argv[1]
-    # This block just sets up the rank amd size of the simulation run
-    if run_type == "mpi":
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # PARSING ARGUMENTS
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    parser = argparse.ArgumentParser()
+    parser.add_argument('config_file', type=str, help='Name of config file under relative path config_files/')
+    parser.add_argument('run_type', type=str, choices=['mpi','serial'], help='Type of run')
+    parser.add_argument('--verbosity', '-v', type=int, choices=[0,1,2], default=0, help='Verbosity of the code')
+    in_args = parser.parse_args()
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # SETS UP THE RANK AMD SIZE OF THE SIMULATION RUN
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # SETTING UP THE rank AND size
+    if in_args.run_type == "mpi":
         from mpi4py import MPI          # This module is imported here to be compatible with systems not having mpi support
         comm = MPI.COMM_WORLD
-        rank = comm.Get_rank()          # Rank of this particular MPI process. Ranges from 0 to (size - 1)
         size = comm.Get_size()          # Number of MPI processes
-    elif run_type == "serial":
-        rank = 0
-        size = 1
+        rank = comm.Get_rank()          # Rank of this particular MPI process. Ranges from 0 to (size - 1)
     else:
-        raise Exception("Please enter \"mpi\" OR \"serial\" as the second argument.")
+        size = 1
+        rank = 0
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    # config_file is provided as a dot separated path to the config file with genesys as the parent directory
-    config_file = sys.argv[2]
-    # Importing the general simulation parameters
-    config = importlib.import_module(config_file).config
-    # Importing the scan strategy
-    scan_strategy = importlib.import_module("genesys.scan_strategy." + config.scan_strategy_config).scan_strategy
-    config.__dict__.update(scan_strategy.__dict__)
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # SETTING UP THE CONFIG, INSTRUMENT, DETECTOR_SEGMENTS AND DATA DIRECTORIES
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+    # SIM CONFIG
+    current_dir = os.path.dirname(__file__)
+    mm_config_file = os.path.join(current_dir,'config_files', in_args.config_file) # sim_config_file_name is located in config_files directory
+    mm_config = load_param_file(file_path=sim_config_file)
+    # GETTING THE LOCAL AND GLOBAL DETECTOR-SEGMENTS
+    data_seg_global = Data_Segment(0, 1, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
+    data_seg_local = Data_Segment(rank, size, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
+    # DATA DIRECTORIES
+    dio = Data_IO(sim_config)
+    if rank == 0:
+        dio.make_top_data_directories(dir_list=['sim_dir', 'tod_dir'])
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     npix = 12 * config.nside_out**2
     assert (npix % size == 0), "# processes is {}. Please make # processes a factor of npix={}".format(size, npix)
