@@ -36,4 +36,11 @@ num_segments_per_det: 1
 # #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 # Available options for timestream_data_products = ["signal", "pointing_vec", "pol_ang", "noise", "mask"]
-ts_data_products: ["signal", "pointing_vec", "pol_ang"]
+ts_data_products:
+    signal: True
+    pointing_vec: True
+    psi: True
+    psi_hwp: True
+    noise: False
+
+huffman: False

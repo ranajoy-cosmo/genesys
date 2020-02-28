@@ -1,13 +1,13 @@
 """
-This is the master executable for the timestream generation pipeline.
-Data distribution is performed from here.
-This code is embarassingly parallel. that is, there is no explicit communication between any processes.
+THIS IS THE MASTER EXECUTABLE FOR THE TIMESTREAM GENERATION PIPELINE.
+DATA DISTRIBUTION IS PERFORMED FROM HERE.
+THIS CODE IS EMBARASSINGLY PARALLEL. THAT IS, THERE IS NO EXPLICIT COMMUNICATION BETWEEN ANY PROCESSES.
 There are two options for running this
-1) Serial : A single process will iterate over all detectors and data segments.
-2) MPI : The different detectors and data segments will be distributed to different processes.
-How to execute this file:
-python sim_timestream.py <CONFIG_FILE_PATH> <RUN_TYPE>
-where, CONFIG_FILE_PATH is the absolute path to the config file to be passes to the code and RUN_TYPE is either 'run_serial' or 'run_mpi'
+1) SERIAL : A SINGLE PROCESS WILL ITERATE OVER ALL DETECTORS AND DATA SEGMENTS.
+2) MPI : THE DIFFERENT DETECTORS AND DATA SEGMENTS WILL BE DISTRIBUTED TO DIFFERENT PROCESSES.
+HOW TO EXECUTE THIS FILE:
+python sim_timestream.py <config_file> <run_type> -v <verbosity>
+WHERE, config_file IS THE NAME OF THE CONFIG FILE TO BE PASSES TO THE CODE, run_type IS EITHER 'serial' OR 'mpi', AND verbosity IS SELF EXPLANATORY
 """
 #!/usr/bin/env python
 
@@ -20,8 +20,8 @@ from genesys import Genesys_Class
 from genesys import global_paths, load_param_file, prompt
 from genesys.instruments.instrument import Instrument
 from genesys.timestream.timestream import TStream
-from genesys.data_io.segment_distribution import Data_Segment
-from genesys.data_io.data_io import Data_IO
+from genesys.data_gen_io.segment_distribution import Data_Segment
+from genesys.gen_io.gen_io import GenIO
 from genesys.numerical.unit_conversion import Unit_Converter
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -40,13 +40,13 @@ def run_simulation():
 
     for channel_name in data_seg_local.channel_list():
         channel = instrument.get_channel(channel_name)
-        dio.set_path_for_channel(channel_name)
-        dio.make_channel_directory()
+        gen_io.set_path_for_channel(channel_name)
+        gen_io.make_channel_directory()
         for detector_name in data_seg_local.detectors_in_channel(channel_name):
             detector = channel.get_detector(detector_name)
             detector.load_map(sim_config['sim_pol_type'])
-            dio.set_path_for_detector(detector_name)
-            dio.make_detector_directory()
+            gen_io.set_path_for_detector(detector_name)
+            gen_io.make_detector_directory()
             for segment in data_seg_local.channel_detector_segment_dict[channel_name][detector_name]:
                 if in_args.verbosity >= 1:
                     segment_start_time = time.time()
@@ -55,7 +55,7 @@ def run_simulation():
                 t_stream = TStream()
                 detector.prepare_for_observation(t_stream, sim_config['segment_length'], segment)
                 detector.observe_sky(t_stream, sim_config['coordinate_system'], sim_config['sim_pol_type'])
-                dio.write_t_stream_to_file(t_stream, segment, ['signal', 'theta', 'phi', 'psi', 'hwp_psi'])
+                gen_io.write_t_stream_to_file(t_stream, segment, ['signal', 'theta', 'phi', 'psi', 'hwp_psi'])
                 if in_args.verbosity >= 1:
                     segment_stop_time = time.time()
                     time_taken = segment_stop_time - segment_start_time
@@ -150,9 +150,9 @@ if __name__=="__main__":
     data_seg_global = Data_Segment(0, 1, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
     data_seg_local = Data_Segment(rank, size, sim_config['channel_detector_dict'], sim_config['num_segments_per_det'])
     # DATA DIRECTORIES
-    dio = Data_IO(sim_config)
+    gen_io = GenIO(sim_config)
     if rank == 0:
-        dio.make_top_data_directories(dir_list=['sim_dir', 'tod_dir'])
+        gen_io.make_top_data_directories(dir_list=['sim_dir', 'tod_dir'])
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

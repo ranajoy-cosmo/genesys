@@ -1,6 +1,4 @@
-import numpy as np
-import healpy as hp
-import h5py
+#  import h5py
 import os
 import math
 from genesys import Genesys_Class
@@ -10,13 +8,13 @@ from genesys import add_method
 #* Path naming routines
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-class Data_IO(Genesys_Class):
+class GenIO(Genesys_Class):
     """
-    Structure of the simulation data
-    The parent directory containing all simulation and analysis runs are in <global_paths.output_dir>
-    <sim_dir> : Parent directory for a single simulation and analysis run
-        - <recon_maps_dir> : Could be several different directories depending on how the maps are made
-        - <tod_dir> : One single for this set of simulations
+    STRUCTURE OF THE SIMULATION DATA
+    THE PARENT DIRECTORY CONTAINING ALL SIMULATION AND ANALYSIS RUNS ARE IN <global_paths.output_dir>
+    <sim_dir> : PARENT DIRECTORY FOR A SINGLE SIMULATION AND ANALYSIS RUN
+        - <recon_maps_dir> : COULD BE SEVERAL DIFFERENT DIRECTORIES DEPENDING ON HOW THE MAPS ARE MADE
+        - <tod_dir> : ONE SINGLE SET FOR EACH SIMULATION
             - <channel_dir> : For each frequency channel. Also contains arrays and metadata that is common to all the detectors in the band.
                 - metadata_file
                 - <detector_dir> : Individual detector in the focal plane. Also contains metadata that is common to all the data chunks
@@ -47,16 +45,22 @@ class Data_IO(Genesys_Class):
     # READING/WRITING DOWN DATA BETWEEN FILE AND t_stream
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    def write_t_stream_to_file(self, t_stream, segment, data_fields):
+    def write_t_stream_to_file(self, t_stream, segment, data_fields, comm=None):
         file_name = self.get_path_to_segment_file(segment)
-        f = h5py.File(file_name, 'w')
+        if comm == None:
+            f = h5py.File(file_name, 'w')
+        else:
+            f = h5py.File(file_name, 'w', driver='mpio', comm=comm)
         for item in data_fields:
             f.create_dataset(item, data=t_stream.__dict__[item])
         f.close()
 
-    def read_t_stream_from_file(self, t_stream, segment, data_fields):
+    def read_t_stream_from_file(self, t_stream, segment, data_fields, comm=None):
         file_name = self.get_path_to_segment_file(segment)
-        f = h5py.File(file_name, 'r')
+        if comm == None:
+            f = h5py.File(file_name, 'r')
+        else:
+            f = h5py.File(file_name, 'r', driver='mpio', comm=comm)
         for item in data_fields:
             t_stream.__dict__[item] = f[item][:]
         f.close()

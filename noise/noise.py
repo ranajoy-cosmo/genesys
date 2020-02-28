@@ -1,24 +1,22 @@
-#! /usr/bin/env python
-
+"""
+CLASS FOR SIMULATING NOISE TIMESTREAMS
+REFER TO NUMERICAL RECIPES (NR HEREAFTER) IN C++, SECOND EDITION
+"""
 import numpy as np
-import math
+import numpy.fft as fft
 from genesys import Genesys_Class
 
-"""
-Refer to Numerical Recipes (NR hereafter) in C++, second edition
-"""
-
 class Noise(Genesys_Class):
-    def __init__(self, params, sampling_rate, n_samples):
-        self.params = copy.deepcopy(params)
+    def __init__(self, noise_params, sampling_rate):
+        self.params = {}
+        self.params.update(noise_params)
         self.params['sampling_rate'] = sampling_rate
-        self.n_samples = n_samples
 
-    def simulate_noise(self):
+    def simulate_noise(self, n_samples):
         if self.params['noise_type'] == 'white':
-            noise = get_white_noise()
-        if self.params['noise_type'] == '1/f':
-            noise = get_1_over_f_noise()
+            noise = get_white_noise(n_samples)
+        if self.params['noise_type'] == '1_over_f':
+            noise = get_1_over_f_noise(n_samples)
         return noise
 
     def get_white_noise(self):
