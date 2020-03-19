@@ -1,6 +1,6 @@
 """
-CLASS FOR SIMULATING NOISE TIMESTREAMS
-REFER TO NUMERICAL RECIPES (NR HEREAFTER) IN C++, SECOND EDITION
+Class for simulating noise TOD
+Refer to numerical recipes (NR hereafter) in C++, second edition
 """
 import numpy as np
 import numpy.fft as fft

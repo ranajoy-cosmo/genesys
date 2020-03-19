@@ -1,6 +1,6 @@
 """
 This module calculates and converts between the noise parameters for a CMB experiment and also generates the noise power spectra given such parameters.
-Calculations are done assuming the observer is at the centre of a 2-Sphere with the last scattering surface being the surface of the sphere and at radius unity away from the observer.
+Calculations are done assuming the observer is at the centre of a 2-sphere with the last scattering surface being the surface of the sphere and at radius unity away from the observer.
 Features include :
     1) Calculate the solid angle of a pixel of a Healpix map from the nside
     2) Time spent by the detector per pixel of the Healpix map for the given nside and time span
@@ -13,12 +13,13 @@ Features include :
 
 import numpy as np
 import healpy as hp
-import genesys.utilities.unit_conversion as uc
-from genesys.global_config import global_paths
+from genesys.numerical.unit_conversion import Unit_Converter 
 
-OMEGA_SKY = uc.convert_unit('solid_angle', 1.0, unit_in="full_sky", unit_out="steradian")
-OMEGA_DEGREE_SQ = uc.convert_unit('solid_angle', 1.0, unit_in="degree_square", unit_out="steradian")
-OMEGA_ARCMIN_SQ = uc.convert_unit('solid_angle', 1.0, unit_in="arcmin_square", unit_out="steradian")
+uc = Unit_Converter()
+
+OMEGA_SKY = uc.convert_unit(1.0, 'solid_angle', "full_sky", "steradian")
+OMEGA_DEGREE_SQ = uc.convert_unit(1.0, 'solid_angle', "degree_square", "steradian")
+OMEGA_ARCMIN_SQ = uc.convert_unit(1.0, 'solid_angle', "arcmin_square", "steradian")
 
 FWHM_FACTOR = 2*np.sqrt(2*np.log(2))                                    #FWHM = FWHM_FACTOR*sigma
 
@@ -32,18 +33,15 @@ def pixel_solid_angle(nside, unit_out="arcmin_square", verbose=False):
     accepted out units : 'arcsec_square', 'arcmin_square', 'degree_square', 'steradian'
     Default units : arcmin_square
     """
-    pix_solid_angle_arcmin = hp.nside2pixarea(nside, degrees=False)
-    pix_solid_angle = uc.convert_unit('solid_angle', pix_solid_angle_arcmin, unit_in='steradian', unit_out=unit_out)
-
+    pix_solid_angle_steradian = hp.nside2pixarea(nside, degrees=False)
+    pix_solid_angle = hp.nside2pixarea(nside, degrees=False) * uc.conversion_factor('solid_angle', 'steradian', unit_out)
     if verbose:
-        write_string = "nside : {}\n".format(nside)
-        write_string += "pixel solid angle : {:.3e} {} ({:.3e} steradian)".format(pix_solid_angle, unit_out, pix_solid_angle_arcmin)
-        print(write_string)
-
+        print(f"nside: {nside}")
+        print(f"pixel solid angle: {pix_solid_angle:.3e} {unit_out}")
     return pix_solid_angle
 
 
-def time_per_area_unit(t_integration, area_unit_type="arcmin_square", time_unit_in="second", time_unit_out="second", nside=None, verbose=False):
+def time_per_area_element(t_integration, time_unit_in='siderial_year', area_element='arcmin_square', time_unit_out='sec', nside=None, verbose=False):
     """
     Time spent by 1 detector per area unit specified.
     The scan is considered to be uniform all over the sky.
@@ -52,90 +50,85 @@ def time_per_area_unit(t_integration, area_unit_type="arcmin_square", time_unit_
     Default input units : seconds
     Default output units : seconds
     """
-    if area_unit_type == "pixel":
-        assert (nside is not None), "Please enter the nside for unit area type \"pixel\""
-        omega_area_unit = {'pixel' : pixel_solid_angle(nside, "steradian")}
+    if area_element == "pixel":
+        assert (nside is not None), f"Please enter the nside for unit area type {unit_type}"
+        omega_area_element = pixel_solid_angle(nside, 'steradian')
     else:
-        uc.validate_unit('solid_angle', area_unit_type)
-        omega_area_unit = uc.all_unit_dicts['solid_angle']
+        omega_area_element = uc.convert_unit(1.0, 'solid_angle', area_element, 'steradian')
 
-    time_in_area_unit_tui = t_integration * omega_area_unit[area_unit_type] / OMEGA_SKY
-    time_in_area_unit_tuo = uc.convert_unit('time', time_in_area_unit_tui, unit_in=time_unit_in, unit_out=time_unit_out)
+    time_in_area_unit = t_integration * (omega_area_element / OMEGA_SKY) * uc.conversion_factor('time', time_unit_in, time_unit_out)
 
     if verbose:
-        t_integration_second = uc.convert_unit('time', t_integration, unit_in=time_unit_in, unit_out="second")
-        time_in_area_unit_second = uc.convert_unit('time', time_in_area_unit_tui, unit_in=time_unit_in, unit_out="second")
-        write_string = "Total integration time : {} {} ({} second)\n".format(t_integration, time_unit_in, t_integration_second)
-        write_string += "Area unit : {}\n".format(area_unit_type)
-        if area_unit_type == "pixel":
-            write_string += "Nside : {}\n".format(nside)
-        write_string += "Time in area unit : {:.4e} {} ({:.4e} second)".format(time_in_area_unit_tuo, time_unit_out, time_in_area_unit_second)
-        print(write_string)
+        t_integration_unit_out = uc.convert_unit(t_integration, 'time', time_unit_in, time_unit_out)
+        print(f"Total integration time: {t_integration} {time_unit_in}")
+        print(f"Area element: {area_element}")
+        if area_unit == "pixel":
+            print(f"NSide : {nside}")
+        print(f"Time in area element : {time_in_area_unit:.4e} {time_unit_out}")
 
-    return time_in_area_unit_tuo
+    return time_in_area_unit
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* Sensitivity routines and conversions 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-area_unit_map = {"arcmin_square" : "arcmin", "degree_square" : "degree", "full_sky" : "sqrt(full_sky)", "steradian" : "radian", "pixel" : "sqrt(pixel)"}
+area_element_map = {"arcmin_square" : "arcmin", "degree_square" : "degree", "full_sky" : "sqrt(full_sky)", "steradian" : "radian", "pixel" : "sqrt(pixel)"}
 
-def noise_rms_convert_area_unit(noise_rms_in, area_unit_in="arcmin_square", area_unit_out="arcmin_square", nside_in=None, nside_out=None, verbose=False): 
+def noise_rms_convert_area_element(noise_rms_in, area_element_in="arcmin_square", area_element_out="arcmin_square", nside_in=None, nside_out=None, verbose=False): 
     """
-    Converts the noise rms from uK.unit_in to uK.unit_out.
+    Converts the noise rms from uK.area_element_in to uK.area_element_out.
     This method works on both a scalar quantity as well as on a numpy array.
-    For example, a healpix map with each pixel having the rms value can be converted between uK.arcmin to uK rms noise in each pixel.
+    For example, a HEALPix map with each pixel having the rms value can be converted between uK.arcmin to uK rms noise in each pixel.
+    This is calculated from the square root of the ratio of time spent in the respective area elements
     """
-    time_per_area_unit_in = time_per_area_unit(t_integration=1.0, area_unit_type=area_unit_in, nside=nside_in)
-    time_per_area_unit_out = time_per_area_unit(t_integration=1.0, area_unit_type=area_unit_out, nside=nside_out)
-    factor = np.sqrt(time_per_area_unit_in / time_per_area_unit_out)
+    time_per_area_element_in = time_per_area_element(1.0, area_unit=area_unit_in, nside=nside_in)
+    time_per_area_element_out = time_per_area_element(1.0, area_unit=area_unit_out, nside=nside_out)
+    factor = np.sqrt(time_per_area_element_in / time_per_area_element_out)
     noise_rms_out = noise_rms_in * factor
 
     if verbose:
         if np.isscalar(noise_rms_in) == 1:
-            write_string = "Noise rms in : {} uK.{}\n".format(noise_rms_in, area_unit_map[area_unit_in])
-            write_string += "Noise rms out : {} uK.{}\n".format(noise_rms_out, area_unit_map[area_unit_out])
+            print(f"Noise rms in : {noise_rms_in} uK.{area_element_map[area_element_in]}")
+            print(f"Noise rms out : {noise_rms_out} uK.{area_element_map[area_element_out]}")
         else:
-            write_string = "Input units : {}\n".format(area_unit_in)
-            write_string += "Output units : {}\n".format(area_unit_out)
-        if area_unit_in == "pixel":
-            write_string += "Nside in : {}\n".format(nside_in)
-        if area_unit_out == "pixel":
-            write_string += "Nside out : {}\n".format(nside_out)
+            print(f"Input units : {area_element_in}")
+            print(f"Output units : {area_element_out}")
+        if area_element_in == "pixel":
+            print(f"Nside in : {nside_in}")
+        if area_element_out == "pixel":
+            print(f"Nside out : {nside_out}")
         print(write_string)
 
     return noise_rms_out
 
-def detector_sensitivity_to_noise_rms(det_sens, t_integration, area_unit_type="arcmin_square", n_det=1, noise_margin=1.0, detector_yield=1.0, time_unit_in="second", nside=None, verbose=False):
+def detector_sensitivity_to_noise_rms(det_sens, t_integration, time_unit_in="second", area_element="arcmin_square", n_det=1, noise_margin=1.0, detector_yield=1.0, nside=None, verbose=False):
     """
     Converts from the detector sensitivity to the noise in each area unit specified. 
     Assuming an uniform scan over the time of t_integration and by n_det detectors.
     If area unit is specified as 'pixel', the nside must be specified
     det_sens is a numpy array or a single scalar value of unit uK.sqrt(s)
     Array of 3 values returned for each det_sens T, Q, U maps respectively. The noise is sqrt(2) times more for Q and U
-    Output unit : uK.sqrt(area_unit_type)
+    Output unit : uK.sqrt(area_element)
     """
-
-    t_area_unit = time_per_area_unit(t_integration=t_integration, area_unit_type=area_unit_type, nside=nside, time_unit_in=time_unit_in, time_unit_out="second")
+    t_area_element = time_per_area_element(t_integration, time_unit_in=time_unit_in, area_element=area_element, time_unit_out="second", nside=nside)
     factor = np.array([1.0, np.sqrt(2), np.sqrt(2)])
-    noise_rms_in_area_unit_I = det_sens * noise_margin / np.sqrt(t_area_unit) / np.sqrt(n_det*detector_yield)
+    noise_rms_in_area_element_I = det_sens * noise_margin / np.sqrt(t_area_unit) / np.sqrt(n_det*detector_yield)
     if np.isscalar(det_sens):
-        noise_rms_in_area_unit = noise_rms_in_area_unit_I * factor
+        noise_rms_in_area_element = noise_rms_in_area_element_I * factor
     else:
-        noise_rms_in_area_unit = noise_rms_in_area_unit_I[:,None] * factor
+        noise_rms_in_area_element = noise_rms_in_area_element_I[:,None] * factor
 
     if verbose:
-        write_string = "Integration time : {} {}\n".format(t_integration, time_unit_in)
-        write_string += "Number of detectors : {}\n".format(n_det)
-        write_string += "Detector sensitivity : {} uK.sqrt(s)\n".format(det_sens)
-        if area_unit_type == "pixel":
-            write_string += "Nside : {}\n".format(nside)
-        write_string += "Noise rms : {:.4e} uK.{} in intensity\n".format(noise_rms_in_area_unit[0], area_unit_map[area_unit_type])
-        write_string += "          : {:.4e} uK.{} in polarisation".format(noise_rms_in_area_unit[1], area_unit_map[area_unit_type])
-        print(write_string)
+        print(f"Integration time : {t_integration} {time_unit_in}")
+        print(f"Number of detectors : {n_det}")
+        print(f"Detector sensitivity : {det_sens} uK.sqrt(s)")
+        if area_element == "pixel":
+            print(f"Nside : {nside}")
+        print(f"Noise rms in Intensity : {noise_rms_in_area_element[0]:.4e} uK.{area_element_map[area_element]}")
+        print(f"          in Polarisation : {noise_rms_in_area_element[1]:.4e} uK.{area_element_map[area_element]}")
 
-    return noise_rms_in_area_unit
+    return noise_rms_in_area_element
 
-def noise_rms_to_detector_sensitivity(noise_rms, t_integration, area_unit_type="arcmin_square", nside=None, noise_margin=1.0, detector_yield=1.0, n_det=1, time_unit_in="second", comp="I", verbose=False):
+def noise_rms_to_detector_sensitivity(noise_rms, t_integration, time_unit_in="second", area_element="arcmin_square", noise_margin=1.0, detector_yield=1.0, n_det=1, nside=None, comp="I", verbose=False):
     """
     Converts from the noise in each area unit of a Healpix map to detector sensitivity.
     Assuming an uniform scan over the time of t_integration and by n_det detectors.

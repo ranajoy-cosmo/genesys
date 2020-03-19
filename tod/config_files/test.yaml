@@ -1,46 +1,48 @@
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# NAMING AND GENERAL CONFIGURATIONS FOR THIS SIMULATION RUN
+# Naming and general configurations for this simulation run
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-# THIS WILL BE NAME OF THE PARENT DIRECTORY UNDER WHICH ALL OUTPUT DATA PRODUCTS WILL BE WRITTEN.
-sim_tag: sim_test
-# THIS WILL BE THE NAME OF THE DIRECTORY UNDER WHICH THE SIMULATED TIMESTREAM DATA WILL BE WRITTEN.
-tod_tag: scan_test
+# To understand the naming convention and data structure see the docstring in genesys/gen_io/gen_io.py
+sim_tag: sim_test       # parent directory
+tod_tag: scan_test      # TOD directory
+recon_tag: None         # Reconstructed map directory
 
-# THIS WILL BE PREPENDED TO EACH DATA SEGMENT WRITTEN DOWN. FOR EXAMPLE WHEN RESAMPLING, THE TAG "resim_" CAN BE PREPENDED TO SIGNAL.
-special_tag: 
+special_tag:            # Special name to be appended to the data product name 
 
-# OPTIONS FOR input_pol_type = ["IQU", "QU", "I", "_QU", "noise_only"]
-# DEFAULT -> "IQU"
-# A _ MEANS THAT THE INPUT MAP HAS A COMPONENT WHICH WILL NOT BE READ"
+# Options for input_pol_type = ["IQU", "QU", "I", "_QU", "noise_only"]
+# Default -> "IQU"
+# A _ means that the input map has a component which will be set to 0"
 sim_pol_type: IQU
 
-# COORDINATE_SYSTEM FOR THE SCANNING CAN BE "ecliptic" OR "galactic".
+# Coordinate_system for the scanning can be "ecliptic" or "galactic".
 coordinate_system: galactic
 
-# INSTRUMENT CONFIGURATION FILE. THIS IS GOING TO BE A SINGLE FILE CONTAINING THE SPECIFICATIONS OF THE INSTRUMENT, SCANNING AND EACH OBSERVING CHANNEL.
-instrument_name: litebird_v28_20190715
+# Instrument configuration directory
+instrument_dir: litebird_v28_20190715
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# DATA SELECTION
+# Data selection
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-# THE SIMULATION WILL START AT time_start AND PRODUCE num_segment SEGMENTS EACH OF LENGTH segment_length
-
+# The simulation will start at time=0 and produce num_segment_per_detector segments each of length segment_length
 channel_detector_dict: {'LFT_40GHz' : ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']}
 segment_length: 131490                      # seconds
 num_segments_per_det: 1
 
-# #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# # Read & Write
-# #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# Read & Write
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-# Available options for timestream_data_products = ["signal", "pointing_vec", "pol_ang", "noise", "mask"]
-ts_data_products:
+# Data products to be written to file
+data_products:
     signal: True
     pointing_vec: True
     psi: True
     psi_hwp: True
     noise: False
 
-huffman: False
+huffman:
+    encode: False
+    nside_pointing: 4096
+    psi_bins: 
+    psi_hwp_bins: 

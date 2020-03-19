@@ -5,10 +5,12 @@ import itertools
 from genesys import global_paths
 from genesys import Genesys_Class
 
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-#* Detector and segment distribution
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-class Data_Segment(Genesys_Class):
+class Segment_Distributor(Genesys_Class):
+    """
+    This class creates a dictionary of the channels, detectors and segments such that they are most evenly distributed over the available MPI processes.
+    The structure of the dictionary has the following hierarchy: segment - channel - detector
+    {
+    """
     def __init__(self, rank, size, channel_detector_dict, num_segments_per_det):
         self.channel_detector_segment_dict = self.get_channel_detector_segment_dict(rank, size, channel_detector_dict, num_segments_per_det)
 

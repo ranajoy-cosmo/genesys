@@ -6,46 +6,48 @@ from functools import wraps
 from ruamel.yaml import YAML
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# THIS BLOCK IS THE ONLY PLACE A USER NEEDS TO MODIFY 
+# This block is the only place a user needs to modify 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# THIS CAN ALSO BE SET IN THE GLOBAL PATHS BLOCK. CHECK DESCRIPTION THERE
+# This can also be set in the global paths block. Check description there
 storage_dir = "/mn/stornext/d14/comap/ranajoyb/Genesys_Files"
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# THIS BLOCK DEFINES THE GENERIC CLASS TO BE INHERITED BY ALL OTHER CLASSES IN THE genesys ECOSYSTEM
+# This block defines the generic class to be inherited by all other classes in the genesys ecosystem
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 class Genesys_Class:
     """
-    AN EMPTY CLASS THAT CAN BE USED AS A TEMPLATE FOR ANY OBJECT.
-    BASIC FEATURES:
-        copy_other: COPY THE ATTRIBUTES OF ANOTHER OBJECT
+    An empty class that can be used as a template for any object.
+    Basic features:
+        copy_other: Copy the attributes of another object
     """
-    def __init__(self, other=None):
+    def __init__(self):
         """
-        EXPECT THIS TO BE OVERRIDDEN BY THE CHILD CLASS
+        Expect this to be overridden by the child class
         """
         self.params = {}
-        if other != None:
-            self.copy_attributes(other)
 
-    def copy_params(self, *param_list):
+    def copy_params(self, params, param_list=None):
         """
-        COPY PARAMS TO SELF
-        IF param_list IS SPECIFIED, ONLY THOSE PARAMS ARE COPIED
+        Copy params to self
+        If param_list is specified, only those params are copied
         """
-        for param in param_list:
-            self.params.update(param)
+        if not hasattr(self, 'params'):
+            self.params = {}
+        if param_list == None:
+            self.params.update(params)
+        else:
+            self.params.update({k: params[k] for k in param_list})
 
     def copy_attributes(self, other):
         """
-        COPY JUST THE INSTANCE VARIABLES INCLUDING params. METHODS AND CLASS VARIABLES ARE NOT COPIED
+        Copy just the instance variables including params. Class methods and class variables are not copied
         """
         self.__dict__.update(other.__dict__) 
 
     def return_copy(self):
         """
-        RETURN AN ENTIRE COPY OF SELF
+        Return an entire copy of self
         """
         return copy.deepcopy(self)
 

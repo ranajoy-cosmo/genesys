@@ -2,60 +2,60 @@
 # The keyword channel will mean the detector has the global parameter of the channel
 
 0001a:
-    input_map_file: test_map.fits
+    input_map_file:
     pol_phase_ini: 0.0          # degrees
     noise:
-        noise_type: white
-        white_noise_rms: 40.0   # uk*sqrt(s)  
-        f_knee:             # mHz
+        noise_type:
+        white_noise_rms:        # uk*sqrt(s)  
+        f_knee:                 # mHz
         noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0001b:
-    input_map_file: test_map.fits
+    input_map_file:
     pol_phase_ini: 90.0          # degrees
     noise:
-        noise_type: white
+        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0002a:
-    input_map_file: test_map.fits
+    input_map_file:
     pol_phase_ini: 45.0          # degrees
     noise:
-        noise_type: white
+        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0002b:
-    input_map_file: test_map.fits
+    input_map_file:
     pol_phase_ini: 135.0          # degrees
     noise:
-        noise_type: white
+        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0003a:
-    input_map_file: test_map.fits
+    input_map_file:
     pol_phase_ini: 0.0          # degrees
     noise:
-        noise_type: white
+        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
     pos: [0.0,0.0]              # arcmins
 
 0003b:
-    input_map_file: test_map.fits
+    input_map_file:
     pol_phase_ini: 90.0          # degrees
     noise:
-        noise_type: white
+        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:

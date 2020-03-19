@@ -6,21 +6,20 @@ import os
 
 class Sky_Map(Genesys_Class):
     """
-    THIS CLASS HAS USEFUL UTILITY FUNCTIONS FOR MANIPULATING HEALPix MAPS AND MASKS
-    TWO MEMBER VARIABLES: sky_map, nside
-    IF A sky_map IS MASKED, sky_map WILL CONTAIN THE MASKED MAP IN THE HEALPY FORMAT
-    HEALPY MASK CONVENTION :
-        0(False) -> PIXEL NOT SEEN
-        1(True) -> PIXEL SEEN
+    This class has useful utility functions for manipulating HEALPix maps and masks
+    Two member variables: sky_map, nside
+    If a sky_map is masked, sky_map will contain the masked map in the healpy format
+    Healpy mask convention:
+        0(false) -> pixel not seen
+        1(true) -> pixel seen
     """
-    def __init__(self, map_file_name=None, field=None, sky_map_np=None, other=None):
+    def __init__(self, map_file_name=None, field=(0), sky_map_np=None, other=None):
         """
-        CONSTRUCTOR
-        ORDER OF PREFERENCE:
-            MAP_FILE_NAME -> READ_MAP_FROM_FILE(MAP_FILE_NAME, FIELD) : READ HEALPix MAP FROM FILE
-            map_np -> from_np_array(map_np) : ASSIGN FROM A MAP EXISTING AS A NUMPY ARRAY
-            other -> copy_attributes(other) : COPY CONSTRUCTOR
-            None -> EMPTY OBJECT
+        Order of preference:
+            map_file_name -> read_map_from_file(map_file_name, field) : read healpix map from file
+            sky_map_np -> from_np_array(map_np) : assign from a map existing as a numpy array
+            other -> copy_attributes(other) : copy constructor
+            none -> empty object
         """
         if map_file_name is not None:
             self.read_map_from_file(map_file_name=map_file_name, field=field)
@@ -32,27 +31,27 @@ class Sky_Map(Genesys_Class):
             self.sky_map = None
             self.nside = None
 
-    def read_map_from_file(self, map_file_name, field=None):
+    def read_map_from_file(self, map_file_name, field=(0), verbose=False):
         """
-        THE BASE DIRECTORY OF ALL MAPS IS ASSUMED TO BE global_paths['maps_dir']
+        The base directory of all maps is assumed to be global_paths['maps_dir']
         """
-        if field == None:
-            field = (0)
-        self.sky_map = hp.read_map(self.get_path_to_map_file(map_file_name), field=field, verbose=False)
+        map_file_path = self.get_path_to_map_file(map_file_name)
+        self.sky_map = hp.read_map(map_file_path, field=field, verbose=verbose)
         self.nside = hp.get_nside(self.sky_map)
 
     def from_np_array(self, sky_map_np):
         """
-        ACCEPTS A HEALPIX MAP IN NUMPY ARRAY FORMAT
+        Accepts a HEALPix map in numpy array format
         """
         self.sky_map = sky_map_np
         self.nside = hp.get_nside(self.sky_map)
 
     def write_map(self, map_file_name):
         """
-        WRITES MAP TO FILE
+        Writes map to file
         """
-        hp.write_map(self.get_path_to_map_file(map_file_name), self.sky_map)
+        map_file_path = self.get_path_to_map_file(map_file_name)
+        hp.write_map(map_file_path, self.sky_map)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Path naming conventions

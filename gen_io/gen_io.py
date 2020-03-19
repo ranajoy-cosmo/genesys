@@ -42,27 +42,27 @@ class GenIO(Genesys_Class):
         return os.path.join(self.paths['detector_dir'], segment_name + '.hdf5')
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    # READING/WRITING DOWN DATA BETWEEN FILE AND t_stream
+    # READING/WRITING DOWN DATA BETWEEN FILE AND tod
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    def write_t_stream_to_file(self, t_stream, segment, data_fields, comm=None):
+    def write_tod_to_file(self, tod, segment, data_fields, comm=None):
         file_name = self.get_path_to_segment_file(segment)
         if comm == None:
             f = h5py.File(file_name, 'w')
         else:
             f = h5py.File(file_name, 'w', driver='mpio', comm=comm)
         for item in data_fields:
-            f.create_dataset(item, data=t_stream.__dict__[item])
+            f.create_dataset(item, data=tod.__dict__[item])
         f.close()
 
-    def read_t_stream_from_file(self, t_stream, segment, data_fields, comm=None):
+    def read_tod_from_file(self, tod, segment, data_fields, comm=None):
         file_name = self.get_path_to_segment_file(segment)
         if comm == None:
             f = h5py.File(file_name, 'r')
         else:
             f = h5py.File(file_name, 'r', driver='mpio', comm=comm)
         for item in data_fields:
-            t_stream.__dict__[item] = f[item][:]
+            tod.__dict__[item] = f[item][:]
         f.close()
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

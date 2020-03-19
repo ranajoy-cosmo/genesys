@@ -4,17 +4,14 @@ from genesys.instruments.channel import Channel
 
 class Instrument(Genesys_Class):
     """
-    CLASS FOR HANDLING INSTRUMENT PARAMETER LOADING AND HANDLING
-    THE INSTRUMENT PARAMS ARE WRITTEN IN A instrument_dir DIRECTORY
-    THE DIRECTORY CONTAINS THE FOLLOWING FILES
-        instrument.yaml -> TOP LEVEL INSTRUMENT SPECIFICATIONS, SCAN STRATEGIES, POLARISATION MODULATOR
-        <Channel_name>.yaml -> INDIVIDUAL DETECTOR PARAMETERS.
+    Class for handling instrument parameter loading and handling
+    The instrument params are written in  <instrument_dir> directory, and contains the following files
+        instrument.yaml -> Top level instrument specifications, scan strategy, polarisation modulator
+        <channel_name>.yaml -> Individual detector parameters
     """
     def __init__(self, instrument_dir=None, other=None):
         """
-        CONSTRUCTOR FOR Instrument CLASS
-        IF other IS GIVEN, THE INSTANCE VARIABLES OF other ARE COPIED INTO self
-        IF instrument_dir IS GIVEN, THE INTRUMENT PARAMETERS ARE LOADED FROM THE CORRESPONDING DIRECTORY
+        Order of preference: instrument_dir > other
         """
         if instrument_dir != None:
             self.instrument_dir = os.path.join(self.global_paths['base_dir'], 'instruments', instrument_dir)
