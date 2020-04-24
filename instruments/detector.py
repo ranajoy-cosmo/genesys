@@ -3,7 +3,7 @@ import healpy as hp
 from termcolor import colored
 from genesys import Genesys_Class
 from genesys.pointing import Pointing
-from genesys.maps import Sky_Map
+from genesys.noise import Noise
  
 class Detector(Genesys_Class):
     def __init__(self, channel_obj, detector_name):
@@ -18,95 +18,76 @@ class Detector(Genesys_Class):
         get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['noise_type', 'white_noise_rms']) 
         if self.params['noise']['noise_type'] == '1_over_f':
             get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['f_knee', 'noise_alpha'])
-        # OTHER PARAMS
+        # Other params
         get_param_if_None(self.params, channel_obj.params, ['sampling_rate', 'pol_modulation', 'input_map_file'])
         if self.params['pol_modulation'] != 'scan':
             self.params['HWP'] = {}
             self.params['HWP'].update(channel_obj.params['HWP'])
 
-    def load_map(self, pol_type='IQU'):
-        """
-        pol_type:
-            I -> Only I read. field=(0)
-            IQU -> All I,Q,U read. field=(0,1,2)
-            _QU -> All I,Q,U read but I set to 0. field=(0,1,2) 
-        """
-        input_map_path = self.params['input_map_file']
-        if pol_type == 'I':
-            self.sky_map = Sky_Map(self.params['input_map_file'], field=(0))
-        if pol_type == 'IQU':
-            self.sky_map = Sky_Map(self.params['input_map_file'], field=(0,1,2))
-        if pol_type == '_QU':
-            self.sky_map = Sky_Map(self.params['input_map_file'], field=(0,1,2))
-            self.sky_map[0] *= 0.0
-
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    # THIS IS WHERE ALL THE ACTION HAPPENS
-    # SCANNING THE MAP WITH THE SIMULATED POINTING
+    # This is where all the action happens
+    # Scanning the map with the simulated pointing
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-
-    def prepare_for_observation(self, t_stream, segment_length, segment):
-        t_stream.gen_t_steps(segment_length, segment, self.params['sampling_rate'])
-        self.initialise_pointing()
-
-    def initialise_pointing(self):
-        pointing_params = {}
-        pointing_params.update(self.params['scan_strategy'])
-        pointing_params['pos'] = self.params['pos']
-        pointing_params['HWP_spin_rate'] = self.params['HWP']['spin_rate']
-        self.pointing = Pointing(pointing_params)
         
-    def observe_sky(self, t_stream, coordinate_system, pol_type):
-        theta, phi, psi = self.pointing.get_pointing_and_pol_angle(t_stream.t_steps, coordinate_system)
+    def observe_sky(self, pointing, sky_map, tod, pol_type):
+        axis_detector_sight = pointing.get_detector_axis(self.params['pos'])
+        theta, phi, psi = pointing.get_pointing_and_pol(axis_detector_sight)
+
         if self.params['pol_modulation'] != 'scan':
-            hwp_psi = self.pointing.get_hwp_angle(t_stream.t_steps)
-            pol_phase = 2*psi + 4*hwp_psi
+            pol_phase = 2*psi + 4*tod['hwp_psi']
         else:
             pol_phase = 2*psi
         # TO DO: orbital_dipole = self.pointing.get_orbital_dipole()
-        hit_pix = hp.ang2pix(self.sky_map.nside, theta, phi)
-        if pol_type == 'noise':
-            signal = np.zeros(t_stream.t_steps.size)
-        if pol_type == 'I':
-            signal = self.sky_map.sky_map[hit_pix]
-        if pol_type == 'QU':
-            signal = self.sky_map.sky_map[0][hit_pix]*np.cos(pol_phase) + self.sky_map.sky_map[1][hit_pix]*np.sin(pol_phase)
-        if pol_type == '_QU':
-            signal = self.sky_map.sky_map[1][hit_pix]*np.cos(pol_phase) + self.sky_map.sky_map[2][hit_pix]*np.sin(pol_phase)
-        if pol_type == 'IQU':
-            signal = self.sky_map.sky_map[0][hit_pix] + self.sky_map.sky_map[1][hit_pix]*np.cos(pol_phase) + self.sky_map.sky_map[2][hit_pix]*np.sin(pol_phase)
 
-        t_stream.theta = theta
-        t_stream.phi = phi
-        t_stream.psi = psi
-        t_stream.hwp_psi = hwp_psi
-        t_stream.signal = signal
+        hit_pix = hp.ang2pix(sky_map.nside, theta, phi)
+        if pol_type == 'noise':
+            signal = np.zeros(tod['t_steps'].size)
+        if pol_type == 'I':
+            signal = sky_map.sky_map[hit_pix]
+        if pol_type == 'QU':
+            signal = sky_map.sky_map[0][hit_pix]*np.cos(pol_phase) + sky_map.sky_map[1][hit_pix]*np.sin(pol_phase)
+        if pol_type == '_QU':
+            signal = sky_map.sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map.sky_map[2][hit_pix]*np.sin(pol_phase)
+        if pol_type == 'IQU':
+            signal = sky_map.sky_map[0][hit_pix] + sky_map.sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map.sky_map[2][hit_pix]*np.sin(pol_phase)
+
+        noise_params = self.params['noise']
+        noise_params['sampling_rate'] = self.params['sampling_rate']
+        noise_obj = Noise(noise_params)
+        noise = noise_obj.simulate_noise(tod['t_steps'].size)
+        signal += noise
+
+        tod['theta'] = theta
+        tod['phi'] = phi
+        tod['psi'] = psi
+        tod['signal'] = signal
+        tod['noise'] = noise
                 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    # PARAMTERE DISPLAY ROUTINES
+    # Paramtere display routines
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     def display_hwp(self):
         hwp_param = self.params['HWP']
         self.prompt("HALF WAVE PLATE:")
         for item in list(hwp_param.keys()):
-            self.prompt(f"\t{item}: {hwp_param[item]}")
+            self.prompt(f"\t{item:<35}{hwp_param[item]}")
 
     def display_noise(self):
         noise_param = self.params['noise']
-        self.prompt("Noise:")
+        self.prompt("noise:")
         for item in list(noise_param.keys()):
-            self.prompt(f"\t{item}: {noise_param[item]}")
+            self.prompt(f"\t{item:<27}{noise_param[item]}")
 
     def display_scan_strategy(self):
         unit_dict = {'alpha': 'degrees', 'beta': 'degrees', 't_precession': 'seconds', 't_spin': 'seconds', 'duration': 'years'}
         ss_params = self.params['scan_strategy']
         self.prompt("SCAN STRATEGY:")
         for item in ss_params.keys():
-            self.prompt(f"\t{item}: {ss_params[item]} {unit_dict[item]}")
+            self.prompt(f"\t{item:<27}{ss_params[item]} {unit_dict[item]}")
 
     def info(self):
-        self.prompt(colored("#*#*#* ", color="green") + f"{self.params['channel_name']} -- {self.params['detector_name']}"+ colored(" #*#*#* ", color="green")) 
+        self.prompt(colored(f"#{self.params['channel_name'] + ' -- ' + self.params['detector_name']:^29}#", 'green')) 
         for item in self.params.keys():
             if item == 'noise':
                 self.display_noise()
@@ -115,12 +96,12 @@ class Detector(Genesys_Class):
             elif item in ['detector_name', 'channel_name', 'scan_strategy']:
                 pass
             else:
-                self.prompt(f"{item}: {self.params[item]}")
-        self.prompt(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*", color="green"))
+                self.prompt(f"{item:<35}{self.params[item]}")
+        self.prompt(colored(15 * '#*' + '#', color="green"))
 
                 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# HELPER ROUTINES NOT PART OF Detector CLASS
+# Helper routines not part of detector class
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 def get_param_if_None(dict_1, dict_2, items):

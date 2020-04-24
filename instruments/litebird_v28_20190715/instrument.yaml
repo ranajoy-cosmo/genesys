@@ -10,7 +10,7 @@ version: "v28, 2019/07/15, IMOv0"
 scan_strategy:
     alpha: 45                   # degrees. Opening between anti-solar axis and instrument axis.
     beta: 50                    # degrees. Opening between instrument-axis and boresight.
-    t_precession: 11540.88      # seconds. Precession period
+    t_precession: 11540      # seconds. Precession period
     t_spin: 1200                # seconds. Spin period
     duration: 3                 # years
 
@@ -49,6 +49,8 @@ channels:
             noise_type: white
             # white_noise_rms: 209.72                # uk.sqrt(s)
             white_noise_rms: 64.21                # uk.sqrt(s). Scaled for 6 detectors
+            f_knee: 20.0                # mHz
+            noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1                       # OTHER OPTION BEING scan
@@ -65,6 +67,8 @@ channels:
         num_detectors: 64
         noise:
             white_noise_rms: 115.94                # uk.sqrt(s)
+            f_knee:                 # mHz
+            noise_alpha:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
@@ -81,6 +85,8 @@ channels:
         num_detectors: 64
         noise:
             white_noise_rms: 91.12                # uk.sqrt(s)
+            f_knee:                 # mHz
+            noise_alpha:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1
@@ -97,6 +103,8 @@ channels:
         num_detectors: 144
         noise:
             white_noise_rms: 76.40                # uk.sqrt(s)
+            f_knee:                 # mHz
+            noise_alpha:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1

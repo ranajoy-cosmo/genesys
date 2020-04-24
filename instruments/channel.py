@@ -5,17 +5,17 @@ from genesys.instruments.detector import Detector
 
 class Channel(Genesys_Class):
     """
-    CLASS CONTAINING THE PARAMETERS OF A PARTICULAR FREQUENCY Channel
+    Class containing the parameters of a particular frequency channel
     """
     def __init__(self, inst_obj, channel_name):
         """
-        CONFIGURE THE Channel PARAMS.
-        THE Channel OBJECT CAN ONLY BE CREATED FROM THE Instrument object
+        Configure the channel params.
+        The channel object can only be created from the instrument object
         """
         self.params = {}
         self.params['channel_name'] = channel_name
         self.params.update(inst_obj.params['channels'][channel_name])
-        # HWP AND SCAN STRATEGY
+        # HWP and scan strategy
         pol_mod_name = self.params['pol_modulation']
         if pol_mod_name != 'scan':
             self.params['HWP'] = {}
@@ -23,17 +23,16 @@ class Channel(Genesys_Class):
             self.params['HWP']['HWP_name'] = pol_mod_name
         self.params['scan_strategy'] = {}
         self.params['scan_strategy'].update(inst_obj.params['scan_strategy'])
-        # ALL DETECTOR PARAMETERS FROM CHANNEL FILE
+        # All detector parameters from channel file
         channel_param_file_path = os.path.join(inst_obj.instrument_dir, inst_obj.params['channels'][channel_name]['channel_param_file'])
         self.params['detectors'] = self.load_param_file(file_path=channel_param_file_path)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    # PARAMTERE DISPLAY ROUTINES
-    # TO DO: Clean up this later
+    # Paramtere display routines
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
     def info(self):
-        unit_dict = {'central_frequency': 'GHz', 'bandwidth': 'GHz', 'beam_fwhm': 'arcmins', 'sampling_rate': 'Hz', 'pixel_size': 'mm', 'num_detectors': '', 'noise_type': '', 'white_noise_rms': 'uk.sqrt(s)', 'detector_yield': '', 'noise_margin': '', 'pol_modulation': '', 'channel_param_file': '', 'input_map_file': ''}
+        unit_dict = {'central_frequency': 'GHz', 'bandwidth': 'GHz', 'beam_fwhm': 'arcmins', 'sampling_rate': 'Hz', 'pixel_size': 'mm', 'num_detectors': '', 'noise_type': '', 'white_noise_rms': 'uk.sqrt(s)', 'detector_yield': '', 'noise_margin': '', 'pol_modulation': '', 'channel_param_file': '', 'input_map_file': '', 'f_knee': 'mHz', 'noise_alpha': ''}
         prompt(colored("#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*\n", color="green"))
         self.prompt(f"CHANNEL: {self.params[channel_name]}:")
         for item in self.params:

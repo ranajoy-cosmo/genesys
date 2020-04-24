@@ -13,7 +13,7 @@ class Sky_Map(Genesys_Class):
         0(false) -> pixel not seen
         1(true) -> pixel seen
     """
-    def __init__(self, map_file_name=None, field=(0), sky_map_np=None, other=None):
+    def __init__(self, map_file_name=None, field=(0), sky_map_np=None, other=None, verbose=False):
         """
         Order of preference:
             map_file_name -> read_map_from_file(map_file_name, field) : read healpix map from file
@@ -22,7 +22,7 @@ class Sky_Map(Genesys_Class):
             none -> empty object
         """
         if map_file_name is not None:
-            self.read_map_from_file(map_file_name=map_file_name, field=field)
+            self.read_map_from_file(map_file_name=map_file_name, field=field, verbose=verbose)
         elif sky_map_np is not None:
             self.from_np_array(sky_map_np)
         elif other is not None:

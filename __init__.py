@@ -17,13 +17,11 @@ storage_dir = "/mn/stornext/d14/comap/ranajoyb/Genesys_Files"
 
 class Genesys_Class:
     """
-    An empty class that can be used as a template for any object.
-    Basic features:
-        copy_other: Copy the attributes of another object
+    An empty class that can be used as a template for any object in the Genesys ecosystem.
     """
     def __init__(self):
         """
-        Expect this to be overridden by the child class
+        Will be overridden by the child class if it has its own __init__
         """
         self.params = {}
 
@@ -56,29 +54,29 @@ class Genesys_Class:
 
 def add_method(cls):
     """
-    THIS METHOD ALLOWS FOR ADDING AN EXTERNAL METHOD TO A CLASS
-    FROM: https://medium.com/@mgarod/dynamically-add-a-method-to-a-class-in-python-c49204b85bd6
+    This method allows for adding an external method to a class
+    From: https://medium.com/@mgarod/dynamically-add-a-method-to-a-class-in-python-c49204b85bd6
     """
     def decorator(func):
         @wraps(func) 
         def wrapper(self, *args, **kwargs): 
             return func(*args, **kwargs)
         setattr(cls, func.__name__, wrapper)
-        # NOTE WE ARE NOT BINDING FUNC, BUT WRAPPER WHICH ACCEPTS self BUT DOES EXACTLY THE SAME AS func
-        return func # RETURNING func MEANS func CAN STILL BE USED NORMALLY
+        # NOTE we are not binding func, but wrapper which accepts self but does exactly the same as func
+        return func # Returning func means func can still be used normally
     return decorator
 
-# THE SUBSEQUENT METHODS ARE WRITTEN WITH A @add_method(Genesys_Class) BEFORE ITS DEFINITION
-# THIS ALLOWS THEM TO BE USED BOTH INDEPENDENTLY AS THEMSELVES AS WELL AS AS METHODS OF Genesys_Class
+# The subsequent methods are written with a @add_method(Genesys_Class) before its definition
+# This allows them to be used both independently as themselves as well as as methods of Genesys_Class
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# PROMPTER UTILITY
+# Prompter utility
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 @add_method(Genesys_Class)
 def prompt(text, nature='general', outstream=sys.stdout):
     """
-    FLUSH OUT ANY TEXT TO THE outstream PROVIDED IMMEDIATELY.
+    Flush out any text to the outstream provided immediately.
     """
     if nature == 'general':
         outstream.write(text+'\n')
@@ -91,13 +89,13 @@ def prompt(text, nature='general', outstream=sys.stdout):
     outstream.flush()
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# PARAMETER LOADING METHOD
+# Parameter loading method
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 @add_method(Genesys_Class)
 def load_param_file(file_path=None):
     """
-    LOADS THE PARAMETERS INTO A PYTHON DICTIONARY
+    Loads the parameters into a python dictionary
     """
     yaml = YAML(typ='safe')
     with open(file_path, 'r') as f:
@@ -107,26 +105,25 @@ def load_param_file(file_path=None):
 @add_method(Genesys_Class)
 def dump_param_file(yaml_dict, file_path=None):
     """
-    DUMPS THE PYTHON DICTIONARY INTO A yaml FILE
+    Dumps the python dictionary into a yaml file
     """
     yaml = YAML(typ='safe')
     with open(file_path, 'w') as f:
         yaml.dump(yaml_dict, f)
 
-
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# THIS BLOCK DEFINES THE GLOBAL PATHS
+# This block defines the global paths
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 global_paths = {}
 
 current_dir = os.path.dirname(__file__)
-# THE DIRECTORY WHERE LARGE FILES ARE WRITTEN DOWN. FOR EXAMPLE THE scratch SYSTEM AT NERSC.
-# PLEASE DO NOT SET THIS SOMEWHERE WITH VERY LIMITED STORAGE AS IT'LL FILL UP FAST.
-# IDEALLY IT SHOULD HAVE SPACE OF THE ORDER OF A FEW TERABYTES.
-#  storage_dir = current_dir
+# The directory where large files are written down. for example the scratch system at nersc.
+# Please do not set this somewhere with very limited storage as it'll fill up fast.
+# Ideally it should have space of the order of a few terabytes.
+# storage_dir = current_dir
 
-# FORMING THE PATHS
+# Forming the paths
 global_paths['base_dir'] = current_dir
 global_paths['storage_dir'] = storage_dir
 global_paths['output_dir'] = os.path.join(global_paths['storage_dir'], 'output') 
@@ -136,5 +133,5 @@ global_paths['data_dir'] = os.path.join(global_paths['storage_dir'], 'data')
 #  global_paths['camb_params_dir'] = os.path.join(current_dir, 'spectra', 'camb_params')
 #  global_paths['instruments_dir'] = os.path.join(current_dir, 'instruments')
 
-# ADDS THE DICTIONARY AS CLASS MEMBER OF GENESYS_CLASS
+# Adds the dictionary as class member of genesys_class
 Genesys_Class.global_paths = global_paths
