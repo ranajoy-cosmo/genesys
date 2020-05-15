@@ -18,13 +18,18 @@ class Pointing(Genesys_Class):
     The spin axis is in the x-z plane and at a positive angle of alpha degrees to the precession axis, 
     The axis of revolution is the z-axis.
     """
-    def __init__(self, scan_strategy):
+    def __init__(self, scan_strategy=None):
+        """
+        The pointing object initialises with just the scan strategy and sets up the instrument-wide axes
+        The units are converted only locally.
+        """
         self.params = {}
-        self.params.update(scan_strategy)
-        self.params['alpha'] *= uc.conversion_factor( 'angle', 'degree', 'radian')
-        self.params['beta'] *= uc.conversion_factor('angle', 'degree', 'radian')
-        self.set_rotation_axes()
-        self.set_boresight_axis()
+        if scan_strategy != None:
+            self.params.update(scan_strategy)
+            self.params['alpha'] *= uc.conversion_factor( 'angle', 'degree', 'radian')
+            self.params['beta'] *= uc.conversion_factor('angle', 'degree', 'radian')
+            self.set_rotation_axes()
+            self.set_boresight_axis()
 
     def set_rotation_axes(self):
         self.axis_orbit = np.array([0.0, 0.0, 1.0])       # z-axis, pointing upward
@@ -33,13 +38,26 @@ class Pointing(Genesys_Class):
 
     def set_boresight_axis(self):
         """
-        The boresight axis is common for all detectors on the instrument
+        The boresight axis is common for all channels and detectors on the instrument
         It passes through the centre of the focal plane
         """
         boresight_opening_angle = self.params['alpha'] + self.params['beta']
         self.axis_boresight = np.array([np.cos(boresight_opening_angle), 0.0, np.sin(boresight_opening_angle)])
 
-    def generate_obv_quaternion(self, t_steps, coordinate_system):
+    #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+    def gen_t_steps(self, t_start, sampling_rate, segment_length):
+        """
+        Generates uniformly spaced time stamps starting at t_start.
+        segment_length is in seconds
+        sampling_rate is in Hz
+        """
+        delta_t = 1.0 / sampling_rate
+        n_samples = segment_length * sampling_rate
+        t_steps = t_start + delta_t*np.arange(n_samples)
+        return t_steps
+
+    def generate_obv_quaternion(self, t_start, sampling_rate, segment_length, coordinate_system):
         """
         The observation quaternion is defined by 3 consecutive rotations
         1) Spin about axis_spin with angular speed w_spin
@@ -47,6 +65,7 @@ class Pointing(Genesys_Class):
         3) Rotation about axis_orbit with angular speed w_orbit
         *4) Coordinate change to galactic, if specified
         """
+        t_steps = self.gen_t_steps(t_start, sampling_rate, segment_length)
         w_orbit = 2*pi / t_year
         w_prec = 2*pi / self.params['t_precession']
         w_spin = 2*pi / self.params['t_spin']
@@ -70,16 +89,16 @@ class Pointing(Genesys_Class):
         axis_detector_sight = self.rotate_vector(q_rot_x, det_sight_vshifted)
         return axis_detector_sight
 
-    def get_pointing_and_pol(self, axis_detector_sight):
+    def get_pointing_and_phase(self, axis_detector_sight, pol_phase_ini):
         """
         Given the initial values of the boresight pointing the pointing for any subsequent set of t_steps can be determined. see next function for psi.
         """
         v_pointing = self.rotate_vector(self.total_rotation_quaternion, axis_detector_sight)
         theta, phi = hp.vec2ang(v_pointing)
-        psi = self.get_polariser_angle(v_pointing)
+        psi = self.get_polariser_phase(v_pointing, pol_phase_ini)
         return theta, phi, psi
 
-    def get_polariser_angle(self, v_pointing):
+    def get_polariser_phase(self, v_pointing, pol_phase_ini):
         """
         The psi is only for the intrinsic polarisation axis rotation 
         Along with the instrument motion. this value needs to be added to any initial orientation of the polarisation axis
@@ -87,13 +106,17 @@ class Pointing(Genesys_Class):
         y_axis = self.rotate_vector(self.total_rotation_quaternion, np.array([0.0,1.0,0.0]))
         sinalpha = y_axis[...,0] * v_pointing[...,1] - y_axis[...,1] * v_pointing[...,0]
         cosalpha = y_axis[...,2] - v_pointing[...,2] * np.sum(y_axis*v_pointing, axis=-1)
-        psi =  np.arctan2(sinalpha, cosalpha)
+        psi =  np.arctan2(sinalpha, cosalpha) + np.radians(pol_phase_ini)
         return psi
 
-    def get_hwp_angle(self, t_steps, hwp_spin_rate):
+    def get_hwp_phase(self, t_start, sampling_rate, segment_length, hwp_spin_rate):
+        """
+        Unit converted from rpm to radians/sec
+        """
         _hwp_spin_rate = uc.convert_unit(hwp_spin_rate, 'angular_velocity', 'rpm', 'radians/sec')
-        hwp_psi = (_hwp_spin_rate * t_steps) % (2*np.pi)
-        return hwp_psi
+        hwp_phase = self.gen_t_steps(t_start, sampling_rate, segment_length) * _hwp_spin_rate
+        hwp_phase %= 2*np.pi
+        return hwp_phase
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # The Quaternion algebra section

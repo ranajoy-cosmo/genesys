@@ -14,7 +14,8 @@ class Noise(Genesys_Class):
     def __init__(self, noise_params):
         self.copy_params(noise_params)
 
-    def simulate_noise(self, n_samples):
+    def simulate_noise(self, segment_length):
+        n_samples = segment_length * self.params['sampling_rate']
         if self.params['noise_type'] == 'white':
             noise = self.get_white_noise(n_samples)
         if self.params['noise_type'] == '1_over_f':

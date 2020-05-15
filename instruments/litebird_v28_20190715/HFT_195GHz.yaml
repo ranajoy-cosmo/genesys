@@ -1,0 +1,236 @@
+# This yaml file contains the individual detector parameters for the LFT 40GHz channel of LiteBIRD
+# The keyword channel will mean the detector has the global parameter of the channel
+
+0001a:
+    pol_phase_ini: 0.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:        # uk*sqrt(s)  
+        f_knee:                 # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0001b:
+    pol_phase_ini: 90.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0002a:
+    pol_phase_ini: 45.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0002b:
+    pol_phase_ini: 135.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0003a:
+    pol_phase_ini: 0.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0003b:
+    pol_phase_ini: 90.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0004a:
+    pol_phase_ini: 45.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0004b:
+    pol_phase_ini: 135.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0005a:
+    pol_phase_ini: 0.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:        # uk*sqrt(s)  
+        f_knee:                 # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0005b:
+    pol_phase_ini: 90.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0006a:
+    pol_phase_ini: 45.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0006b:
+    pol_phase_ini: 135.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0007a:
+    pol_phase_ini: 0.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0007b:
+    pol_phase_ini: 90.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0008a:
+    pol_phase_ini: 45.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0008b:
+    pol_phase_ini: 135.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0009a:
+    pol_phase_ini: 0.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:        # uk*sqrt(s)  
+        f_knee:                 # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0009b:
+    pol_phase_ini: 90.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0010a:
+    pol_phase_ini: 45.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0010b:
+    pol_phase_ini: 135.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0011a:
+    pol_phase_ini: 0.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0011b:
+    pol_phase_ini: 90.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0012a:
+    pol_phase_ini: 45.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0012b:
+    pol_phase_ini: 135.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0013a:
+    pol_phase_ini: 0.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:        # uk*sqrt(s)  
+        f_knee:                 # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins
+
+0013b:
+    pol_phase_ini: 90.0          # degrees
+    noise:
+        noise_type:
+        white_noise_rms:    # uk*sqrt(s)  
+        f_knee:             # mHz
+        noise_alpha:
+    pos: [0.0,0.0]              # arcmins

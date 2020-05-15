@@ -1,10 +1,10 @@
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# Naming and general configurations for this simulation run
+# Naming and general configurations for this map-making run
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 # To understand the naming convention and data structure see the docstring in genesys/gen_io/gen_io.py
 sim_tag: sim_test_3       # parent directory
-recon_tag: None         # Reconstructed map directory
+recon_tag: recon_test         # Reconstructed map directory
 
 special_tag:            # Special name to be appended to the data product name 
 
@@ -13,27 +13,11 @@ special_tag:            # Special name to be appended to the data product name
 # A _ means that the input map has a component which will be set to 0"
 pol_type: IQU
 
-# Coordinate_system for the scanning can be "ecliptic" or "galactic".
-coordinate_system: ecliptic
-
-# Instrument configuration directory
-instrument_dir: litebird_v28_20190715
+nside: {'LFT_40GHz': 1024}
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # Data selection
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# The simulation will start at time=0 and produce data blocks, each block having num_segments_per_data_block segments 
 channel_detector_dict: {'LFT_40GHz' : ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']}
-segment_length: 3600                      # seconds
 data_block_list: range(1,5)
 num_segments_per_data_block: 24
-map_directory:
-channel_map_dict: {
- 
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# Huffman compression
-#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-
-huffman:
-    nside: 256
-    npsi: 4096

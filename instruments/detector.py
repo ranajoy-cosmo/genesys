@@ -4,6 +4,7 @@ from termcolor import colored
 from genesys import Genesys_Class
 from genesys.pointing import Pointing
 from genesys.noise import Noise
+from .default_units import unit_dict
  
 class Detector(Genesys_Class):
     def __init__(self, channel_obj, detector_name):
@@ -13,48 +14,34 @@ class Detector(Genesys_Class):
         self.params.update(channel_obj.params['detectors'][detector_name])
         self.params['scan_strategy'] = {}
         self.params['scan_strategy'].update(channel_obj.params['scan_strategy'])
-        if 'noise' not in self.params:
-            self.params['noise'] = {}
-        get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['noise_type', 'white_noise_rms']) 
-        if self.params['noise']['noise_type'] == '1_over_f':
-            get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['f_knee', 'noise_alpha'])
-        # Other params
+        self.params['HWP'] = {}
+        self.params['HWP'].update(channel_obj.params['HWP'])
+        get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['noise_type', 'white_noise_rms', 'f_knee', 'noise_alpha']) 
         get_param_if_None(self.params, channel_obj.params, ['sampling_rate', 'pol_modulation', 'input_map_file'])
-        if self.params['pol_modulation'] != 'scan':
-            self.params['HWP'] = {}
-            self.params['HWP'].update(channel_obj.params['HWP'])
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # This is where all the action happens
     # Scanning the map with the simulated pointing
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
         
-    def observe_sky(self, pointing, sky_map, tod, pol_type):
-        axis_detector_sight = pointing.get_detector_axis(self.params['pos'])
-        theta, phi, psi = pointing.get_pointing_and_pol(axis_detector_sight)
+    def observe_sky(self, pnt_obj, sky_map, tod, segment_length):
+        self.axis_sight = pnt_obj.get_detector_axis(self.params['pos'])
+        theta, phi, psi = pnt_obj.get_pointing_and_phase(self.axis_sight, self.params['pol_phase_ini'])
 
-        if self.params['pol_modulation'] != 'scan':
-            pol_phase = 2*psi + 4*tod['hwp_psi']
-        else:
+        if self.params['pol_modulation'] == 'passive':
             pol_phase = 2*psi
+        else:
+            pol_phase = 2*psi + 4*tod['psi_hwp']
         # TO DO: orbital_dipole = self.pointing.get_orbital_dipole()
 
         hit_pix = hp.ang2pix(sky_map.nside, theta, phi)
-        if pol_type == 'noise':
-            signal = np.zeros(tod['t_steps'].size)
-        if pol_type == 'I':
-            signal = sky_map.sky_map[hit_pix]
-        if pol_type == 'QU':
-            signal = sky_map.sky_map[0][hit_pix]*np.cos(pol_phase) + sky_map.sky_map[1][hit_pix]*np.sin(pol_phase)
-        if pol_type == '_QU':
-            signal = sky_map.sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map.sky_map[2][hit_pix]*np.sin(pol_phase)
-        if pol_type == 'IQU':
-            signal = sky_map.sky_map[0][hit_pix] + sky_map.sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map.sky_map[2][hit_pix]*np.sin(pol_phase)
+
+        signal = sky_map.sky_map[0][hit_pix] + sky_map.sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map.sky_map[2][hit_pix]*np.sin(pol_phase)
 
         noise_params = self.params['noise']
         noise_params['sampling_rate'] = self.params['sampling_rate']
         noise_obj = Noise(noise_params)
-        noise = noise_obj.simulate_noise(tod['t_steps'].size)
+        noise = noise_obj.simulate_noise(segment_length)
         signal += noise
 
         tod['theta'] = theta
@@ -71,16 +58,15 @@ class Detector(Genesys_Class):
         hwp_param = self.params['HWP']
         self.prompt("HALF WAVE PLATE:")
         for item in list(hwp_param.keys()):
-            self.prompt(f"\t{item:<35}{hwp_param[item]}")
+            self.prompt(f"\t{item:<27}{hwp_param[item]} unit_dict[item]")
 
     def display_noise(self):
         noise_param = self.params['noise']
         self.prompt("noise:")
         for item in list(noise_param.keys()):
-            self.prompt(f"\t{item:<27}{noise_param[item]}")
+            self.prompt(f"\t{item:<27}{noise_param[item]} unit_dict[item]")
 
     def display_scan_strategy(self):
-        unit_dict = {'alpha': 'degrees', 'beta': 'degrees', 't_precession': 'seconds', 't_spin': 'seconds', 'duration': 'years'}
         ss_params = self.params['scan_strategy']
         self.prompt("SCAN STRATEGY:")
         for item in ss_params.keys():
