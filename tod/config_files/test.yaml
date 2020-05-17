@@ -3,7 +3,7 @@
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 # To understand the naming convention and data structure see the docstring in genesys/gen_io/gen_io.py
-sim_tag: sim_test_3       # parent directory
+sim_tag: sim_full_test_1       # parent directory
 recon_tag: None         # Reconstructed map directory
 
 special_tag:            # Special name to be appended to the data product name 
@@ -14,7 +14,7 @@ special_tag:            # Special name to be appended to the data product name
 pol_type: IQU
 
 # Coordinate_system for the scanning can be "ecliptic" or "galactic".
-coordinate_system: ecliptic
+coordinate_system: galactic
 
 # Instrument configuration directory
 instrument_dir: litebird_v28_20190715
@@ -23,16 +23,62 @@ instrument_dir: litebird_v28_20190715
 # Data selection
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 # The simulation will start at time=0 and produce data blocks, each block having num_segments_per_data_block segments 
-channel_detector_dict: {'LFT_40GHz' : ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']}
+channel_detector_dict:
+    LFT_40GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']
+    LFT_50GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']
+    LFT_60GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']
+    LFT_68aGHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b']
+    LFT_68bGHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']
+    LFT_78aGHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b']
+    LFT_78bGHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']
+    LFT_89aGHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b']
+    LFT_89bGHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b']
+    LFT_100GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b']
+    LFT_119GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b']
+    LFT_140GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b']
+    MFT_100GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b', '0014a', '0014b', '0015a', '0015b', '0016a', '0016b', '0017a', '0017b', '0018a', '0018b']
+    MFT_119GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b', '0014a', '0014b', '0015a', '0015b', '0016a', '0016b', '0017a', '0017b', '0018a', '0018b', '0019a', '0019b', '0020a', '0020b', '0021a', '0021b', '0022a', '0022b', '0023a', '0023b', '0024a', '0024b']
+    MFT_140GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b', '0014a', '0014b', '0015a', '0015b', '0016a', '0016b', '0017a', '0017b', '0018a', '0018b']
+    MFT_166GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b', '0014a', '0014b', '0015a', '0015b', '0016a', '0016b', '0017a', '0017b', '0018a', '0018b', '0019a', '0019b', '0020a', '0020b', '0021a', '0021b', '0022a', '0022b', '0023a', '0023b', '0024a', '0024b']
+    MFT_195GHz:  ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b', '0014a', '0014b', '0015a', '0015b', '0016a', '0016b', '0017a', '0017b', '0018a', '0018b']
+    HFT_195GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b']
+    HFT_235GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b']
+    HFT_280GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b']
+    HFT_337GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b']
+    HFT_402GHz: ['0001a', '0001b', '0002a', '0002b', '0003a', '0003b', '0004a', '0004b', '0005a', '0005b', '0006a', '0006b', '0007a', '0007b', '0008a', '0008b', '0009a', '0009b', '0010a', '0010b', '0011a', '0011b', '0012a', '0012b', '0013a', '0013b', '0014a', '0014b', '0015a', '0015b', '0016a', '0016b', '0017a', '0017b']
 segment_length: 3600                      # seconds
-data_block_list: range(1,5)
+data_block_list: range(1,366)
 num_segments_per_data_block: 24
-map_directory:
-channel_map_dict: {
- 
+map_directory: cmb_maps_Nico/0000
+channel_map_dict:
+    LFT_40GHz: LB_LFT_40_cmb_0000_FGjsg_20200420.fits
+    LFT_50GHz: LB_LFT_50_cmb_0000_FGjsg_20200420.fits
+    LFT_60GHz: LB_LFT_60_cmb_0000_FGjsg_20200420.fits
+    LFT_68aGHz: LB_LFT_68a_cmb_0000_FGjsg_20200420.fits
+    LFT_68bGHz: LB_LFT_68b_cmb_0000_FGjsg_20200420.fits
+    LFT_78aGHz: LB_LFT_78a_cmb_0000_FGjsg_20200420.fits
+    LFT_78bGHz: LB_LFT_78b_cmb_0000_FGjsg_20200420.fits
+    LFT_89aGHz: LB_LFT_89a_cmb_0000_FGjsg_20200420.fits
+    LFT_89bGHz: LB_LFT_89b_cmb_0000_FGjsg_20200420.fits
+    LFT_100GHz: LB_LFT_100_cmb_0000_FGjsg_20200420.fits
+    LFT_119GHz: LB_LFT_119_cmb_0000_FGjsg_20200420.fits
+    LFT_140GHz: LB_LFT_140_cmb_0000_FGjsg_20200420.fits
+    MFT_100GHz: LB_MFT_100_cmb_0000_FGjsg_20200420.fits
+    MFT_119GHz: LB_MFT_119_cmb_0000_FGjsg_20200420.fits
+    MFT_140GHz: LB_MFT_140_cmb_0000_FGjsg_20200420.fits
+    MFT_166GHz: LB_MFT_166_cmb_0000_FGjsg_20200420.fits
+    MFT_195GHz: LB_MFT_195_cmb_0000_FGjsg_20200420.fits
+    HFT_195GHz: LB_HFT_195_cmb_0000_FGjsg_20200420.fits
+    HFT_235GHz: LB_HFT_235_cmb_0000_FGjsg_20200420.fits
+    HFT_280GHz: LB_HFT_280_cmb_0000_FGjsg_20200420.fits
+    HFT_337GHz: LB_HFT_337_cmb_0000_FGjsg_20200420.fits
+    HFT_402GHz: LB_HFT_402_cmb_0000_FGjsg_20200420.fits
+
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-# Huffman compression
+#  Data I/O
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+tod_write_field: ["signal", "theta", "phi", "psi", "noise"]
 
 huffman:
     nside: 256

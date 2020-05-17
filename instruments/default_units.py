@@ -18,6 +18,7 @@ unit_dict = {
 'rotation': '', 
 'sampling_rate': 'Hz', 
 'spin_rate': 'rpm', 
+'HWP_name': '',
 't_precession': 'seconds', 
 't_spin': 'seconds', 
 'white_noise_rms': 'uk.sqrt(s)'}

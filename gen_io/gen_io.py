@@ -139,7 +139,7 @@ class GenIO(Genesys_Class):
                 for attr_item in attributes[item]:
                     self.f_tod[prefix + item].attrs[attr_item] = attributes[item][attr_item]
 
-    def write_detector_data(self, segment, detector_name, tod, scalars=None, tod_write_field=['signal', 'noise', 'theta', 'phi', 'psi']):
+    def write_detector_data(self, segment, detector_name, tod, scalars=None, tod_write_field=['signal', 'theta', 'phi', 'psi']):
         prefix = os.path.join(self.get_segment_name(segment), detector_name, '')
         for item in tod_write_field:
             self.f_tod.create_dataset(prefix + item, data=tod[item])

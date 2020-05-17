@@ -7,9 +7,6 @@ uc = Unit_Converter()
 
 class Segment_Distributor(Genesys_Class):
     def __init__(self, data_block_list, num_segments_per_data_block, size, rank):
-        #  self.data_block_list_global = copy.copy(data_block_list)
-        #  self.num_data_block_global = len(data_block_list)
-        #  self.num_segments_per_data_block = num_segments_per_data_block
         self.data_block_list_local = self.get_local_data_block_list(data_block_list, size, rank)
         self.num_data_blocks_local = len(self.data_block_list_local)
         self.num_data_blocks_global = len(data_block_list)
@@ -17,12 +14,16 @@ class Segment_Distributor(Genesys_Class):
         self.num_segments_global = self.num_data_blocks_global * num_segments_per_data_block
 
     def get_local_data_block_list(self, data_block_list, size, rank):
-        num_data_blocks_global = len(data_block_list)
-        if num_data_blocks_global % size:
-            num_data_blocks_per_process = num_data_blocks_global // size + 1
+        num_blocks = len(data_block_list)
+        min_len = num_blocks // size
+        num_proc_max = num_blocks - min_len*size 
+        if rank < num_proc_max:
+            start = rank*(min_len+1)
+            stop = (rank+1)*(min_len+1)
         else:
-            num_data_blocks_per_process = num_data_blocks_global // size
-        data_block_list_local = data_block_list[rank*num_data_blocks_per_process:(rank+1)*num_data_blocks_per_process]
+            start = num_proc_max*(min_len+1) + (rank - num_proc_max)*min_len
+            stop = num_proc_max*(min_len+1) + (rank + 1 - num_proc_max)*min_len
+        data_block_list_local = data_block_list[start:stop]
         return data_block_list_local
 
     def get_segment_list(self, data_block, num_segments_per_data_block):

@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
 CONFIG_FILE=test.yaml
-VERBOSITY=1
-NUM_PROC=2
+VERBOSITY=2
+NUM_PROC=48
 OUT_FILE=out.txt
 
 mpirun -n $NUM_PROC python sim_tod.py $CONFIG_FILE mpi -v $VERBOSITY

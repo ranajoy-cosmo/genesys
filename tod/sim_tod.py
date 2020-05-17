@@ -36,11 +36,19 @@ def run_simulation():
         segment -> channel -> detector
     """
     pointing_obj = Pointing(instrument.params['scan_strategy'])
-
     input_maps_dict = load_maps()
+
+    block_count = 0
+    det_count = 0
+    proc_time_start = time.time()
+    num_tot_det = sd.count_detectors(config['channel_detector_dict'])
     for data_block in sd.data_block_list_local:
-        prompt(f"Rank {rank:^6} starting data block {data_block}", nature='info')
+        block_count += 1
+        prompt(f"Rank {rank:^6} starting data block {data_block}. ({block_count}/{sd.num_data_blocks_local})", nature='info')
         for channel_name in config['channel_detector_dict'].keys():
+            if in_args.verbosity == 2:
+                chan_time_start = time.time()
+                det_count += len(config['channel_detector_dict'][channel_name])
             prompt(f"Rank {rank:^6} \tobserving with channel {channel_name}", nature='info')
             channel = instrument.get_channel(channel_name)
             io_obj.open_tod_file(channel_name, data_block, 'w')
@@ -60,10 +68,16 @@ def run_simulation():
                 io_obj.write_segment_common(segment, segment_commons)
                 for detector_name in config['channel_detector_dict'][channel_name]:
                     detector = channel.get_detector(detector_name)
-                    detector.observe_sky(pointing_obj, input_maps_dict[channel_name], tod, config['segment_length'])
+                    detector.observe_sky(pointing_obj, input_maps_dict[channel_name], tod, config['segment_length'], tod_write_field=config['tod_write_field'])
                     scalars = {'gain': 1.0, 'sigma0': detector.params['noise']['white_noise_rms'], 'fknee': detector.params['noise']['f_knee'], 'alpha': detector.params['noise']['noise_alpha']}
-                    io_obj.write_detector_data(segment, detector_name, tod, scalars)
+                    io_obj.write_detector_data(segment, detector_name, tod, scalars, config['tod_write_field'])
             io_obj.close_tod_file()
+            if in_args.verbosity == 2:
+                chan_time_stop = time.time()
+                chan_time_taken = chan_time_stop - chan_time_start
+                elapsed_time = chan_time_stop - proc_time_start
+                estimated_time = elapsed_time * (sd.num_data_blocks_local * num_tot_det / det_count) 
+                prompt(f"Rank {rank:^6} \ttook {chan_time_taken:.2f}s for {channel_name}. Elapsed time {elapsed_time:.2f}s. Estimated total time {estimated_time:.2f}s", nature='info')
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* Messages and helper scripts 
@@ -80,7 +94,7 @@ def load_maps():
     """
     input_maps_dict = {}
     for channel_name in config['channel_detector_dict'].keys():
-        map_file_name = instrument.params['channels'][channel_name]['input_map_file']
+        map_file_name = os.path.join(config['map_directory'], config['channel_map_dict'][channel_name])
         input_maps_dict[channel_name] = Sky_Map(map_file_name, field=(0,1,2))
     return input_maps_dict
 
@@ -202,8 +216,10 @@ if __name__=="__main__":
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     if rank == 0:
         global_start_message()
-        instrument_start_message()
-        detector_start_message()
+        if in_args.verbosity >=1:
+            instrument_start_message()
+        if in_args.verbosity >=2:
+            detector_start_message()
     if in_args.run_type == "mpi":
         comm.Barrier()
         time.sleep(rank*0.1)

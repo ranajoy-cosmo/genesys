@@ -17,16 +17,18 @@ class Detector(Genesys_Class):
         self.params['HWP'] = {}
         self.params['HWP'].update(channel_obj.params['HWP'])
         get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['noise_type', 'white_noise_rms', 'f_knee', 'noise_alpha']) 
-        get_param_if_None(self.params, channel_obj.params, ['sampling_rate', 'pol_modulation', 'input_map_file'])
+        get_param_if_None(self.params, channel_obj.params, ['sampling_rate', 'pol_modulation'])
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # This is where all the action happens
     # Scanning the map with the simulated pointing
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
         
-    def observe_sky(self, pnt_obj, sky_map, tod, segment_length):
+    def observe_sky(self, pnt_obj, sky_map_obj, tod, segment_length, tod_write_field=["signal", "theta", "phi", "psi"]):
         self.axis_sight = pnt_obj.get_detector_axis(self.params['pos'])
         theta, phi, psi = pnt_obj.get_pointing_and_phase(self.axis_sight, self.params['pol_phase_ini'])
+
+        sky_map = sky_map_obj.sky_map
 
         if self.params['pol_modulation'] == 'passive':
             pol_phase = 2*psi
@@ -34,9 +36,9 @@ class Detector(Genesys_Class):
             pol_phase = 2*psi + 4*tod['psi_hwp']
         # TO DO: orbital_dipole = self.pointing.get_orbital_dipole()
 
-        hit_pix = hp.ang2pix(sky_map.nside, theta, phi)
+        hit_pix = hp.ang2pix(sky_map_obj.nside, theta, phi)
 
-        signal = sky_map.sky_map[0][hit_pix] + sky_map.sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map.sky_map[2][hit_pix]*np.sin(pol_phase)
+        signal = sky_map[0][hit_pix] + sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map[2][hit_pix]*np.sin(pol_phase)
 
         noise_params = self.params['noise']
         noise_params['sampling_rate'] = self.params['sampling_rate']
@@ -48,7 +50,8 @@ class Detector(Genesys_Class):
         tod['phi'] = phi
         tod['psi'] = psi
         tod['signal'] = signal
-        tod['noise'] = noise
+        if "noise" in tod_write_field:
+            tod['noise'] = noise
                 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Paramtere display routines
@@ -58,13 +61,13 @@ class Detector(Genesys_Class):
         hwp_param = self.params['HWP']
         self.prompt("HALF WAVE PLATE:")
         for item in list(hwp_param.keys()):
-            self.prompt(f"\t{item:<27}{hwp_param[item]} unit_dict[item]")
+            self.prompt(f"\t{item:<27}{hwp_param[item]} {unit_dict[item]}")
 
     def display_noise(self):
         noise_param = self.params['noise']
         self.prompt("noise:")
         for item in list(noise_param.keys()):
-            self.prompt(f"\t{item:<27}{noise_param[item]} unit_dict[item]")
+            self.prompt(f"\t{item:<27}{noise_param[item]} {unit_dict[item]}")
 
     def display_scan_strategy(self):
         ss_params = self.params['scan_strategy']

@@ -323,7 +323,7 @@ channels:
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_2
-        channel_param_file: MFT_140GHz.yaml
+        channel_param_file: MFT_166GHz.yaml
 
     # 17. MFT, 195 GHz
     'MFT_195GHz':
