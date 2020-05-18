@@ -1,16 +1,16 @@
-The executable for generating simulated Time Ordered Data (TOD) is sim_timestream.py
+The executable for generating simulated Time Ordered Data (TOD) is sim_tod.py
 
 The module is called as follows:
-python sim_timestream.py <run_type> <config_file>
-The path to the config_file is provided in a dot-separated format. For example genesys.timestream_simulation.config_files.my_config.py
+python sim_tod.py <config_file> <run_type> <verbosity>
+The path to the config_file is provided relative to the tod directory.
 
 For serial execution:
-python sim_timestream.py serial <config_file>
+python sim_timestream.py <config_file> serial <verbosity>
 
 For mpi execution:
-mpiexec -n <NUM_PROCESSES> python sim_timestream.py mpi <config_file>
+mpiexec -n <NUM_PROCESSES> python sim_tod.py <config_file> mpi <verbosity>
 OR
-mpirun -n <NUM_PROCESSES> python sim_timestream.py mpi <config_file>
+mpirun -n <NUM_PROCESSES> python sim_tod.py <config_file> mpi <verbosity>
 
 where <NUM_PROCESSES> is the number of mpi processes to be run simultaneously
 
