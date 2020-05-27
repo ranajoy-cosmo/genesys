@@ -25,7 +25,7 @@ class Unit_Converter:
         self.unit_dict['length'] = {'parsec': 30856775814913700, 'light_year': 9460730472580800, 'km': 1000.0, 'm': 1.0, 'cm': 1e-2, 'mm': 1e-3, 'mu_m': 1e-6, 'nm': 1e-9, 'angstrom': 1e-10}
         self.unit_dict['time'] = {'year': 365*24*60*60.0, 'day': 24*60*60.0, 'hour': 60*60.0, 'minute': 60.0, 'sec': 1.0, 'milli-sec': 1e-3, 'micro-sec': 1e-6}
         self.unit_dict['frequency'] = {'mHz': 1.0e-3, 'Hz': 1.0, 'kHz': 1.0e3, 'MHz': 1.0e6, 'GHz': 1.0e9, 'THz': 1.0e12}
-        self.unit_dict['energy'] = {'meV': 1.0e-3, 'eV': 1.0, 'keV': 1.0e3, 'MeV': 1.0e6, 'GeV': 1.0e9, 'TeV': 1.0e12, 'PeV': 1.0e15, 'J': 1.60218e-19, 'C': 3.82929e-20}
+        self.unit_dict['energy'] = {'meV': 1.0e-3, 'eV': 1.0, 'keV': 1.0e3, 'MeV': 1.0e6, 'GeV': 1.0e9, 'TeV': 1.0e12, 'PeV': 1.0e15, 'J': 6.241496e18, 'C': 2.61145e19}
 
     def verify_units(self, unit_type, unit_in, unit_out):
         valid_unit_types = self.unit_dict.keys()

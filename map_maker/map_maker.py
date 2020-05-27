@@ -60,16 +60,16 @@ def run_map_maker():
             cov_matrix  = gather_map_segments(cov_matrix_local_block_flat, 'cov_matrix', config['nside'][channel_name])
             hitmap  = gather_map_segments(hitmap_local_block, 'hitmap', config['nside'][channel_name])
             if rank == 0:
-                io_obj.write_map(sky_map, 'sky_map')
-                io_obj.write_map(cov_matrix, 'cov_map')
-                io_obj.write_map(hitmap, 'hit_map')
+                io_obj.write_map(sky_map, 'sky_map', channel_name)
+                io_obj.write_map(cov_matrix, 'cov_map', channel_name)
+                io_obj.write_map(hitmap, 'hit_map', channel_name)
         else:
             cov_matrix = cov_ut.get_covariance_matrix(inv_cov_matrix_local, hitmap_local, config['pol_type'])
             sky_map = cov_ut.get_sky_map(cov_matrix_full, b_matrix_local, hitmap_local, config['pol_type'])
             cov_ut.flatten_block_matrix(cov_matrix_full, config['pol_type'])
-            io_obj.write_map(sky_map, 'sky_map')
-            io_obj.write_map(cov_ut.flatten_block_matrix(cov_matrix, config['pol_type']), 'cov_map')
-            io_obj.write_map(hitmap_local, 'hit_map')
+            io_obj.write_map(sky_map, 'sky_map', channel_name)
+            io_obj.write_map(cov_ut.flatten_block_matrix(cov_matrix, config['pol_type']), 'cov_map', channel_name)
+            io_obj.write_map(hitmap_local, 'hit_map', channel_name)
 
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*

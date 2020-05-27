@@ -4,7 +4,6 @@
 0001a:
     pol_phase_ini: 0.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:        # uk*sqrt(s)  
         f_knee:                 # mHz
         noise_alpha:
@@ -13,7 +12,6 @@
 0001b:
     pol_phase_ini: 90.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -22,7 +20,6 @@
 0002a:
     pol_phase_ini: 45.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -31,7 +28,6 @@
 0002b:
     pol_phase_ini: 135.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -40,7 +36,6 @@
 0003a:
     pol_phase_ini: 0.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -49,7 +44,6 @@
 0003b:
     pol_phase_ini: 90.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -58,7 +52,6 @@
 0004a:
     pol_phase_ini: 45.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -67,7 +60,6 @@
 0004b:
     pol_phase_ini: 135.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -76,7 +68,6 @@
 0005a:
     pol_phase_ini: 0.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:        # uk*sqrt(s)  
         f_knee:                 # mHz
         noise_alpha:
@@ -85,7 +76,6 @@
 0005b:
     pol_phase_ini: 90.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -94,7 +84,6 @@
 0006a:
     pol_phase_ini: 45.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -103,7 +92,6 @@
 0006b:
     pol_phase_ini: 135.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -112,7 +100,6 @@
 0007a:
     pol_phase_ini: 0.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:
@@ -121,7 +108,6 @@
 0007b:
     pol_phase_ini: 90.0          # degrees
     noise:
-        noise_type:
         white_noise_rms:    # uk*sqrt(s)  
         f_knee:             # mHz
         noise_alpha:

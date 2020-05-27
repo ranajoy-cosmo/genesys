@@ -1,7 +1,9 @@
 import numpy as np
 import healpy as hp
 import matplotlib.pyplot as plt
-import genesys.utilities.unit_conversion as uc
+from genesys.numerical.unit_conversion import Unit_Converter
+
+uc = Unit_Converter()
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 #* Physical constants in SI units
@@ -17,15 +19,15 @@ def frequency_to_wavelength(nu, unit_in, unit_out, verbose=False):
     w_length_m = c / nu_Hz
     w_length = uc.convert_unit(unit_type="length", quantity=w_length_m, unit_in='m', unit_out=unit_out)
     if verbose:
-        print("{} {} = {} {}".format(nu, unit_in, w_length, unit_out))
+        print(f"{nu} {unit_in} = {w_length} {unit_out}")
     return w_length
 
-def wavelength_to_frequency(w_length, unit_in, unit_out):
+def wavelength_to_frequency(w_length, unit_in, unit_out, verbose=False):
     w_length_m = uc.convert_unit(unit_type="length", quantity=w_length, unit_in=unit_in, unit_out='m')
     nu_Hz = c / w_length_m
     nu = uc.convert_unit(unit_type="frequency", quantity=nu_Hz, unit_in='Hz', unit_out=unit_out)
     if verbose:
-        print("{} {} = {} {}".format(w_length, unit_in, nu, unit_out))
+        print(f"{w_length} {unit_in} = {nu} {unit_out}")
     return nu
 
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -36,18 +38,26 @@ def photon_energy(nu=None, w_length=None, unit_in=None, unit_out=None, verbose=F
         E_J = h * nu_Hz
         E = uc.convert_unit(unit_type="energy", quantity=E_J, unit_in="J", unit_out=unit_out)
         if verbose:
-            print("{} {} -> {} {}".format(nu, unit_in, E, unit_out))
+            print(f"{nu} {unit_in} -> {E} {unit_out}")
     if w_length != None:
         w_length_m = uc.convert_unit(unit_type="length", quantity=w_length, unit_in=unit_in, unit_out='m')
         E_J = h * c / w_length_m
         E = uc.convert_unit(unit_type="energy", quantity=E_J, unit_in="J", unit_out=unit_out)
         if verbose:
-            print("{} {} -> {} {}".format(w_length, unit_in, E, unit_out))
+            print("{w_length} {unit_in} -> {E} {unit_out}")
     return E
+
+def get_energy_fraction(nu, T):
+    """
+    Gives us the ratio h*nu/k_B*T
+    nu is in Hz, T in Kelvin
+    """
+    energy_fraction = h*nu / (k_B*T)
+    return energy_fraction
 
 def B_nu_planck(nu, T, unit_in):
     nu_Hz = uc.convert_unit(unit_type="frequency", quantity=nu, unit_in=unit_in, unit_out='Hz')
-    x = h*nu_Hz / (k_B*T)
+    x = get_energy_fraction(nu_Hz, T)
     B_nu = (2*h*nu_Hz**3 / c**2) / (np.exp(x) - 1.0)
     return B_nu
 
@@ -58,7 +68,7 @@ def B_nu_RJ(nu, T, unit_in):
 
 def uK_Planck(nu, T, unit_in):
     nu_Hz = uc.convert_unit(unit_type="frequency", quantity=nu, unit_in=unit_in, unit_out='Hz')
-    x = h*nu_Hz / (k_B*T)
+    x = get_energy_fraction(nu_Hz, T)
     B = (2*k_B*nu_Hz**2 / c**2) * np.exp(x) * x**2 / (np.exp(x) - 1)**2
     return B
 

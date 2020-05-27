@@ -1,7 +1,6 @@
 import numpy as np
 import healpy as hp
 from genesys import Genesys_Class
-#  import genesys.noise.noise_utils as nu
 import os
 
 class Sky_Map(Genesys_Class):
@@ -36,7 +35,7 @@ class Sky_Map(Genesys_Class):
         The base directory of all maps is assumed to be global_paths['maps_dir']
         """
         map_file_path = self.get_path_to_map_file(map_file_name)
-        self.sky_map = hp.read_map(map_file_path, field=field, verbose=verbose)
+        self.sky_map = hp.read_map(map_file_path, field=field, dtype=np.float64, verbose=verbose)
         self.nside = hp.get_nside(self.sky_map)
 
     def from_np_array(self, sky_map_np):

@@ -5,6 +5,7 @@ import healpy as hp
 import quaternion as qt
 from genesys import Genesys_Class
 from genesys.numerical.unit_conversion import Unit_Converter
+import genesys.physics.radiation as rad
 
 uc = Unit_Converter()
 t_year = uc.convert_unit(1.0, 'time', 'year', 'sec')
@@ -46,31 +47,31 @@ class Pointing(Genesys_Class):
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
-    def gen_t_steps(self, t_start, sampling_rate, segment_length):
+    def gen_t_steps(self, t_start, fsamp, seg_len):
         """
         Generates uniformly spaced time stamps starting at t_start.
-        segment_length is in seconds
-        sampling_rate is in Hz
+        seg_len is in seconds
+        fsamp is in Hz
         """
-        delta_t = 1.0 / sampling_rate
-        n_samples = segment_length * sampling_rate
+        delta_t = 1.0 / fsamp
+        n_samples = seg_len * fsamp
         t_steps = t_start + delta_t*np.arange(n_samples)
         return t_steps
 
-    def generate_obv_quaternion(self, t_start, sampling_rate, segment_length, coordinate_system):
+    def generate_obv_quaternion(self, t_start, fsamp, seg_len, coords):
         """
         The observation quaternion is defined by 3 consecutive rotations
         1) Spin about axis_spin with angular speed w_spin
         2) Precession about axis_prec with angular speed w_prec
         3) Rotation about axis_orbit with angular speed w_orbit
-        *4) Coordinate change to galactic, if specified
+        4) Coordinate change to galactic, if specified
         """
-        t_steps = self.gen_t_steps(t_start, sampling_rate, segment_length)
+        t_steps = self.gen_t_steps(t_start, fsamp, seg_len)
         w_orbit = 2*pi / t_year
         w_prec = 2*pi / self.params['t_precession']
         w_spin = 2*pi / self.params['t_spin']
         total_rotation_quaternion = self.gen_rotation_quat(w_orbit*t_steps, self.axis_orbit) * self.gen_rotation_quat(w_prec*t_steps, self.axis_prec) * self.gen_rotation_quat(w_spin*t_steps, self.axis_spin)
-        if coordinate_system == 'galactic':
+        if coords == 'galactic':
             total_rotation_quaternion = self.quaternion_coordinate_transformation('E','G') * total_rotation_quaternion
         self.total_rotation_quaternion = total_rotation_quaternion
 
@@ -89,14 +90,12 @@ class Pointing(Genesys_Class):
         axis_detector_sight = self.rotate_vector(q_rot_x, det_sight_vshifted)
         return axis_detector_sight
 
-    def get_pointing_and_phase(self, axis_detector_sight, pol_phase_ini):
+    def get_pointing(self, axis_detector_sight):
         """
         Given the initial values of the boresight pointing the pointing for any subsequent set of t_steps can be determined. see next function for psi.
         """
         v_pointing = self.rotate_vector(self.total_rotation_quaternion, axis_detector_sight)
-        theta, phi = hp.vec2ang(v_pointing)
-        psi = self.get_polariser_phase(v_pointing, pol_phase_ini)
-        return theta, phi, psi
+        return v_pointing
 
     def get_polariser_phase(self, v_pointing, pol_phase_ini):
         """
@@ -109,14 +108,22 @@ class Pointing(Genesys_Class):
         psi =  np.arctan2(sinalpha, cosalpha) + np.radians(pol_phase_ini)
         return psi
 
-    def get_hwp_phase(self, t_start, sampling_rate, segment_length, hwp_spin_rate):
+    def get_hwp_phase(self, t_start, fsamp, seg_len, hwp_spin_rate):
         """
         Unit converted from rpm to radians/sec
         """
         _hwp_spin_rate = uc.convert_unit(hwp_spin_rate, 'angular_velocity', 'rpm', 'radians/sec')
-        hwp_phase = self.gen_t_steps(t_start, sampling_rate, segment_length) * _hwp_spin_rate
+        hwp_phase = self.gen_t_steps(t_start, fsamp, seg_len) * _hwp_spin_rate
         hwp_phase %= 2*np.pi
         return hwp_phase
+
+    def get_orbital_dipole(self, v_pointing, sat_vel, nu):
+        v_proj = np.dot(v_pointing, sat_vel)
+        nu_Hz = uc.convert_unit(unit_type="frequency", quantity=nu, unit_in='GHz', unit_out='Hz')
+        x = rad.get_energy_fraction(nu_Hz, rad.T_CMB_0)
+        q = x * (np.exp(2*x) + 1) / (np.exp(2*x) - 1)
+        orb_dip = (rad.T_CMB_0 / rad.c) * (v_proj + q*v_proj**2)
+        return orb_dip
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # The Quaternion algebra section

@@ -23,26 +23,34 @@ class GenIO(Genesys_Class):
             - <hit_map.fits> :
         - <tod_dir> : One single set for each simulation
             - <channel_name>_<segment_name>.h5
+        - <huff_tod_dir> : Huffman compressed tod files
+            - <channel_name>_<segment_name>.h5
     The structure of the HDF5 file
     <channel_name>_<data_block_name>.h5
         - common : (GROUP) Contains common data values for the data block and all detectors 
             - fsamp : (DSET) Sampling frequency
             - segl : (DSET) Segment length in seconds
-            - num_segments : (DSET) Number of segments in the data block
-            - det : (DSET) List of detector names
-            - polang : (DSET) Dictionary {<det_name>: polang_value, ...}. Relative orientation of polarisation axis.
+            - det : (DSET) List of detector names in np.string_ format
+            - polang : (DSET) List of relative orientation of polarisation axis.
+                - legend : (ATTR) List of detectors
+            - mbangs : (DSET) List of relative orientation of main beam
+                - legend : (ATTR) List of detectors
             - coords : (DSET) Coordinate system
-            - vsun : (DSET) Solar orbital velocity.
         - segment : (GROUP) The TODs from the different detector are here
             - common : (GROUP) Contains common data values for the segment and all detectors
-                - time_0 : (DSET) The first time step of the segment
+                - time : (DSET) The first time step of the segment
+                    - type : (ATTR) Unit (second)
+                - vsun : (DSET) Solar orbital velocity.
+                    - info : (ATTR) [x,y,z]
+                    - coords : (ATTR) Coordinate system this is in
+                - psi_hwp : (DSET) The angle of the HWP at the first time sample
             - <detector_name> : (GROUP) The unique TOD for the particular detector
                 - signal : (DSET) The signal observed by the detector
                 - theta : (DSET) The pointing theta
                 - phi : (DSET) The pointing phi
                 - psi : (DSET) Discretised polarisation angle values.
                 - noise : (DSET) The noise independently
-                - scalars : (GROUP) Signal properties. [gain, sigma0, fknee, alpha]
+                - scalars : (GROUP) Signal properties.
                     - gain : (DSET)
                     - sigma0 : (DSET)
                     - fKnee : (DSET)
@@ -91,11 +99,11 @@ class GenIO(Genesys_Class):
         tod_file_path = os.path.join(self.paths['tod_dir'], tod_file_name)
         return tod_file_path
 
-    def get_map_file_path(self, map_name):
+    def get_map_file_path(self, map_name, channel_name):
         """
         For decription of types of maps read the class docstring.
         """
-        map_file_name = map_name + '.fits'
+        map_file_name = map_name + '_' + channel_name + '.fits'
         map_file_path = os.path.join(self.paths['recon_dir'], map_file_name)
         return map_file_path
 
@@ -118,7 +126,6 @@ class GenIO(Genesys_Class):
         """
         channel_common_data is a dictionary of the vlaues to write to file
         """
-        #  det = np.string_(', '.join(channel_commons['det_list']))
         prefix = '/common/'
         for item in channel_commons.keys():
             self.f_tod.create_dataset(prefix + item, data=channel_commons[item])
@@ -139,45 +146,50 @@ class GenIO(Genesys_Class):
                 for attr_item in attributes[item]:
                     self.f_tod[prefix + item].attrs[attr_item] = attributes[item][attr_item]
 
-    def write_detector_data(self, segment, detector_name, tod, scalars=None, tod_write_field=['signal', 'theta', 'phi', 'psi']):
+    def write_tod(self, segment, detector_name, tod, tod_write_field=['signal', 'theta', 'phi', 'psi']):
         prefix = os.path.join(self.get_segment_name(segment), detector_name, '')
         for item in tod_write_field:
             self.f_tod.create_dataset(prefix + item, data=tod[item])
-        if scalars != None:
-            prefix = os.path.join(self.get_segment_name(segment), detector_name, 'scalars', '')
-            for item in scalars.keys():
-                self.f_tod.create_dataset(prefix +item, data=scalars[item])
+
+    def write_tod_scalars(self, segment, detector_name, scalars):
+        prefix = os.path.join(self.get_segment_name(segment), detector_name, 'scalars', '')
+        for item in scalars.keys():
+            self.f_tod.create_dataset(prefix +item, data=scalars[item])
 
     def read_channel_common(self, data_fields):
         prefix = '/common/'
-        channel_commons = {}
+        commons = {}
+        attrs = {}
         for item in data_fields:
-            channel_commons[item] = self.f_tod[prefix + item][()] 
-        return channel_commons
+            commons[item] = self.f_tod[prefix + item][()] 
+            attrs[item] = {attr_item: self.f_tod[prefix + item].attrs[attr_item] for attr_item in self.f_tod[prefix + item].attrs.keys()}
+            if attrs[item] == {}:
+                del attrs[item]
+        return commons, attrs
 
     def read_segment_common(self, segment, data_fields):
         prefix = os.path.join(self.get_segment_name(segment), 'common', '')
-        segment_commons = {}
+        commons = {}
+        attrs = {}
         for item in data_fields:
-            segment_commons[item] = self.f_tod[prefix + item][()] 
-        return segment_commons
+            commons[item] = self.f_tod[prefix + item][()] 
+            attrs[item] = {attr_item: self.f_tod[prefix + item].attrs[attr_item] for attr_item in self.f_tod[prefix + item].attrs.keys()}
+            if attrs[item] == {}:
+                del attrs[item]
+        return commons, attrs
 
-    def read_detector_data(self, segment, detector_name, tod_fields):
+    def read_tod(self, segment, detector_name, tod_fields):
         prefix = os.path.join(self.get_segment_name(segment), detector_name, '')
-        tod = {}
-        for item in tod_fields:
-            tod[item] = self.f_tod[prefix + item][:]
+        tod = {item: self.f_tod[prefix + item][:] for item in tod_fields}
         return tod
 
-    def read_detector_scalars(self, segment, detector_name, scalar_fields):
+    def read_tod_scalars(self, segment, detector_name, scalar_fields):
         prefix = os.path.join(self.get_segment_name(segment), detector_name, 'scalars', '')
-        scalars = {}
-        for item in scalar_fields:
-            scalars[item] = self.f_tod[prefix + item][()] 
+        scalars = {item: self.f_tod[prefix + item][()] for item in scalar_fields}
         return scalars
 
-    def write_map(self, sky_map, map_name):
-        map_file_path = self.get_map_file_path(map_name)
+    def write_map(self, sky_map, map_name, channel_name):
+        map_file_path = self.get_map_file_path(map_name, channel_name)
         hp.write_map(map_file_path, sky_map)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
@@ -226,29 +238,3 @@ class GenIO(Genesys_Class):
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     #* Huffman compression
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
-    """
-    The structure of the Huffman encoded HDF5 file
-    <channel_name>_<segment_name>.h5
-        - common : (GROUP) Contains common data values for the segment and all detectors 
-            - fsamp : (DSET) Sampling frequency
-            - nside : (DSET) NSide of HEALPix map used for Huffman compressing pointing
-            - npsi : (DSET) Discretisation over 2pi for Huffman compressing psi
-            - det : (DSET) List of detector names
-            - polang : (DSET) Dictionary {<det_name>: polang_value, ...}. Relative orientation of polarisation axis.
-        - segment : (GROUP) The TODs from the different detector are here
-            - common : (GROUP) The common TODs for the entire detector set
-                - time : (DSET) The time steps. (*Huffman)
-                    - unit : (ATTR) Time unit and convention
-                - vsun : (DSET) Solar orbital velocity. (*Huffman)
-                    - info : (ATTR) axes
-                    - coords : (ATTR) Coordinate system
-                - hufftree : (DSET)
-                - huffsymb : (DSET)
-            - <detector_name> : (GROUP) The unique TOD for the particular detector
-                - signal : (DSET) The signal observed by the detector
-                - flag : (DSET) Flagging of invalid data by 0. (*Huffman)
-                - pixels : (DSET) Discretised pointing at a given HEALPix NSide. (*Huffman)
-                - psi : (DSET) Discretised polarisation angle values. (*Huffman)
-                - scalars : Array of gain and noise properties. [gain, sigma0, fknee, alpha]
-                    - legend : Description of the scalar elements as a ',' separated string.
-    """

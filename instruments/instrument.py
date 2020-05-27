@@ -1,4 +1,5 @@
 import os
+import h5py
 from genesys import Genesys_Class
 from genesys.instruments.channel import Channel
 from .default_units import unit_dict
@@ -20,6 +21,15 @@ class Instrument(Genesys_Class):
             self.params = self.load_param_file(file_path=instrument_param_file_path)
         else:
             self.params = {}
+
+    def get_satellite_velocity(self):
+        vel_file_path = os.path.join(self.global_paths['data_dir'], self.params['velocity']['velocity_file'])
+        with h5py.File(vel_file_path, 'r') as f_vel:
+            time = f_vel['time'][:]
+            xvel = f_vel['xvel'][:]
+            yvel = f_vel['yvel'][:]
+            zvel = f_vel['zvel'][:]
+        return time, xvel, yvel, zvel
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Paramter display methods

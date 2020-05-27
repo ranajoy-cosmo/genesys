@@ -1,5 +1,6 @@
 import numpy as np
 import healpy as hp
+import copy
 from termcolor import colored
 from genesys import Genesys_Class
 from genesys.pointing import Pointing
@@ -16,42 +17,52 @@ class Detector(Genesys_Class):
         self.params['scan_strategy'].update(channel_obj.params['scan_strategy'])
         self.params['HWP'] = {}
         self.params['HWP'].update(channel_obj.params['HWP'])
-        get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['noise_type', 'white_noise_rms', 'f_knee', 'noise_alpha']) 
-        get_param_if_None(self.params, channel_obj.params, ['sampling_rate', 'pol_modulation'])
+        get_param_if_None(self.params['noise'], channel_obj.params['noise'], ['white_noise_rms', 'f_knee', 'noise_alpha']) 
+        get_param_if_None(self.params, channel_obj.params, ['sampling_rate', 'pol_modulation', 'central_frequency'])
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # This is where all the action happens
     # Scanning the map with the simulated pointing
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
         
-    def observe_sky(self, pnt_obj, sky_map_obj, tod, segment_length, tod_write_field=["signal", "theta", "phi", "psi"]):
-        self.axis_sight = pnt_obj.get_detector_axis(self.params['pos'])
-        theta, phi, psi = pnt_obj.get_pointing_and_phase(self.axis_sight, self.params['pol_phase_ini'])
-
+    def observe_sky(self, pnt_obj, sky_map_obj, tod, segment_length, sat_vel, noise_type, tod_write_field):
         sky_map = sky_map_obj.sky_map
+
+        self.axis_sight = pnt_obj.get_detector_axis(self.params['pos'])
+        v_pointing = pnt_obj.get_pointing(self.axis_sight)
+        psi = pnt_obj.get_polariser_phase(v_pointing, self.params['pol_phase_ini'])
+
+        orb_dip = pnt_obj.get_orbital_dipole(v_pointing[0], sat_vel, self.params['central_frequency']) 
+
+        theta, phi = hp.vec2ang(v_pointing)
+        del v_pointing
 
         if self.params['pol_modulation'] == 'passive':
             pol_phase = 2*psi
         else:
             pol_phase = 2*psi + 4*tod['psi_hwp']
-        # TO DO: orbital_dipole = self.pointing.get_orbital_dipole()
 
         hit_pix = hp.ang2pix(sky_map_obj.nside, theta, phi)
 
         signal = sky_map[0][hit_pix] + sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map[2][hit_pix]*np.sin(pol_phase)
 
-        noise_params = self.params['noise']
-        noise_params['sampling_rate'] = self.params['sampling_rate']
-        noise_obj = Noise(noise_params)
-        noise = noise_obj.simulate_noise(segment_length)
-        signal += noise
+        signal += orb_dip
+
+        if noise_type != 'no_noise':
+            noise_params = copy.deepcopy(self.params['noise'])
+            noise_params.update({'sampling_rate': self.params['sampling_rate'], 'noise_type': noise_type})
+            noise_obj = Noise(noise_params)
+            noise = noise_obj.simulate_noise(segment_length)
+            signal += noise
+            if "noise" in tod_write_field:
+                tod['noise'] = noise
 
         tod['theta'] = theta
         tod['phi'] = phi
         tod['psi'] = psi
         tod['signal'] = signal
-        if "noise" in tod_write_field:
-            tod['noise'] = noise
+        if "orb_dip" in tod_write_field:
+            tod['orb_dip'] = orb_dip
                 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Paramtere display routines
