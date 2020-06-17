@@ -35,6 +35,9 @@ velocity:
 # This section contains the definition for each channel on the focal plane
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
+# The f_knww values are those calculated by Hirokazu in
+# https://drive.google.com/file/d/1Au6ys8twhq7zWY0viTiJlFe4afolZ5MZ/view
+
 channels:
     # 1. LFT, 40 GHz
     'LFT_40GHz':
@@ -47,13 +50,12 @@ channels:
         noise:
             # white_noise_rms: 209.72                # uk.sqrt(s)
             white_noise_rms: 64.21                # uk.sqrt(s)
-            f_knee: 20.0                # mHz
+            f_knee: 8.1                # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
         pol_modulation: HWP_1                       # OTHER OPTION BEING passive
         channel_param_file: LFT_40GHz.yaml
-        # input_map_file: test_map.fits
 
     # 2. LFT, 50 GHz
     'LFT_50GHz':
@@ -66,7 +68,7 @@ channels:
         noise:
             # white_noise_rms: 115.94                # uk.sqrt(s)
             white_noise_rms: 35.5                # uk.sqrt(s)
-            f_knee: 20.0                # mHz
+            f_knee: 17.8                # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -84,7 +86,7 @@ channels:
         noise:
             # white_noise_rms: 91.12                # uk.sqrt(s)
             white_noise_rms: 27.9                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 36.0                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -102,7 +104,7 @@ channels:
         noise:
             # white_noise_rms: 76.40                # uk.sqrt(s)
             white_noise_rms: 23.82                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 15.7                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -120,7 +122,7 @@ channels:
         noise:
             # white_noise_rms: 124.86                # uk.sqrt(s)
             white_noise_rms: 38.23                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 15.7                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -138,7 +140,7 @@ channels:
         noise:
             # white_noise_rms: 65.78                # uk.sqrt(s)
             white_noise_rms: 20.51                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 20.9                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -156,7 +158,7 @@ channels:
         noise:
             # white_noise_rms: 97.92                # uk.sqrt(s)
             white_noise_rms: 29.98                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 20.9                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -174,7 +176,7 @@ channels:
         noise:
             # white_noise_rms: 59.95                # uk.sqrt(s)
             white_noise_rms: 18.69                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 26.5                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -192,7 +194,7 @@ channels:
         noise:
             # white_noise_rms: 79.78                # uk.sqrt(s)
             white_noise_rms: 24.43                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 26.5                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -210,7 +212,7 @@ channels:
         noise:
             # white_noise_rms: 68.64                # uk.sqrt(s)
             white_noise_rms: 21.40                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 22.1                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -228,7 +230,7 @@ channels:
         noise:
             # white_noise_rms: 81.77                # uk.sqrt(s)
             white_noise_rms: 25.65                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 22.1                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -246,7 +248,7 @@ channels:
         noise:
             # white_noise_rms: 51.98                # uk.sqrt(s)
             white_noise_rms: 16.21                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 19.1                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -264,7 +266,7 @@ channels:
         noise:
             # white_noise_rms: 62.68                # uk.sqrt(s)
             white_noise_rms: 19.66                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 19.1                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -318,7 +320,7 @@ channels:
         noise:
             # white_noise_rms: 56.79                # uk.sqrt(s)
             white_noise_rms: 17.81                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 22.3                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -336,7 +338,7 @@ channels:
         noise:
             # white_noise_rms: 60.20                # uk.sqrt(s)
             white_noise_rms: 18.88                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 6.9                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -354,7 +356,7 @@ channels:
         noise:
             # white_noise_rms: 110.39                # uk.sqrt(s)
             white_noise_rms: 35.32                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 6.9                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -372,7 +374,7 @@ channels:
         noise:
             # white_noise_rms: 106.8                # uk.sqrt(s)
             white_noise_rms: 37.37                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 10.2                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -390,7 +392,7 @@ channels:
         noise:
             # white_noise_rms: 126.7                # uk.sqrt(s)
             white_noise_rms: 40.54                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 12.5                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -408,7 +410,7 @@ channels:
         noise:
             # white_noise_rms: 176.09                # uk.sqrt(s)
             white_noise_rms: 56.34                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 15.3                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0
@@ -426,7 +428,7 @@ channels:
         noise:
             # white_noise_rms: 405.62                # uk.sqrt(s)
             white_noise_rms: 128.65                # uk.sqrt(s)
-            f_knee: 20.0                 # mHz
+            f_knee: 17.0                 # mHz
             noise_alpha: 1.0
             detector_yield: 1.0
             noise_margin: 1.0

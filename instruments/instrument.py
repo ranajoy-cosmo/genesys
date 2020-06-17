@@ -52,8 +52,11 @@ class Instrument(Genesys_Class):
                 for item in hwps[hwp]:
                     self.prompt(f"\t\t{item:<27}{hwps[hwp][item]} {unit_dict[item]}")
 
-    def display_channels(self):
-        channels = self.params['channels']
+    def display_channels(self, channel_list=None):
+        if channel_list == None:
+            channels = self.params['channels']
+        else:
+            channels = {channel_name: self.params['channels'][channel_name] for channel_name in channel_list}
         self.prompt("\nCHANNELS:")
         for channel in channels:
             self.prompt(f"\t{channel}:")
@@ -70,7 +73,7 @@ class Instrument(Genesys_Class):
         self.prompt(f"{'Version':<35}{self.params['version']}")
         self.display_scan_strategy()
         self.display_half_wave_plates()
-        self.display_channels()
+        self.display_channels(channel_list)
 
     #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
     # Loading channel

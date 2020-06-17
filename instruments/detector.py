@@ -32,7 +32,8 @@ class Detector(Genesys_Class):
         v_pointing = pnt_obj.get_pointing(self.axis_sight)
         psi = pnt_obj.get_polariser_phase(v_pointing, self.params['pol_phase_ini'])
 
-        orb_dip = pnt_obj.get_orbital_dipole(v_pointing[0], sat_vel, self.params['central_frequency']) 
+        if np.sum(sat_vel**2) != 0.0:
+            orb_dip = pnt_obj.get_orbital_dipole(v_pointing, sat_vel, self.params['central_frequency']) 
 
         theta, phi = hp.vec2ang(v_pointing)
         del v_pointing
@@ -46,7 +47,8 @@ class Detector(Genesys_Class):
 
         signal = sky_map[0][hit_pix] + sky_map[1][hit_pix]*np.cos(pol_phase) + sky_map[2][hit_pix]*np.sin(pol_phase)
 
-        signal += orb_dip
+        if np.sum(sat_vel**2) != 0.0:
+            signal += orb_dip
 
         if noise_type != 'no_noise':
             noise_params = copy.deepcopy(self.params['noise'])

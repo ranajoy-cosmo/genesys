@@ -23,17 +23,17 @@ def run_map_maker():
         for data_block in sd.data_block_list_local:
             prompt(f"Rank {rank:^6} \tstarting data block {data_block}", nature='info')
             io_obj.open_tod_file(channel_name, data_block, 'r')
-            channel_commons = io_obj.read_channel_common(['fsamp', 'hwp_rpm', 'segl', 'pol_mod'])
+            chan_com, chan_com_attr = io_obj.read_channel_common(['fsamp', 'hwp_rpm', 'segl', 'pol_mod'])
             segment_list = sd.get_segment_list(data_block, config['num_segments_per_data_block'])
             for segment in segment_list:
                 tod = {}
-                segment_commons = io_obj.read_segment_common(segment, ['time_0'])
-                if channel_commons['pol_mod'] == 'passive':
+                seg_com, seg_com_attr = io_obj.read_segment_common(segment, ['time', 'psi_hwp'])
+                if chan_com['pol_mod'] == 'passive':
                     tod['psi_hwp'] = 0
                 else:
-                    tod['psi_hwp'] = pointing_obj.get_hwp_phase(segment_commons['time_0'], channel_commons['fsamp'], channel_commons['segl'], channel_commons['hwp_rpm'])
+                    tod['psi_hwp'] = seg_com['psi_hwp'] + pointing_obj.get_hwp_phase(0.0, chan_com['fsamp'], chan_com['segl'], chan_com['hwp_rpm'])
                 for detector_name in config['channel_detector_dict'][channel_name]:
-                    tod.update(io_obj.read_detector_data(segment, detector_name, ['signal', 'theta', 'phi', 'psi']))
+                    tod.update(io_obj.read_tod(segment, detector_name, ['signal', 'theta', 'phi', 'psi']))
                     hitpix = hp.ang2pix(config['nside'][channel_name], tod['theta'], tod['phi'])
                     cov_ut.add_to_mm_matrices(hitpix, tod['psi'], tod['psi_hwp'], tod['signal'], inv_cov_matrix_local, b_matrix_local, hitmap_local, npix, config['pol_type'])
             io_obj.close_tod_file()

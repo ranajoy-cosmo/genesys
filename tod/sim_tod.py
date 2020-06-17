@@ -175,7 +175,8 @@ def instrument_start_message():
     print_header()
     print_header(text='INSTRUMENT PARAMETERS')
     print_header()
-    instrument.info()
+    channel_list = list(config['channel_detector_dict'].keys())
+    instrument.info(channel_list)
     print_header()
 
 def detector_start_message():

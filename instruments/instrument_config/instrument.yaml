@@ -1,0 +1,46 @@
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# This module contains the instrumental specifications for a particular experiment.
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+# Name for this instrument configuration
+instrument_name:
+version:
+
+# Scan strategy
+scan_strategy:
+    alpha:                    # degrees. Opening between anti-solar axis and instrument axis.
+    beta:                     # degrees. Opening between instrument-axis and boresight.
+    t_precession:        # seconds. Precession period
+    t_spin:                # seconds. Spin period
+    duration:                  # years
+
+# Half-wave-plates
+HWP:
+    HWP_1:          # For the LFT telescope
+        rotation: 
+        spin_rate:                    # rounds per minute
+
+velocity:
+    velocity_file: 
+
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# This section contains the definition for each channel on the focal plane
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+channels:
+    # 1. channel_1
+    channel_1:
+        central_frequency:            # GHz
+        bandwidth:                      # GHz
+        beam_fwhm:                      # arcminutes
+        sampling_rate:                  # Hz
+        pixel_size:                     # mm
+        num_detectors:
+        noise:
+            white_noise_rms:                 # uk.sqrt(s)
+            f_knee:                 # mHz
+            noise_alpha: 
+            detector_yield: 
+            noise_margin: 
+        pol_modulation: HWP_1                       # OTHER OPTION BEING passive
+        channel_param_file: channel_1.yaml

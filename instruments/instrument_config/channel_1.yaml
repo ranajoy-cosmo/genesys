@@ -1,0 +1,7 @@
+0001a:
+    pol_phase_ini:           # degrees
+    noise:
+        white_noise_rms:        # uk*sqrt(s)  
+        f_knee:                 # mHz
+        noise_alpha:
+    pos: []              # arcmins

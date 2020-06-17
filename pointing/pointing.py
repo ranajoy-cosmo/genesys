@@ -65,6 +65,7 @@ class Pointing(Genesys_Class):
         2) Precession about axis_prec with angular speed w_prec
         3) Rotation about axis_orbit with angular speed w_orbit
         4) Coordinate change to galactic, if specified
+        total_rotation_quaternion is an array of length fsamp*seg_len, containing quaternions of dtype quaternion
         """
         t_steps = self.gen_t_steps(t_start, fsamp, seg_len)
         w_orbit = 2*pi / t_year
@@ -93,6 +94,7 @@ class Pointing(Genesys_Class):
     def get_pointing(self, axis_detector_sight):
         """
         Given the initial values of the boresight pointing the pointing for any subsequent set of t_steps can be determined. see next function for psi.
+        v_pointing is an array of shape (fsamp*seg_len, 3)
         """
         v_pointing = self.rotate_vector(self.total_rotation_quaternion, axis_detector_sight)
         return v_pointing
