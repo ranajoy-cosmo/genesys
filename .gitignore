@@ -1,3 +1,4 @@
+__pycache__
 *.swp
 *.pyc
 ~*
@@ -10,12 +11,10 @@ data
 map_files
 spectrum_files
 *.out
-*.slurm
 __pycache__
-*custom*
 *code_for_later_use*
-tod/config_files/*.yaml
-!tod/config_files/default.yaml
+*/config_files/*.yaml
+!*/config_files/default.yaml
 *batch.sh
 instruments/litebird_v28_20190715
 spectra/camb_params/*.ini
