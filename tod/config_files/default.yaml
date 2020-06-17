@@ -1,0 +1,50 @@
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# Naming and general configurations for this simulation run
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+# To understand the naming convention and data structure see the docstring in genesys/gen_io/gen_io.py
+sim_tag: # parent directory
+recon_tag: # Reconstructed map directory
+
+special_tag:            # Special name to be appended to the data product name 
+
+# Options for input_pol_type = ["IQU", "QU", "I", "_QU", "noise_only"]
+# Default -> "IQU"
+# A _ means that the input map has a component which will be set to 0"
+pol_type: 
+
+# Options are 'no_noise', 'white' and '1_over_f'
+noise_type: 
+
+# Coordinate_system for the scanning can be "ecliptic" or "galactic".
+coordinate_system: 
+
+# Add orbital dipole
+add_orbital_dipole: 
+
+# Instrument configuration directory
+instrument_dir: 
+
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# Data selection
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+# The simulation will start at time=0 and produce data blocks, each block having num_segments_per_data_block segments 
+channel_detector_dict:
+    LFT_40GHz: []
+segment_length: # seconds
+data_block_list: 
+num_segments_per_data_block: 
+map_directory: 
+channel_map_dict:
+    LFT_40GHz: 
+
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+#  Data I/O
+#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
+
+# signal, theta, phi, psi are written by default.
+tod_special_fields: []
+
+huffman:
+    nside: 
+    npsi: 
