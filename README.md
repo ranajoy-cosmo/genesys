@@ -59,4 +59,25 @@ To setup the storage directories and make soft links to them run `python setup_l
 
 ## Running the TOD simulation
 
-This require setting up the instrument params.
+This require setting up
+1. Populate the instrument config files. A template is provided in `instruments/instrument_config`
+2. Populate the config file for the tod simulation run. A template is provided in `tod/config_files/default.yaml`
+
+Relevant options for the parameters, units and descriptions are all proivided in the yaml files.
+
+The sim_tod.py can be run in two modes - serial, and parallel.
+
+For the serial run, just type
+
+```
+python sim_tod.py <CONFIG_FILE> serial -v <VERBOSITY>
+```
+
+For the MPI run, type
+
+```
+mpirun -n <NUM_PROC> python sim_tod.py <CONFIG_FILE> mpi -v <VERBOSITY>
+```
+
+where, `CONFIG_FILE` is relative to the present directory, `VERBOSITY` is between 0 & 2, and `NUM_PROC` is the number of MPI processes.
+
