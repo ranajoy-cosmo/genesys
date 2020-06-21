@@ -4,12 +4,11 @@
 </p>
 
 ## Features
-* Generate **realistic pointing TODs** for a CMB space telescope having a rotation and precession, and revolution about the Sun.
-* Generate **realistic signal TODs** containing Sky + Noise + Orbital dipole.
-* **Simulate systematic** effects such as bandpass mismatch, pointing uncertainty....
-* Instrument parameters containing scan strategy, channel parameters and individual detector parameters in easy to modifu yaml files.
+* Generate **realistic pointing TODs** for a CMB space telescope having a rotation about, a precession, and revolution about the Sun.
+* Generate **realistic signal TODs** containing Sky + Noise + Orbital dipole + Systematics.
+* Instrument parameters containing scan strategy, channel parameters and individual detector parameters in easy to modify yaml files.
 * A **binning map-making algorithm** for estimation of I,Q,U Stokes parameters.
-* A self-consistent and efficient I/O library built on HDF5.
+* A self-consistent and efficient I/O library built on **HDF5**.
 * A Huffman compression system providing files in the Planck LFI format. 
 * Highly parallelisable.
 
@@ -59,21 +58,21 @@ To setup the storage directories and make soft links to them run `python setup_l
 
 ## Running the TOD simulation
 
-This require setting up
-1. Populate the instrument config files. A template is provided in `instruments/instrument_config`
+This requires setting up a bit:
+1. Populate the instrument and channel config files. A template is provided in `instruments/instrument_config/`
 2. Populate the config file for the tod simulation run. A template is provided in `tod/config_files/default.yaml`
 
 Relevant options for the parameters, units and descriptions are all proivided in the yaml files.
 
-The sim_tod.py can be run in two modes - serial, and parallel.
+The sim_tod.py can be run in two modes: serial, and parallel.
 
-For the serial run, just type
+For the serial run, do
 
 ```
 python sim_tod.py <CONFIG_FILE> serial -v <VERBOSITY>
 ```
 
-For the MPI run, type
+For the MPI run, do
 
 ```
 mpirun -n <NUM_PROC> python sim_tod.py <CONFIG_FILE> mpi -v <VERBOSITY>
@@ -81,3 +80,6 @@ mpirun -n <NUM_PROC> python sim_tod.py <CONFIG_FILE> mpi -v <VERBOSITY>
 
 where, `CONFIG_FILE` is relative to the present directory, `VERBOSITY` is between 0 & 2, and `NUM_PROC` is the number of MPI processes.
 
+## Data Model
+
+$e^{i\pi}=-1$
