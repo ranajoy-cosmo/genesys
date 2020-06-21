@@ -25,8 +25,6 @@
 * mpi4py
 * ruamel.yaml
 
-## Pipeline and data-flow
-
 ## Module description
 * **tod**: The module for simulating the time-ordered instrument data.
 * **map_maker**: Binning the TOD and relevant matrix manipulation routines.
