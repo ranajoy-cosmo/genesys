@@ -6,6 +6,7 @@ __pycache__
 *.fits
 *.npy
 *.png
+!support_images/*.png
 output
 data
 map_files
