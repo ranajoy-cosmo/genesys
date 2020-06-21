@@ -82,4 +82,9 @@ where, `CONFIG_FILE` is relative to the present directory, `VERBOSITY` is betwee
 
 ## Data Model
 
-$e^{i\pi}=-1$
+The genesys data model is additive, adding in sky signal, noise, orbital dipole and any custom signal consecutively. The different components in the data model can be switched on/off by the corresponding parameters in the config file.
+
+# Signal
+
+The sky scan signal is given by 
+
