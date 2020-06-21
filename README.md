@@ -79,13 +79,3 @@ mpirun -n <NUM_PROC> python sim_tod.py <CONFIG_FILE> mpi -v <VERBOSITY>
 ```
 
 where, `CONFIG_FILE` is relative to the present directory, `VERBOSITY` is between 0 & 2, and `NUM_PROC` is the number of MPI processes.
-
-## Data Model
-
-The genesys data model is additive, adding in sky signal, noise, orbital dipole and any custom signal consecutively. The different components in the data model can be switched on/off by the corresponding parameters in the config file.
-
-# Signal
-
-The sky scan signal is given by 
-
-![sky model](https://github.com/ranajoy-cosmo/genesys/blob/master/support_images/data_model.png)
