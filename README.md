@@ -88,4 +88,4 @@ The genesys data model is additive, adding in sky signal, noise, orbital dipole 
 
 The sky scan signal is given by 
 
-![alt text](https://github.com/ranajoy-cosmo/genesys/blob/master/support_images/data_model.pdf)
+![sky model](https://github.com/ranajoy-cosmo/genesys/blob/master/support_images/data_model.png)
