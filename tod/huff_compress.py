@@ -2,6 +2,7 @@ import argparse
 import os
 import numpy as np
 import healpy as hp
+import sys
 from mpi4py import MPI
 from genesys import load_param_file, prompt
 from genesys.gen_io import GenIO
@@ -18,7 +19,7 @@ The structure of the Huffman encoded HDF5 file
         - det : (DSET) List of detector names in np.string_ format
         - polang : (DSET) List of relative orientation of polarisation axis.
             - legend : (ATTR) List of detectors
-        - mbangs : (DSET) List of relative orientation of main beam
+        - mbang : (DSET) List of relative orientation of main beam
             - legend : (ATTR) List of detectors
     - segment : (GROUP) The TODs from the different detector are here
         - common : (GROUP) The common TODs for the entire detector set
@@ -31,7 +32,7 @@ The structure of the Huffman encoded HDF5 file
             - hufftree : (DSET)
             - huffsymb : (DSET)
         - <detector_name> : (GROUP) The unique TOD for the particular detector
-            - signal : (DSET) The signal observed by the detector
+            - tod : (DSET) The signal observed by the detector
             - flag : (DSET) Flagging of invalid data by 0. (*Huffman)
             - pixels : (DSET) Discretised pointing at a given HEALPix NSide. (*Huffman)
             - psi : (DSET) Discretised polarisation angle values. (*Huffman)
@@ -46,7 +47,7 @@ def huffman_compress():
             io_obj.open_tod_file(channel_name, data_block, 'r')
             io_obj_huff.open_tod_file(channel_name, data_block, 'w')
             segment_list = sd.get_segment_list(data_block, config['num_segments_per_data_block'])
-            channel_common, channel_common_attributes = io_obj.read_channel_common(['fsamp', 'det', 'polang', 'mbangs', 'coords'])
+            channel_common, channel_common_attributes = io_obj.read_channel_common(['fsamp', 'det', 'polang', 'mbang', 'coords'])
             coords = channel_common.pop('coords')
             channel_common.update({'nside': config['huffman']['nside'], 'npsi': config['huffman']['npsi']})
             io_obj_huff.write_channel_common(channel_common, channel_common_attributes)
@@ -78,12 +79,13 @@ def huffman_compress():
                 io_obj_huff.write_segment_common(segment, segment_common, segment_common_attributes)
                 for detector_name in config['channel_detector_dict'][channel_name]:
                     tod = io_obj.read_tod(segment, detector_name, ['signal', 'theta', 'phi', 'psi'])
-                    scalars = io_obj.read_tod_scalars(segment, detector_name, ['sigma0', 'gain', 'fknee', 'alpha'])
+                    tod['tod'] = tod.pop('signal')
+                    scalars = io_obj.read_tod_scalars(segment, detector_name)
                     # signal, noise and scalars
-                    io_obj_huff.write_tod(segment, detector_name, tod, tod_write_field=['signal'])
+                    io_obj_huff.write_tod(segment, detector_name, tod, tod_write_field=['tod'])
                     io_obj_huff.write_tod_scalars(segment, detector_name, scalars)
                     # flag
-                    flag = np.ones(tod['signal'].size)
+                    flag = np.ones(tod['tod'].size)
                     delta = np.diff(flag)
                     delta = np.insert(delta, 0, flag[0])
                     io_obj_huff.write_tod(segment, detector_name, {'flag': np.void(bytes(h.byteCode(delta)))}, tod_write_field=['flag'])

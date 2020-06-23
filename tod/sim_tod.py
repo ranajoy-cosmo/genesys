@@ -52,7 +52,7 @@ def run_simulation():
             t_start_block = get_t_start(segment_list[0], config['segment_length'])
             sat_vel_dict = get_satellite_velocity(t_start_block, config['segment_length'], segment_list)
         else:
-            sat_vel_dict = dict.fromkeys(segment_list, [0.0,0.0,0.0])
+            sat_vel_dict = dict.fromkeys(segment_list, np.array([0.0,0.0,0.0]))
         for channel_name in config['channel_detector_dict'].keys():
             if in_args.verbosity == 2:
                 chan_time_start = time.time()
@@ -69,6 +69,8 @@ def run_simulation():
                 if channel.params['pol_modulation'] != "passive":
                     tod['psi_hwp'] = pointing_obj.get_hwp_phase(t_start=t_start, fsamp=channel.params['sampling_rate'], seg_len=config['segment_length'], hwp_spin_rate=channel.params['HWP']['spin_rate'])
                     segment_common['psi_hwp'] = tod['psi_hwp'][0]
+                else:
+                    segment_common['psi_hwp'] = 0.0 
                 pointing_obj.generate_obv_quaternion(t_start=t_start, fsamp=channel.params['sampling_rate'], seg_len=config['segment_length'], coords=config['coordinate_system'])
                 io_obj.write_segment_common(segment, segment_common, segment_common_attributes)
                 for detector_name in config['channel_detector_dict'][channel_name]:
@@ -127,10 +129,10 @@ def get_satellite_velocity(t_start_block, segment_length, segment_list):
 
 def get_channel_common(params, channel_name):
     polang = {det_name: params['detectors'][det_name]['pol_phase_ini'] for det_name in config['channel_detector_dict'][channel_name]}
-    mbangs = dict.fromkeys(config['channel_detector_dict'][channel_name], 0.0)
+    mbang = dict.fromkeys(config['channel_detector_dict'][channel_name], 0.0)
     det = np.string_(', '.join(config['channel_detector_dict'][channel_name]))
-    channel_common = {'fsamp': params['sampling_rate'], 'hwp_rpm': params['HWP']['spin_rate'] , 'segl': config['segment_length'], 'det': det, 'polang': list(polang.values()), 'coords': config['coordinate_system'], 'pol_mod': params['pol_modulation'], 'mbangs': list(mbangs.values())}
-    channel_common_attributes = {'polang': {'legend': list(polang.keys())}, 'mbangs': {'legned': list(mbangs.keys())}} 
+    channel_common = {'fsamp': params['sampling_rate'], 'hwp_rpm': params['HWP']['spin_rate'] , 'segl': config['segment_length'], 'det': det, 'polang': list(polang.values()), 'coords': config['coordinate_system'], 'pol_mod': params['pol_modulation'], 'mbang': list(mbang.values())}
+    channel_common_attributes = {'polang': {'legend': list(polang.keys())}, 'mbang': {'legned': list(mbang.keys())}} 
     return channel_common, channel_common_attributes
 
 uc = Unit_Converter()

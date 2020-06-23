@@ -33,7 +33,7 @@ class GenIO(Genesys_Class):
             - det : (DSET) List of detector names in np.string_ format
             - polang : (DSET) List of relative orientation of polarisation axis.
                 - legend : (ATTR) List of detectors
-            - mbangs : (DSET) List of relative orientation of main beam
+            - mbang : (DSET) List of relative orientation of main beam
                 - legend : (ATTR) List of detectors
             - coords : (DSET) Coordinate system
         - segment : (GROUP) The TODs from the different detector are here
@@ -87,7 +87,7 @@ class GenIO(Genesys_Class):
         """
         See segment naming convention in the class docstring
         """
-        fill_size = 7
+        fill_size = 6
         return str(segment).zfill(fill_size)
 
     def get_tod_file_path(self, channel_name, data_block):
@@ -152,9 +152,9 @@ class GenIO(Genesys_Class):
             self.f_tod.create_dataset(prefix + item, data=tod[item])
 
     def write_tod_scalars(self, segment, detector_name, scalars):
-        prefix = os.path.join(self.get_segment_name(segment), detector_name, 'scalars', '')
-        for item in scalars.keys():
-            self.f_tod.create_dataset(prefix +item, data=scalars[item])
+        prefix = os.path.join(self.get_segment_name(segment), detector_name, '')
+        self.f_tod.create_dataset(prefix + 'scalars', data=np.array(list(scalars.values())))
+        self.f_tod[prefix + 'scalars'].attrs['legend'] = ','.join(list(scalars.keys()))
 
     def read_channel_common(self, data_fields):
         prefix = '/common/'
@@ -183,9 +183,11 @@ class GenIO(Genesys_Class):
         tod = {item: self.f_tod[prefix + item][:] for item in tod_fields}
         return tod
 
-    def read_tod_scalars(self, segment, detector_name, scalar_fields):
-        prefix = os.path.join(self.get_segment_name(segment), detector_name, 'scalars', '')
-        scalars = {item: self.f_tod[prefix + item][()] for item in scalar_fields}
+    def read_tod_scalars(self, segment, detector_name):
+        prefix = os.path.join(self.get_segment_name(segment), detector_name, '')
+        keys = self.f_tod[prefix + 'scalars'].attrs['legend']
+        values = np.array(self.f_tod[prefix + 'scalars'])
+        scalars = dict(zip(keys, values))
         return scalars
 
     def write_map(self, sky_map, map_name, channel_name):
