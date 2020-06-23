@@ -6,6 +6,7 @@ __pycache__
 *.fits
 *.npy
 *.png
+!support_images/*.png
 output
 data
 map_files
@@ -19,3 +20,4 @@ __pycache__
 instruments/litebird_v28_20190715
 spectra/camb_params/*.ini
 noise/fourier_analysis.py
+*/.ipynb_checkpoints

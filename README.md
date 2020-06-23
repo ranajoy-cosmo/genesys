@@ -25,8 +25,6 @@
 * mpi4py
 * ruamel.yaml
 
-## Pipeline and data-flow
-
 ## Module description
 * **tod**: The module for simulating the time-ordered instrument data.
 * **map_maker**: Binning the TOD and relevant matrix manipulation routines.
@@ -79,7 +77,3 @@ mpirun -n <NUM_PROC> python sim_tod.py <CONFIG_FILE> mpi -v <VERBOSITY>
 ```
 
 where, `CONFIG_FILE` is relative to the present directory, `VERBOSITY` is between 0 & 2, and `NUM_PROC` is the number of MPI processes.
-
-## Data Model
-
-$e^{i\pi}=-1$
