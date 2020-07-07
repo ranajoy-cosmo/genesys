@@ -4,13 +4,15 @@
 </p>
 
 ## Features
-* Generate **realistic pointing TODs** for a CMB space telescope having a rotation about, a precession, and revolution about the Sun.
+* Generate **realistic pointing TODs** for a CMB space telescope having 3 degrees of freedom: a rotation about its body axis, a precession about the anti-solar axis, and revolution about the Sun.
 * Generate **realistic signal TODs** containing Sky + Noise + Orbital dipole + Systematics.
-* Instrument parameters containing scan strategy, channel parameters and individual detector parameters in easy to modify yaml files.
+  * Sky may contain any realistic combination of CMB and foregrounds
+  * Noise can be white or 1/f
+* Instrument files defining scan strategy, channel parameters and individual detector parameters, as yaml files.
 * A **binning map-making algorithm** for estimation of I,Q,U Stokes parameters.
 * A self-consistent and efficient I/O library built on **HDF5**.
 * A Huffman compression system providing files in the Planck LFI format. 
-* Highly parallelisable.
+* Highly parallelisable with MPI.
 
 ## Powered by
 * numpy
@@ -25,17 +27,19 @@
 * mpi4py
 * ruamel.yaml
 
-## Module description
+## Main modules
 * **tod**: The module for simulating the time-ordered instrument data.
-* **map_maker**: Binning the TOD and relevant matrix manipulation routines.
 * **pointing**: Generation of realistic instrument pointing and simple rotating HWP simulation.
+* **map_maker**: Binning the TOD and relevant matrix manipulation routines.
+
+## Helper modules
 * **gen_io**: Data I/O, Huffman compression, and data distribution.
 * **instruments**: Parameter loading and manipulation methods for the instrument, channels and detector. Contains the configuraton for the instruments in respective sub-folders.
 * **maps**: Loading, generation and manipulation of Healpix sky maps.
-* **noise**: Generation of TOD noise and spectral analysis methods.
+* **noise**: Generation of TOD noise.
 * **numerical**: Useful numerical modules including unit conversion, an alternate quaternion library, spectral analysis library.
 * **physics**: Electromagnetic radiation physics methods and conversion between observational units.
-* **plotting**: Set of plotting methods.
+* **plotting**: Set of plotting tools for maps and power spectra.
 * **spectra**: Power spectum generation and manipulation methods.
 
 ## General setup
