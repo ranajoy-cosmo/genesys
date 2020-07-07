@@ -30,11 +30,13 @@ def run_simulation():
     """
     The actual simulation is performed here.
     By convention, observation starts at segment #1. 
-    Only segments are distributed among mpi processes.
+    Only the data blocks are distributed among mpi processes.
     Each process therefore loops over all channels and detectors
+    Segments are further temporal sub-divisions on the data block
     The order of the loops are:
-        segment -> channel -> detector
+        data_block -> channel -> segment -> detector
     """
+    # The pointing_obj is common throughout the entire lifetime of the run
     pointing_obj = Pointing(instrument.params['scan_strategy'])
     input_maps_dict = load_maps()
     tod = {}
@@ -43,39 +45,47 @@ def run_simulation():
     det_count = 0
     proc_time_start = time.time()
     num_tot_det = sd.count_detectors(config['channel_detector_dict'])
-
+    
+    # Starting the loop over the blocks
     for data_block in sd.data_block_list_local:
         block_count += 1
         prompt(f"Rank {rank:^6} starting data block {data_block}. ({block_count}/{sd.num_data_blocks_local})", nature='info')
         segment_list = sd.get_segment_list(data_block, config['num_segments_per_data_block'])
+        # The satellite velocity is set to [0,0,0] is no orbital dipole is to be simulated
         if config['add_orbital_dipole']:
             t_start_block = get_t_start(segment_list[0], config['segment_length'])
             sat_vel_dict = get_satellite_velocity(t_start_block, config['segment_length'], segment_list)
         else:
             sat_vel_dict = dict.fromkeys(segment_list, np.array([0.0,0.0,0.0]))
+        # Starting loop over channels
         for channel_name in config['channel_detector_dict'].keys():
             if in_args.verbosity == 2:
                 chan_time_start = time.time()
                 det_count += len(config['channel_detector_dict'][channel_name])
             prompt(f"Rank {rank:^6} \tobserving with channel {channel_name}", nature='info')
             channel = instrument.get_channel(channel_name)
-            io_obj.open_tod_file(channel_name, data_block, 'w')
-            channel_common, channel_common_attributes = get_channel_common(channel.params, channel_name)
+            io_obj.open_tod_file(channel_name, data_block, 'w')             # The I/O object for the output file
+            channel_common, channel_common_attributes = get_channel_common(channel.params, channel_name)        # Channel metadata
             io_obj.write_channel_common(channel_common, channel_common_attributes)
+            # Starting loop over segments
             for segment in segment_list: 
                 t_start = get_t_start(segment, config['segment_length'])
-                segment_common = {'time': t_start, 'vsun': sat_vel_dict[segment]}
+                segment_common = {'time': t_start, 'vsun': sat_vel_dict[segment]}           # Segment metadata
                 segment_common_attributes = {'vsun': {'info': '[x,y,z]', 'coords': config['coordinate_system']}, 'time': {'type': 'second'}}
+                # psi_hwp is set to 0 if scanning is passive.
                 if channel.params['pol_modulation'] != "passive":
                     tod['psi_hwp'] = pointing_obj.get_hwp_phase(t_start=t_start, fsamp=channel.params['sampling_rate'], seg_len=config['segment_length'], hwp_spin_rate=channel.params['HWP']['spin_rate'])
                     segment_common['psi_hwp'] = tod['psi_hwp'][0]
                 else:
                     segment_common['psi_hwp'] = 0.0 
+                # Initialising the rotation quaternions for this segment. Common to all drtectors
                 pointing_obj.generate_obv_quaternion(t_start=t_start, fsamp=channel.params['sampling_rate'], seg_len=config['segment_length'], coords=config['coordinate_system'])
                 io_obj.write_segment_common(segment, segment_common, segment_common_attributes)
                 for detector_name in config['channel_detector_dict'][channel_name]:
                     detector = channel.get_detector(detector_name)
+                    # The TOD is now compiled together by the detector object
                     detector.observe_sky(pointing_obj, input_maps_dict[channel_name], tod, config['segment_length'], sat_vel_dict[segment], config['noise_type'], config['tod_write_field'])
+                    # Detector metadata
                     scalars = {'gain': 1.0, 'sigma0': detector.params['noise']['white_noise_rms'], 'fknee': detector.params['noise']['f_knee'], 'alpha': detector.params['noise']['noise_alpha']}
                     io_obj.write_tod(segment, detector_name, tod, config['tod_write_field'])
                     io_obj.write_tod_scalars(segment, detector_name, scalars)
@@ -92,6 +102,9 @@ def run_simulation():
 #*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*
 
 def get_t_start(segment, segment_length):
+    """
+    The start time for each segment
+    """
     t_start = (segment - 1) * segment_length
     return t_start
 
@@ -107,6 +120,10 @@ def load_maps():
     return input_maps_dict
 
 def get_satellite_velocity(t_start_block, segment_length, segment_list):
+    """
+    The satellite velocity is retrieved.
+    1 value of velocity per data segment
+    """
     time, xvel, yvel, zvel = instrument.get_satellite_velocity()
     vel_dict = {}
     if config['coordinate_system'] == "galactic":
